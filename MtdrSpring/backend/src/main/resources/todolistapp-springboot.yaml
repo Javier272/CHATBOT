@@ -51,7 +51,7 @@ spec:
             - name: db_user
               value: "JAVIER"
             - name: db_url
-              value: "jdbc:oracle:thin:reacttodo8gr7x_tp?TNS_ADMIN=/mtdrworkshop/creds"
+              value: "jdbc:oracle:thin:@reacttodo8gr7x_tp?TNS_ADMIN=/mtdrworkshop/creds"
             - name: todo.table.name
               value: "TASKS"
             - name: driver_class_name
