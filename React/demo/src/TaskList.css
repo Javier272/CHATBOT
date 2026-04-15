@@ -1,0 +1,109 @@
+.task-list {
+  width: 100%;
+  max-width: 700px;
+  margin-inline: auto;
+}
+
+/* encabezado */
+.task-header {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  font-weight: bold;
+  padding: 10px;
+  border-bottom: 2px solid rgba(255,255,255,0.2);
+}
+
+/* filas */
+.task-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 10px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* prioridades */
+.priority.high {
+  color: #ff4d4d;
+}
+
+.priority.medium {
+  color: #ffaa33;
+}
+
+.priority.low {
+  color: #4caf50;
+}
+
+/* botones */
+.btn-complete {
+  background: #19d400cc;
+  border: none;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-complete:hover {
+  background-color: #5eff36;
+  transform: translateX(6px);
+}
+
+.btn-complete:active {
+  background-color: #046b0d;
+}
+
+.btn-delete {
+  background: #b90000;
+  border: none;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+}
+
+.btn-delete:active {
+  background-color: #ff0000;
+}
+
+.btn-delete:hover {
+  background: #880000;
+}
+
+.btn-details {
+  background: #777777;
+  border: none;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-details:active {
+  background-color: #b9b9b9;
+}
+
+.btn-details:hover {
+  background: #313131;
+}
+
+.task-details  {
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.05);
+  border-left: 3px solid #ffae00;
+  margin-bottom: 10px;
+  display: block;
+  width: 100%;
+}
+
+.task-details p {
+  display: block;
+  width: 100%;
+  color: white; /* por si es color */
+}
