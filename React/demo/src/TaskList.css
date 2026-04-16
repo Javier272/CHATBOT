@@ -4,38 +4,48 @@
   margin-inline: auto;
 }
 
-/* encabezado */
-.task-header {
+/* Configuración del grid para alinear las 6 columnas */
+.task-header, .task-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  font-weight: bold;
+  grid-template-columns: repeat(6, 1fr); 
+  align-items: center;
   padding: 10px;
+}
+
+/* Estilos del encabezado */
+.task-header {
+  font-weight: bold;
   border-bottom: 2px solid rgba(255,255,255,0.2);
 }
 
-/* filas */
+/* Estilos de cada fila */
 .task-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  padding: 10px;
-  align-items: center;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* prioridades */
-.priority.high {
-  color: #ff4d4d;
+/* Prioridades con colores específicos */
+.priority.high { color: #ff4d4d; }
+.priority.medium { color: #ffaa33; }
+.priority.low { color: #4caf50; }
+
+/* Botón Started - Azul para diferenciar del completado */
+.btn-started {
+  background: #3498dbcc;
+  border: none;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.priority.medium {
-  color: #ffaa33;
+.btn-started.active {
+  background: #2980b9;
+  font-weight: bold;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
 }
 
-.priority.low {
-  color: #4caf50;
-}
-
-/* botones */
+/* Botón Complete */
 .btn-complete {
   background: #19d400cc;
   border: none;
@@ -43,7 +53,6 @@
   padding: 5px;
   border-radius: 5px;
   cursor: pointer;
-
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -52,58 +61,11 @@
   transform: translateX(6px);
 }
 
-.btn-complete:active {
-  background-color: #046b0d;
-}
-
-.btn-delete {
-  background: #b90000;
-  border: none;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-
-}
-
-.btn-delete:active {
-  background-color: #ff0000;
-}
-
-.btn-delete:hover {
-  background: #880000;
-}
-
-.btn-details {
-  background: #777777;
-  border: none;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-details:active {
-  background-color: #b9b9b9;
-}
-
-.btn-details:hover {
-  background: #313131;
-}
-
-.task-details  {
+/* Panel de detalles expandido */
+.task-details {
   padding: 10px 20px;
   background: rgba(255,255,255,0.05);
   border-left: 3px solid #ffae00;
   margin-bottom: 10px;
   display: block;
-  width: 100%;
-}
-
-.task-details p {
-  display: block;
-  width: 100%;
-  color: white; /* por si es color */
 }

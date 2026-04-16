@@ -5,7 +5,7 @@ function Sidebar({ setVista }) {
   const [modo, setModo] = useState("individual");
 
   return (
-    <section id="lateral">
+    <div>
 
       <nav className="menu-lateral">
 
@@ -27,19 +27,18 @@ function Sidebar({ setVista }) {
         <div className="tasks-buttons">
           {modo === "individual" && (
             <>
-              <button className="btn-Tasks add">
-                Add Task +
-              </button>
+             
               <h2></h2>
+
+            <button className="btn-Tasks pending" onClick={() => setVista("Mypending")}>
+              My Pending Tasks
+            </button>
+
+            <h2></h2>
 
             <button className="btn-Tasks completed" onClick={() => setVista("Mycompleted")}
             >
               My Analytics
-            </button>
-        <h2></h2>
-
-            <button className="btn-Tasks pending" onClick={() => setVista("pending")}>
-              My Pending Tasks
             </button>
             </>
           )}
@@ -47,7 +46,7 @@ function Sidebar({ setVista }) {
           {modo === "team" && (
             <>
 
-              <button className="btn-Tasks add">
+              <button className="btn-Tasks add" onClick={() => setVista("add")}>
                 Add Task +
               </button>
               <h2></h2>
@@ -67,7 +66,7 @@ function Sidebar({ setVista }) {
           )}
         </div>
       </nav>
-    </section>
+    </div>
   );
 }
 

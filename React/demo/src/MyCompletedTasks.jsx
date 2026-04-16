@@ -1,36 +1,53 @@
 import { useState, useEffect } from "react";
+import { getTasks } from "./tasksStore";
+import "./MyCompletedTasks.css";
 
-function MyComTasks() {
+function MyComTasks({ tasks }) {
+  
+  // Mantenemos el estado de progreso por si decides reactivar la animación después
+  const [progress, setProgress] = useState({ completed: 0, started: 0 });
 
-  const [data, setData] = useState([]);
+  const total = tasks.length;
 
+  
+  // 1. Tareas marcadas como completadas (Tienen prioridad máxima)
+  const completed = tasks.filter(t => t.completed).length;
+
+  // 2. Tareas iniciadas PERO que aún no están completadas 
+  // (Si t.completed es true, esta condición la ignora para no duplicar en la gráfica)
+  const started = tasks.filter(t => t.started && !t.completed).length;
+
+  // 3. Tareas que no están ni iniciadas ni completadas
+  const pending = total - completed - started;
+
+  // Cálculo de porcentajes para pasar al CSS
+  const completedPercent = total > 0 ? (completed / total) * 100 : 0;
+  const startedPercent = total > 0 ? (started / total) * 100 : 0;
+
+  // useEffect para animación (opcional, ahora usamos los valores directos para asegurar precisión)
   useEffect(() => {
-    const fakeData = [
-      { label: "Lunes", value: 4 },
-      { label: "Martes", value: 7 },
-      { label: "Miércoles", value: 3 },
-      { label: "Jueves", value: 6 },
-      { label: "Viernes", value: 5 }
-    ];
+    if (total === 0) return;
+    setProgress({ completed: completedPercent, started: startedPercent });
+  }, [completedPercent, startedPercent, total]);
 
-    setData(fakeData);
-  }, []);
+  if (total === 0) return <p>No hay datos aún</p>;
 
   return (
     <section id="cont">
-      <h2> My Completed Tasks</h2>
-      <h2></h2>
+      <h2>Tasks Overview</h2>
 
-      <div className="chart">
-        {data.map((item, index) => (
-          <div key={index} className="bar-container">
-            <div 
-              className="bar" 
-              style={{ height: `${item.value * 20}px` }}
-            ></div>
-            <span>{item.label}</span>
-          </div>
-        ))}
+      <div 
+        className="pie-chart" 
+        style={{ 
+          "--comp-p": `${completedPercent}%`,
+          "--start-p": `${completedPercent + startedPercent}%` 
+        }}
+      ></div>
+
+      <div className="legend">
+        <p><span className="dot-completed"></span> Completed: {completed}</p>
+        <p><span className="dot-started"></span> Started: {started}</p>
+        <p><span className="dot-pending"></span> Pending: {pending}</p>
       </div>
     </section>
   );
