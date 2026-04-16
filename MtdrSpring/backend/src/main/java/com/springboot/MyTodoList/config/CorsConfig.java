@@ -24,15 +24,25 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter(){
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173","https://objectstorage.us-phoenix-1.oraclecloud.com",
-                "https://petstore.swagger.io", "*"));
+        
+        // Usamos OriginPatterns que es la forma moderna y segura de mezclar URLs específicas con "*"
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000", 
+                "http://localhost:5173",
+                "https://objectstorage.us-phoenix-1.oraclecloud.com",
+                "https://petstore.swagger.io", 
+                "*"
+        ));
+        
         config.setAllowedMethods(List.of("GET","POST","PUT","OPTIONS","DELETE","PATCH"));
+        
+        // (Borramos la línea que sobrescribía los orígenes)
+        
         config.addAllowedHeader("*");
         config.addExposedHeader("location");
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        CorsFilter filter = new CorsFilter(source);
-        return filter;
+        return new CorsFilter(source);
     }
-
 }
