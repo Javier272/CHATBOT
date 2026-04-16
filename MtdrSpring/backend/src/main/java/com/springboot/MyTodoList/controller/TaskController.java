@@ -60,6 +60,8 @@ public class TaskController {
         return ResponseEntity.ok().headers(responseHeaders).build();
     }
 
+    
+
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@RequestBody Task task, @PathVariable Long id) {
         //actualiza una tarea existente, regresa 404 si esta marcada como eliminada
