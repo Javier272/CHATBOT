@@ -27,7 +27,6 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173","https://objectstorage.us-phoenix-1.oraclecloud.com",
                 "https://petstore.swagger.io", "*"));
         config.setAllowedMethods(List.of("GET","POST","PUT","OPTIONS","DELETE","PATCH"));
-        config.setAllowedOrigins(Collections.singletonList("*"));
         config.addAllowedHeader("*");
         config.addExposedHeader("location");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
