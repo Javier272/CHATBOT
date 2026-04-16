@@ -56,7 +56,7 @@ function Sidebar({ setVista }) {
               </button>
               <h2></h2>
 
-              <button className="btn-Tasks completed">
+              <button className="btn-Tasks completed" onClick={() => setVista("TeamAnalytics")}>
                Tasks Analysis
               </button>
 

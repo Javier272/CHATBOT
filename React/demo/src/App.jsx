@@ -1,72 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import MyComTasks from "./MyCompletedTasks";
 import TaskList from "./TaskList";
 import Login from "./Login";
-import AddTask from "./AddTask"; // Importación del formulario
-import {
-  getTasks,
-  setTasks as saveTasks,
-  getCurrentUser,
-  getUsers,      
-  setCurrentUser, 
-  addUser  
-} from "./tasksStore";
+import AddTask from "./AddTask";
+import TotalCompletedTasks from "./TotalCompletedTasks";
+import { getTasks } from "./taskService";
+
 import logo from "./assets/logo.png";
 import "./App.css";
 import "./TaskList.css";
 import "./MyCompletedTasks.css";
 
 function App() {
-  // Controla qué vista se muestra en pantalla
-  const [vista, setVista] = useState("Mypending"); 
-
-  // Estado principal con todas las tareas del sistema
-  const [tasks, setTasks] = useState(getTasks());
-
-  // Estado para controlar si el login está abierto
+  const [vista, setVista] = useState("Mypending");
+  const [tasks, setTasks] = useState([]);
   const [showLogin, setShowLogin] = useState(false);
+  const [user, setUser] = useState(null);
 
-  // Usuario actual
-  const [user, setUser] = useState(getCurrentUser());
+  // cargar tareas del backend
+  useEffect(() => {
+    loadTasks();
+  }, []);
 
-  // Filtro dinámico según el usuario logueado
-  const tareasFiltradas = tasks.filter(
-    (task) => task.responsableId === user.id
-  );
+  const loadTasks = async () => {
+    try {
+      const data = await getTasks();
+      console.log("DATA BACKEND:", data); 
+      setTasks(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  // Maneja el acceso de un usuario existente
+  // login simple (sin store)
   const handleLogin = (selectedUser) => {
-    setCurrentUser(selectedUser);
     setUser(selectedUser);
     setShowLogin(false);
   };
 
-  // Maneja la creación de un usuario nuevo
   const handleRegister = (name) => {
-    const newUser = addUser(name);
-    handleLogin(newUser);
+    const newUser = { id: Date.now(), name };
+    setUser(newUser);
   };
 
-  // Actualiza React y el store local
-  const updateTasks = (updatedTasks) => {
-    setTasks(updatedTasks);
-    saveTasks(updatedTasks);
-  };
+  // filtrar por userId (formato backend)
+  const tareasFiltradas = user
+  ? tasks.filter(task => 
+      String(task.userId || task.user_id) === String(user.id)
+    )
+  : [];
 
-  // Lógica para guardar la nueva tarea y cerrar el formulario
+  // agregar tarea (simple)
   const addNewTask = (newTask) => {
-    const updatedTasks = [...tasks, newTask];
-    updateTasks(updatedTasks); 
-    setVista("Mypending"); // Regresa a la lista automáticamente
+    setTasks(prev => [...prev, newTask]);
+    setVista("Mypending");
   };
 
   return (
     <>
       {/* HEADER */}
       <header className="header">
-        <img></img>
-
         <button className="btn-login" onClick={() => setShowLogin(true)}>
           {user ? `User: ${user.name}` : "Login"}
         </button>
@@ -77,43 +71,47 @@ function App() {
         </div>
       </header>
 
-      {/* MODAL DE LOGIN */}
+      {/* LOGIN */}
       {showLogin && (
         <Login 
-          users={getUsers()} 
           onLogin={handleLogin} 
           onRegister={handleRegister}
           onClose={() => setShowLogin(false)}
         />
       )}
 
-      {/* LAYOUT PRINCIPAL */}
+      {/* LAYOUT */}
       <div className="layout">
         <section id="lateral">
           <Sidebar setVista={setVista} />
         </section>
 
         <section id="center">
-          {/* VISTA AGREGAR: Si el modo es "add", solo se muestra el formulario */}
+          
+          {/* ADD */}
           {vista === "add" && (
             <AddTask 
-              onAddTask={addNewTask} 
-              onCancel={() => setVista("Mypending")} 
+              user={user}
+              reloadTasks={loadTasks}
+              onCancel={() => setVista("Mypending")}
             />
           )}
 
-          {/* VISTAS DE DATOS: Solo se muestran si no estamos añadiendo una tarea */}
+          {/* RESTO */}
           {vista !== "add" && (
             <>
               {(vista === "MyAnalytics" || vista === "Mycompleted") && (
                 <MyComTasks tasks={tareasFiltradas} />
               )}
 
+              {vista === "TeamAnalytics" && (
+                <TotalCompletedTasks tasks={tasks} /> 
+              )}
+
               {(vista === "Mypending" || vista === "Individual") && (
                 <TaskList
                   tasks={tareasFiltradas}
-                  allTasks={tasks}
-                  setTasks={updateTasks}
+                  setTasks={setTasks}
                 />
               )}
             </>

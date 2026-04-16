@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getTasks } from "./tasksStore";
+import { getTasks } from "./taskService";
 import "./MyCompletedTasks.css";
 
 function MyComTasks({ tasks }) {

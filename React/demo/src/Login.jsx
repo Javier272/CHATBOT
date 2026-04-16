@@ -1,21 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getUsers } from "./taskService";
 import "./Login.css";
 
-function Login({ onLogin, users, onRegister, onClose }) {
-  const [name, setName] = useState("");
+function Login({ onLogin, onClose }) {
+  const [userId, setUserId] = useState("");
+  const [users, setUsers] = useState([]);
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      const data = await getUsers();
+      setUsers(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
 
-    // Buscamos si el nombre ya está en nuestra "base de datos" local
-    const userExists = users.find(u => u.name.toLowerCase() === name.toLowerCase());
+    const user = users.find(u => String(u.id) === String(userId));
 
-    if (userExists) {
-      onLogin(userExists);
+    if (user) {
+      onLogin(user);
     } else {
-      // Si no existe, disparamos la opción de registro
       setError(true);
     }
   };
@@ -24,31 +36,43 @@ function Login({ onLogin, users, onRegister, onClose }) {
     <div className="login-overlay">
       <div className="login-card">
         <button className="close-x" onClick={onClose}>×</button>
-        <h2>Acceso de Usuario</h2>
-        
+
+        <h2>Select User</h2>
+
+        {/* 🔥 Lista real de usuarios */}
+        <div className="user-list">
+          {users.map(u => (
+            <button
+              key={u.id}
+              className="btn-user"
+              onClick={() => onLogin(u)}
+            >
+              {u.name} (ID: {u.id})
+            </button>
+          ))}
+        </div>
+
+        {/* 🔥 Login por ID */}
         <form onSubmit={handleSubmit}>
-          <input 
-            type="text" 
-            placeholder="Tu nombre aquí..." 
-            value={name}
+          <input
+            type="number"
+            placeholder="Enter your user ID..."
+            value={userId}
             onChange={(e) => {
-              setName(e.target.value);
+              setUserId(e.target.value);
               setError(false);
             }}
           />
-          <button type="submit" className="btn-main">Entrar</button>
+
+          <button type="submit" className="btn-main">
+            Enter
+          </button>
         </form>
 
         {error && (
-          <div className="new-user-zone">
-            <p>No te encontré. ¿Quieres registrarte?</p>
-            <button 
-              className="btn-create" 
-              onClick={() => onRegister(name)}
-            >
-              Crear cuenta y entrar
-            </button>
-          </div>
+          <p style={{ color: "red" }}>
+            User not found
+          </p>
         )}
       </div>
     </div>
