@@ -9,7 +9,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 
-import java.util.Collections;
 import java.util.List;
 /*
     This class configures CORS, and specifies which methods are allowed

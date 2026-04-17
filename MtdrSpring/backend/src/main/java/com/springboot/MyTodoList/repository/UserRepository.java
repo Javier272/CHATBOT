@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional;
 @Repository
 @Transactional
 @EnableTransactionManagement
-public interface UserRepository extends JpaRepository<User,Integer> {
+public interface UserRepository extends JpaRepository<User,Long> {
 
 
 }

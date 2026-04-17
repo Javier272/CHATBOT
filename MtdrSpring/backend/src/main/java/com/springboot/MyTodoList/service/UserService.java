@@ -22,7 +22,7 @@ public class UserService {
     }
 
     public ResponseEntity<User> getUserById(int id){
-        Optional<User> userById = userRepository.findById(id);
+        Optional<User> userById = userRepository.findById((long)id);
         if (userById.isPresent()){
             return new ResponseEntity<>(userById.get(), HttpStatus.OK);
         }else{
@@ -36,26 +36,29 @@ public class UserService {
     }
 
     public User test(){
-        User newUser = new User(88,"someNumber","pwd");
+        User newUser = new User();
+        newUser.setId(88L);
+        newUser.setName("someNumber");
+        newUser.setPassword("pwd");
 
         return userRepository.save(newUser);
     }
 
     public boolean deleteUser(int id){
         try{
-            userRepository.deleteById(id);
+            userRepository.deleteById((long)id);
             return true;
         }catch(Exception e){
             return false;
         }
     }
     public User updateUser(int id, User user2update){
-        Optional<User> dbUser = userRepository.findById(id);
+        Optional<User> dbUser = userRepository.findById((long)id);
         if(dbUser.isPresent()){
             User user = dbUser.get();
-            user.setID(id);
-            user.setPhoneNumber(user2update.getPhoneNumber());
-            user.setUserPassword(user2update.getUserPassword());
+            user.setId((long)id);
+            user.setName(user2update.getName());
+            user.setPassword(user2update.getPassword());
             return userRepository.save(user);
         }else{
             return null;
