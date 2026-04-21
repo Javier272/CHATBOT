@@ -33,7 +33,10 @@ public class TaskController {
             String status, 
             Integer priority,
             java.time.LocalDate dueDate,
-            String userName 
+            Integer hoursEstimate,
+            Integer realHours,
+            Integer sprint,
+            String userName
     ) {}
 
     private TaskResponse convertToDTO(Task task) {
@@ -52,6 +55,9 @@ public class TaskController {
                 task.getStatus(),
                 task.getPriority(),
                 task.getDueDate(),
+                task.getHoursEstimate(),
+                task.getRealHours(),
+                task.getSprint(),
                 userName
         );
     }

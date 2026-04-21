@@ -44,6 +44,15 @@ public class Task {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "hour_estimate")
+    private Integer hoursEstimate;
+
+    @Column(name = "real_hours")
+    private Integer realHours;
+
+    @Column(name = "sprint")
+    private Integer sprint;
+
     // Constructor vacío requerido por Spring/JPA
     public Task() {
     }
@@ -85,4 +94,13 @@ public class Task {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Integer getHoursEstimate() { return hoursEstimate; }
+    public void setHoursEstimate(Integer hoursEstimate) { this.hoursEstimate = hoursEstimate; }
+
+    public Integer getRealHours() { return realHours; }
+    public void setRealHours(Integer realHours) { this.realHours = realHours; }
+
+    public Integer getSprint() { return sprint; }
+    public void setSprint(Integer sprint) { this.sprint = sprint; }
 }
