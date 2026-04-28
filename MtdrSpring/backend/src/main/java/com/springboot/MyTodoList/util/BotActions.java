@@ -238,7 +238,7 @@ public class BotActions {
         String prompt = "Dame los datos del clima en mty";
         String out = "<empty>";
         try{
-            console.log("Prompt: " + prompt);
+            out = aiService.analyzeData("efjvn", prompt);
         }catch(Exception exc){
             logger.error(exc.getLocalizedMessage());
         }
