@@ -1,7 +1,6 @@
 package com.springboot.MyTodoList.util;
 
 import com.springboot.MyTodoList.model.Task;
-import com.springboot.MyTodoList.service.DeepSeekService;
 import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
 import java.util.ArrayList;
