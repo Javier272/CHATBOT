@@ -1,7 +1,7 @@
 package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.config.BotProps;
-import com.springboot.MyTodoList.service.DeepSeekService;
+import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
 import com.springboot.MyTodoList.util.BotActions;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskBotController.class);
 	private TaskService taskService;
-	private DeepSeekService deepSeekService;
+	private AiService aiService;
 	private final TelegramClient telegramClient;
 	
 	private final BotProps botProps;
@@ -39,11 +39,11 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
 		}
     }
 
-	public TaskBotController(BotProps bp, TaskService tsvc, DeepSeekService ds) {
+	public TaskBotController(BotProps bp, TaskService tsvc, AiService aisvc) {
 		this.botProps = bp;
 		telegramClient = new OkHttpTelegramClient(getBotToken());
 		this.taskService = tsvc;
-		this.deepSeekService = ds;
+		this.aiService = aisvc;
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
 		long chatId = update.getMessage().getChatId();
 
         // AQUÍ ES DONDE SURGIRÁ EL PRÓXIMO ERROR DE COMPILACIÓN
-		BotActions actions = new BotActions(telegramClient, taskService, deepSeekService);
+		BotActions actions = new BotActions(telegramClient, taskService, aiService);
 		actions.setRequestText(messageTextFromTelegram);
 		actions.setChatId(chatId);
         
