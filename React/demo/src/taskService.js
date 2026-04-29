@@ -1,15 +1,15 @@
-const BASE_URL = "http://160.34.219.37";
+const BASE_URL = "http://163.192.157.223";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
 
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }) // evita mandar "Bearer null"
+    ...(token && { Authorization: `Bearer ${token}` })
   };
 };
 
-//  Helper para manejar respuestas
+// 🧠 Helper de respuestas
 const handleResponse = async (res) => {
   const text = await res.text();
 
@@ -28,15 +28,17 @@ const handleResponse = async (res) => {
   return data;
 };
 
-// Obtener tareas
+//
+// 📌 TASKS
+//
 export const getTasks = async () => {
   const res = await fetch(`${BASE_URL}/tasks`, {
     headers: getAuthHeaders()
   });
+
   return handleResponse(res);
 };
 
-// Crear tarea
 export const createTask = async (task) => {
   const res = await fetch(`${BASE_URL}/tasks`, {
     method: "POST",
@@ -47,7 +49,6 @@ export const createTask = async (task) => {
   return handleResponse(res);
 };
 
-// Actualizar tarea
 export const updateTask = async (task) => {
   const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
     method: "PUT",
@@ -58,7 +59,6 @@ export const updateTask = async (task) => {
   return handleResponse(res);
 };
 
-// Eliminar tarea
 export const deleteTask = async (id) => {
   const res = await fetch(`${BASE_URL}/tasks/${id}`, {
     method: "DELETE",
@@ -68,13 +68,17 @@ export const deleteTask = async (id) => {
   return handleResponse(res);
 };
 
-// Obtener usuarios
+//
+// 👥 USERS
+//
 export const getUsers = async () => {
-  const res = await fetch(`${BASE_URL}/users`);
+  const res = await fetch(`${BASE_URL}/users`, {
+    headers: getAuthHeaders()
+  });
+
   return handleResponse(res);
 };
 
-// Crear usuario
 export const createUser = async (user) => {
   const res = await fetch(`${BASE_URL}/users`, {
     method: "POST",
@@ -87,22 +91,15 @@ export const createUser = async (user) => {
   return handleResponse(res);
 };
 
-// Obtener sprints
-export const getSprints = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/sprints`);
-    return await handleResponse(res);
-  } catch (error) {
-    console.error("❌ Error sprints:", error);
-    return [];
-  }
-};
+//
+// 🚫 SPRINTS ELIMINADO (ya no existe)
+//
 
-// LOGIN
+//
+// 🔐 LOGIN
+//
 export const loginUser = async ({ email, password }) => {
   try {
-    console.log("Enviando login:", { email, password });
-
     const res = await fetch(`${BASE_URL}/users/login`, {
       method: "POST",
       headers: {
@@ -120,7 +117,6 @@ export const loginUser = async ({ email, password }) => {
   } catch (error) {
     console.error("Error login:", error.message);
 
-    // Diferenciar error de conexión
     if (error.message === "Failed to fetch") {
       throw new Error("Connection error");
     }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createTask, getUsers, getSprints } from "../taskService";
+import { createTask, getUsers } from "../taskService";
 import "./AddTask.css";
 
 function AddTask({ onCancel, reloadTasks }) {
@@ -14,38 +14,29 @@ function AddTask({ onCancel, reloadTasks }) {
   const [estimatedHours, setEstimatedHours] = useState("");
   const [actualHours] = useState(0);
 
-  // 🚀 Sprint
-  const [sprint, setSprint] = useState("");
-  const [sprints, setSprints] = useState([]);
+  // 🏷️ Sprint (número)
+  const [sprint, setSprint] = useState("1");
 
   // 👥 Usuarios
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState(""); // 👈 Guardamos el ID
 
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Cargar usuarios y sprints
+  // 🔄 Cargar usuarios
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [usersData, sprintsData] = await Promise.all([
-          getUsers(),
-          getSprints()
-        ]);
-
+        const usersData = await getUsers();
         setUsers(usersData);
-        setSprints(sprintsData);
 
+        // Al cargar, pre-seleccionamos el ID del primer usuario si existe
         if (usersData.length > 0) {
-          setSelectedUser(usersData[0].id);
-        }
-
-        if (sprintsData.length > 0) {
-          setSprint(sprintsData[0].name || sprintsData[0]);
+          setSelectedUserId(usersData[0].id);
         }
 
       } catch (error) {
-        console.error("Error cargando datos:", error);
+        console.error("Error cargando usuarios:", error);
       } finally {
         setLoading(false);
       }
@@ -58,8 +49,9 @@ function AddTask({ onCancel, reloadTasks }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedUser) {
-      alert("Selecciona un usuario");
+    // Verificación de campos obligatorios
+    if (!selectedUserId || !sprint) {
+      alert("Completa los campos obligatorios");
       return;
     }
 
@@ -67,8 +59,10 @@ function AddTask({ onCancel, reloadTasks }) {
       priority === "High" ? 5 :
       priority === "Medium" ? 3 : 1;
 
+    // 🚀 OBJETO PARA LA BASE DE DATOS
     const newTask = {
-      userId: Number(selectedUser),
+      // ENVIAMOS EL ID COMO NÚMERO (CRÍTICO)
+      userId: Number(selectedUserId), 
       title,
       description: desc,
       status: "pending",
@@ -77,14 +71,28 @@ function AddTask({ onCancel, reloadTasks }) {
       category: null,
       teamId: null,
       isDeleted: 0,
-      estimatedHours: Number(estimatedHours) || 0,
-      actualHours: Number(actualHours) || 0,
-      sprint
+
+      // Nombre exacto según tu DB: hoursEstimate
+      hoursEstimate: Number(estimatedHours) || 0,
+      realHours: Number(actualHours) || 0,
+
+      // Sprint como número
+      sprint: Number(sprint)
     };
 
     try {
+      console.log("Enviando ID de usuario:", newTask.userId); 
+      
+      // 1. Guardamos en la base de datos
       await createTask(newTask);
-      await reloadTasks();
+      
+      // 2. IMPORTANTE: Forzamos la recarga de tareas en el componente padre
+      // Asegúrate de que en el componente padre, reloadTasks() vuelva a llamar a getTasks()
+      if (reloadTasks) {
+        await reloadTasks();
+      }
+      
+      // 3. Cerramos el formulario
       onCancel();
     } catch (err) {
       console.error("Error creando tarea:", err);
@@ -92,7 +100,7 @@ function AddTask({ onCancel, reloadTasks }) {
     }
   };
 
-  if (loading) return <p>Cargando...</p>;
+  if (loading) return <p>Cargando usuarios...</p>;
 
   return (
     <section className="add-task-container">
@@ -100,10 +108,11 @@ function AddTask({ onCancel, reloadTasks }) {
 
       <form onSubmit={handleSubmit} className="task-form">
 
+        {/* 📌 TASK INFO */}
         <div className="form-group">
           <h3>Task Info</h3>
 
-          <input 
+          <input
             type="text"
             placeholder="Task Title"
             value={title}
@@ -111,56 +120,53 @@ function AddTask({ onCancel, reloadTasks }) {
             required
           />
 
-          <textarea 
+          <textarea
             placeholder="Description"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
           />
 
-          <div className="row">
-            <input
-              type="number"
-              placeholder="Estimated Hours"
-              value={estimatedHours}
-              onChange={(e) => setEstimatedHours(e.target.value)}
-            />
-          </div>
+          <input
+            type="number"
+            placeholder="Estimated Hours"
+            value={estimatedHours}
+            onChange={(e) => setEstimatedHours(e.target.value)}
+          />
         </div>
 
+        {/* ⚙️ SETTINGS */}
         <div className="form-group">
           <h3>Settings</h3>
 
           <div className="row">
 
-            {/* 👤 Usuario */}
+            {/* 👤 Usuario (Select por ID) */}
             <div className="field-container">
               <label>Assign To</label>
               <select
-                value={selectedUser}
-                onChange={(e) => setSelectedUser(e.target.value)}
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
                 required
               >
+                <option value="">Select User...</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.name} (ID: {u.id})
+                    {u.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* 🚀 Sprint */}
+            {/* 🏷️ Sprint */}
             <div className="field-container">
               <label>Sprint</label>
-              <select
+              <input
+                type="number"
+                min="1"
                 value={sprint}
                 onChange={(e) => setSprint(e.target.value)}
-              >
-                {sprints.map((s, i) => (
-                  <option key={i} value={s.name || s}>
-                    {s.name || s}
-                  </option>
-                ))}
-              </select>
+                required
+              />
             </div>
 
             {/* 📅 Fecha */}
@@ -190,6 +196,7 @@ function AddTask({ onCancel, reloadTasks }) {
           </div>
         </div>
 
+        {/* 🔘 BOTONES */}
         <div className="form-buttons">
           <button type="submit" className="btn-save">
             Save Task

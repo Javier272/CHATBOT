@@ -6,12 +6,15 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
   // Estado para controlar qué tarea se está editando
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
-  // Estado del formulario de edición con horas estimadas
+  // Estado del formulario de edición
+  // NOTA: Usamos hoursEstimate para coincidir con tu base de datos
   const [editData, setEditData] = useState({
     title: "",
     description: "",
     dueDate: "",
-    estimatedHours: 0
+    hoursEstimate: 0, 
+    userId: "",
+    sprint: ""
   });
 
   // Fecha para limitar selección en el date picker
@@ -40,23 +43,35 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
     setEditData({
       title: task.title,
       description: task.description,
-      dueDate: task.dueDate,
-      estimatedHours: task.estimatedHours || 0
+      dueDate: task.dueDate || "",
+      hoursEstimate: task.hoursEstimate || 0,
+      userId: task.userId || "",
+      sprint: task.sprint || ""
     });
   };
 
   // Guardado de cambios tras editar la tarea
   const handleSaveEdit = async (task) => {
-    const updatedTask = { ...task, ...editData };
+    // 🛠️ MAPEADO DE DATOS: Forzamos tipos numéricos para Sprint y Horas
+    const taskToSave = { 
+      ...task, 
+      ...editData,
+      // Convertimos a número porque tu DB lo pide así
+      sprint: editData.sprint !== "" ? Number(editData.sprint) : null,
+      hoursEstimate: editData.hoursEstimate !== "" ? Number(editData.hoursEstimate) : null,
+      userId: editData.userId ? Number(editData.userId) : null
+    };
 
-    // Primero actualizamos la UI (aunque backend falle)
+    // Primero actualizamos la UI
     setTasks((prev) =>
-      prev.map((t) => (t.id === task.id ? updatedTask : t))
+      prev.map((t) => (t.id === task.id ? taskToSave : t))
     );
-    setSelectedTaskId(null); // Cerrar panel tras guardar
+    setSelectedTaskId(null);
 
     try {
-      await updateTask(updatedTask);
+      // 🚀 Envío a la base de datos (PUT)
+      await updateTask(taskToSave);
+      console.log("✅ Guardado exitoso en DB");
     } catch (err) {
       console.error("Error backend (pero UI actualizada):", err);
     }
@@ -83,37 +98,26 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
       {/* 👇 TABLA VACÍA PERO ESTRUCTURADA */}
       {!hasTasks ? (
         <div className="empty-table">
-
           <div className="pending-header">
             <span>Task</span> <span>Description</span> <span>Assigned</span>
             <span>Due Date</span> <span>Priority</span> <span>Est. Hours</span> <span>Actions</span>
           </div>
-
           <div className="pending-row empty-row">
-            <span>-</span>
-            <span>-</span>
-            <span>-</span>
-            <span>-</span>
-            <span>-</span>
-            <span>-</span>
-            <span>-</span>
+            <span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span><span>-</span>
           </div>
-
         </div>
       ) : (
         Object.entries(groupedTasks).map(([sprintName, sprintTasks]) => (
           <div key={sprintName} className="sprint-group">
             <h3 className="sprint-title">
-              {sprintName === "Sin Sprint" ? sprintName : `${sprintName}`}
+              {sprintName === "Sin Sprint" ? sprintName : `Sprint ${sprintName}`}
             </h3>
 
-            {/* Cabecera de la lista de tareas */}
             <div className="pending-header">
               <span>Task</span> <span>Description</span> <span>Assigned</span>
               <span>Due Date</span> <span>Priority</span> <span>Est. Hours</span> <span>Actions</span>
             </div>
 
-            {/* Mapeo de cada tarea en el sprint */}
             {sprintTasks.map((task) => (
               <div key={task.id}>
                 <div className="pending-row">
@@ -122,7 +126,7 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
                   <span>{getUserName(task.userId)}</span>
                   <span>{task.dueDate || "-"}</span>
                   <span>{task.priority || "N/A"}</span>
-                  <span>{task.estimatedHours || 0}h</span>
+                  <span>{task.hoursEstimate || 0}h</span>
 
                   <button className="btn-edit-table" onClick={() => handleEditClick(task)}>
                     Edit
@@ -135,38 +139,47 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
                     <div className="edit-form-inline">
                       <input
                         value={editData.title}
-                        onChange={(e) =>
-                          setEditData({ ...editData, title: e.target.value })
-                        }
+                        onChange={(e) => setEditData({ ...editData, title: e.target.value })}
                         placeholder="Title"
+                      />
+
+                      {/* Selector Persona */}
+                      <select
+                        value={editData.userId}
+                        onChange={(e) => setEditData({ ...editData, userId: e.target.value })}
+                      >
+                        <option value="">Assign Person...</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                      </select>
+
+                      {/* Input Sprint (ahora tipo número) */}
+                      <input
+                        type="number"
+                        value={editData.sprint}
+                        onChange={(e) => setEditData({ ...editData, sprint: e.target.value })}
+                        placeholder="Sprint #"
                       />
 
                       <input
                         type="date"
                         min={today}
                         value={editData.dueDate}
-                        onChange={(e) =>
-                          setEditData({ ...editData, dueDate: e.target.value })
-                        }
+                        onChange={(e) => setEditData({ ...editData, dueDate: e.target.value })}
                       />
 
                       <input
                         value={editData.description}
-                        onChange={(e) =>
-                          setEditData({ ...editData, description: e.target.value })
-                        }
+                        onChange={(e) => setEditData({ ...editData, description: e.target.value })}
                         placeholder="Description"
                       />
 
+                      {/* Horas Estimadas (hoursEstimate) */}
                       <input
                         type="number"
-                        value={editData.estimatedHours}
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            estimatedHours: Number(e.target.value)
-                          })
-                        }
+                        value={editData.hoursEstimate}
+                        onChange={(e) => setEditData({ ...editData, hoursEstimate: e.target.value })}
                         placeholder="Hours"
                       />
 

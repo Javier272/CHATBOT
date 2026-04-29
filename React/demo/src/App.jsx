@@ -125,6 +125,7 @@ function App() {
               reloadTasks={loadTasks} // backend sync directo
               onTaskCreated={addNewTask}
               onCancel={() => setVista("Mypending")}
+              
             />
           )}
 
