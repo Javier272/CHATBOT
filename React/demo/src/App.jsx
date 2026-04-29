@@ -141,6 +141,7 @@ function App() {
                 <TotalCompletedTasks
                   tasks={tasks}
                   users={users}
+                  currentUser={user}
                 />
               )}
 

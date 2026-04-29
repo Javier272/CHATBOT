@@ -140,3 +140,13 @@ export const getAiPriorities = async (userId) => {
   });
   return handleResponse(res);
 };
+
+// 📊 Obtener estadísticas y feedback del Agile Coach (IA)
+export const getAiStats = async (userId) => {
+  const res = await fetch(`${BASE_URL}/ai/stats/user/${userId}`, {
+    method: "GET",
+    headers: getAuthHeaders() // ¡Súper importante para que el cadenero te deje pasar!
+  });
+  
+  return handleResponse(res);
+};
