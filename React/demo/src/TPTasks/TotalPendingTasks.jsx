@@ -6,13 +6,13 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
   // Estado para controlar qué tarea se está editando
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
-  // Estado del formulario de edición
-  // NOTA: Usamos hoursEstimate para coincidir con tu base de datos
+  // Estado del formulario de edición con horas estimadas
+  // Se añadieron userId y sprint para permitir su edición
   const [editData, setEditData] = useState({
     title: "",
     description: "",
     dueDate: "",
-    hoursEstimate: 0, 
+    hoursEstimate: 0, // Ajustado al nombre de tu DB
     userId: "",
     sprint: ""
   });
@@ -31,9 +31,13 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
     return acc;
   }, {});
 
-  // Búsqueda de nombre de usuario para mostrar en la tabla
-  const getUserName = (id) => {
-    const user = users.find(u => String(u.id) === String(id));
+  // 🛠️ Búsqueda de nombre de usuario
+  // Ahora prioriza 'userName' que viene del backend en la respuesta del JSON
+  const getUserName = (task) => {
+    if (task.userName) return task.userName; 
+    
+    // Respaldo: busca en la lista de usuarios por ID si userName no existe
+    const user = users.find(u => String(u.id) === String(task.userId));
     return user ? user.name : "Unassigned";
   };
 
@@ -52,26 +56,22 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
 
   // Guardado de cambios tras editar la tarea
   const handleSaveEdit = async (task) => {
-    // 🛠️ MAPEADO DE DATOS: Forzamos tipos numéricos para Sprint y Horas
-    const taskToSave = { 
+    const updatedTask = { 
       ...task, 
       ...editData,
-      // Convertimos a número porque tu DB lo pide así
       sprint: editData.sprint !== "" ? Number(editData.sprint) : null,
-      hoursEstimate: editData.hoursEstimate !== "" ? Number(editData.hoursEstimate) : null,
-      userId: editData.userId ? Number(editData.userId) : null
+      hoursEstimate: Number(editData.hoursEstimate),
+      userId: editData.userId ? Number(editData.userId) : task.userId
     };
 
-    // Primero actualizamos la UI
+    // Primero actualizamos la UI (aunque backend falle)
     setTasks((prev) =>
-      prev.map((t) => (t.id === task.id ? taskToSave : t))
+      prev.map((t) => (t.id === task.id ? updatedTask : t))
     );
-    setSelectedTaskId(null);
+    setSelectedTaskId(null); // Cerrar panel tras guardar
 
     try {
-      // 🚀 Envío a la base de datos (PUT)
-      await updateTask(taskToSave);
-      console.log("✅ Guardado exitoso en DB");
+      await updateTask(updatedTask);
     } catch (err) {
       console.error("Error backend (pero UI actualizada):", err);
     }
@@ -110,20 +110,25 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
         Object.entries(groupedTasks).map(([sprintName, sprintTasks]) => (
           <div key={sprintName} className="sprint-group">
             <h3 className="sprint-title">
-              {sprintName === "Sin Sprint" ? sprintName : `Sprint ${sprintName}`}
+             Sprint : {sprintName === "Without Assignation" ? sprintName : `${sprintName}`}
             </h3>
 
+            {/* Cabecera de la lista de tareas */}
             <div className="pending-header">
               <span>Task</span> <span>Description</span> <span>Assigned</span>
               <span>Due Date</span> <span>Priority</span> <span>Est. Hours</span> <span>Actions</span>
             </div>
 
+            {/* Mapeo de cada tarea en el sprint */}
             {sprintTasks.map((task) => (
               <div key={task.id}>
                 <div className="pending-row">
                   <span>{task.title}</span>
                   <span>{task.description || "-"}</span>
-                  <span>{getUserName(task.userId)}</span>
+                  
+                  {/* Se usa la función actualizada que lee userName */}
+                  <span>{getUserName(task)}</span>
+                  
                   <span>{task.dueDate || "-"}</span>
                   <span>{task.priority || "N/A"}</span>
                   <span>{task.hoursEstimate || 0}h</span>
@@ -137,63 +142,82 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
                 {selectedTaskId === task.id && (
                   <div className="edit-row">
                     <div className="edit-form-inline">
-                      <input
-                        value={editData.title}
-                        onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                        placeholder="Title"
-                      />
+                      
+                      <div className="edit-input-group">
+                        <label>Title: </label>
+                        <input
+                          value={editData.title}
+                          onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                          placeholder="Title"
+                        />
+                      </div>
 
-                      {/* Selector Persona */}
-                      <select
-                        value={editData.userId}
-                        onChange={(e) => setEditData({ ...editData, userId: e.target.value })}
-                      >
-                        <option value="">Assign Person...</option>
-                        {users.map((u) => (
-                          <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                      </select>
+                      <div className="edit-input-group">
+                        <label>Assigned To: </label>
+                        {/* Selector para asignar persona */}
+                        <select
+                          value={editData.userId}
+                          onChange={(e) => setEditData({ ...editData, userId: e.target.value })}
+                        >
+                          <option value="">Assign Person...</option>
+                          {users.map((u) => (
+                            <option key={u.id} value={u.id}>{u.name}</option>
+                          ))}
+                        </select>
+                      </div>
 
-                      {/* Input Sprint (ahora tipo número) */}
-                      <input
-                        type="number"
-                        value={editData.sprint}
-                        onChange={(e) => setEditData({ ...editData, sprint: e.target.value })}
-                        placeholder="Sprint #"
-                      />
+                      <div className="edit-input-group">
+                        <label>Sprint: </label>
+                        {/* Input para cambiar Sprint */}
+                        <input
+                          type="number"
+                          value={editData.sprint}
+                          onChange={(e) => setEditData({ ...editData, sprint: e.target.value })}
+                          placeholder="Sprint"
+                        />
+                      </div>
 
-                      <input
-                        type="date"
-                        min={today}
-                        value={editData.dueDate}
-                        onChange={(e) => setEditData({ ...editData, dueDate: e.target.value })}
-                      />
+                      <div className="edit-input-group">
+                        <label>Due Date: </label>
+                        <input
+                          type="date"
+                          min={today}
+                          value={editData.dueDate}
+                          onChange={(e) => setEditData({ ...editData, dueDate: e.target.value })}
+                        />
+                      </div>
 
-                      <input
-                        value={editData.description}
-                        onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                        placeholder="Description"
-                      />
+                      <div className="edit-input-group">
+                        <label>Description: </label>
+                        <input
+                          value={editData.description}
+                          onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                          placeholder="Description"
+                        />
+                      </div>
 
-                      {/* Horas Estimadas (hoursEstimate) */}
-                      <input
-                        type="number"
-                        value={editData.hoursEstimate}
-                        onChange={(e) => setEditData({ ...editData, hoursEstimate: e.target.value })}
-                        placeholder="Hours"
-                      />
+                      <div className="edit-input-group">
+                        <label>Est. Hours: </label>
+                        <input
+                          type="number"
+                          value={editData.hoursEstimate}
+                          onChange={(e) => setEditData({ ...editData, hoursEstimate: e.target.value })}
+                          placeholder="Hours"
+                        />
+                      </div>
 
-                      <button className="btn-save2" onClick={() => handleSaveEdit(task)}>
-                        Save
-                      </button>
+                      <div className="edit-actions">
+                        <button className="btn-save2" onClick={() => handleSaveEdit(task)}>
+                          Save
+                        </button>
+                        <button className="btn-delete2" onClick={() => handleDeleteTask(task.id)}>
+                          Delete Task
+                        </button>
+                        <button className="btn-cancel" onClick={() => setSelectedTaskId(null)}>
+                          Cancel
+                        </button>
+                      </div>
 
-                      <button className="btn-delete2" onClick={() => handleDeleteTask(task.id)}>
-                        Delete Task
-                      </button>
-
-                      <button className="btn-cancel" onClick={() => setSelectedTaskId(null)}>
-                        Cancel
-                      </button>
                     </div>
                   </div>
                 )}

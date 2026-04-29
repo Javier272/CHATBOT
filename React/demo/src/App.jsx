@@ -71,10 +71,11 @@ function App() {
 
   // Filtrar tareas del usuario actual (soporta userId y user_id)
   const tareasFiltradas = user
-    ? tasks.filter(
-        (task) =>
-          String(task.userId || task.user_id) === String(user.id)
-      )
+    ? tasks.filter((task) => {
+        const matchPorNombre = task.userName === user.name;
+        const matchPorId = String(task.userId || task.user_id) === String(user.id);
+        return matchPorNombre || matchPorId;
+      })
     : [];
 
   // Refrescar tareas después de crear una nueva
@@ -125,7 +126,6 @@ function App() {
               reloadTasks={loadTasks} // backend sync directo
               onTaskCreated={addNewTask}
               onCancel={() => setVista("Mypending")}
-              
             />
           )}
 
@@ -147,10 +147,11 @@ function App() {
               {/* Tareas pendientes del usuario */}
               {(vista === "Mypending" || vista === "Individual") && (
                 <TaskList
-                  tasks={tareasFiltradas}
-                  users={users}
-                  setTasks={setTasks}
-                />
+                tasks={tareasFiltradas}
+                users={users}
+                setTasks={setTasks}
+                currentUser={user} 
+              />
               )}
 
               {/* Todas las tareas pendientes */}

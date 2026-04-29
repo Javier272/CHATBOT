@@ -1,10 +1,11 @@
-/* Contenedor principal */
+/* Contenedor principal del Dashboard */
 .dashboard-container {
   width: 100%;
   max-width: 1200px;
   margin-inline: auto;
   padding: 20px;
   color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .dashboard-title-main {
@@ -15,7 +16,7 @@
   font-size: 1.6rem;
 }
 
-/* Tarjetas de sprint */
+/* Bloque de tarjeta principal */
 .sprint-card-block {
   background: rgba(255, 255, 255, 0.03);
   padding: 25px;
@@ -24,109 +25,55 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.sprint-card-title {
-  color: #fff;
-  margin-bottom: 20px;
-  font-size: 1.3rem;
-}
-
-/* Layout de gráficas */
+/* Layout: Dona a la izquierda, Barras a la derecha */
 .sprint-charts-layout {
   display: flex;
-  gap: 20px;
+  gap: 30px;
   width: 100%;
-  align-items: flex-start;
+  align-items: stretch;
   margin-bottom: 25px;
 }
 
-/* Paneles de graficas */
+/* Paneles de gráficas */
 .bar-chart-section {
   padding: 24px;
   background-color: #212e3d;
   color: white;
   border-radius: 12px;
   flex: 1;
-  min-width: 300px;
+}
+
+/* Ajuste específico para mover la dona a la izquierda */
+.bar-chart-section:first-child {
+  flex: 0 1 350px; /* Tamaño fijo para que no flote al centro */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Alinea contenido de la sección a la izquierda */
 }
 
 .chart-title {
   text-align: left;
   margin-bottom: 20px;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  width: 100%;
+}
+
+/* --- GRÁFICA DE DONA --- */
+.pie-chart-viewport {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start; /* Dona a la izquierda del panel */
   padding-left: 10px;
 }
 
-/* Contenedor de scroll para barras */
-.bar-chart-viewport {
-  display: flex;
-  align-items: flex-end;
-  gap: 15px;
-  height: 250px;
-  overflow-x: auto;
-  padding: 20px;
-  scrollbar-width: thin;
-}
-
-/* Grupo de usuario para barras */
-.bar-chart-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 70px;
-  flex-shrink: 0;
-}
-
-/* Barras verticales */
-.bars-vertical-container {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 180px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.bar-track-wrapper {
-  flex: 1;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  position: relative;
-  border-radius: 4px 4px 0 0;
-}
-
-.bar-fill {
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  border-radius: 4px 4px 0 0;
-  transition: height 0.5s ease;
-}
-
-/* Grafica de dona para tareas */
-.pie-chart-viewport {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  padding: 20px;
-}
-
-.pie-chart-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 90px;
-}
-
 .pie-chart {
-  width: 70px;
-  height: 70px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
   background: conic-gradient(
     #00da53 0 var(--completed),
     #3498db var(--completed) calc(var(--completed) + var(--started)),
@@ -135,46 +82,113 @@
 }
 
 .pie-chart-center {
-  width: 50px;
-  height: 50px;
+  width: 65px;
+  height: 65px;
   background-color: #212e3d;
   border-radius: 50%;
 }
 
-/* Colores de las barras */
-.bar-fill.completed { background-color: #00da53; }
-.bar-fill.started { background-color: #3498db; }
-.bar-fill.pending { background-color: #d1ff51; }
+/* --- GRÁFICA DE BARRAS CON EJE --- */
+.chart-with-axis {
+  display: flex;
+  height: 250px;
+  margin-top: 10px;
+  position: relative;
+}
+
+/* Eje Y (Frecuencia de horas) */
+.axis-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 15px;
+  border-right: 2px solid #555;
+  color: #888;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.axis-tick {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 0;
+  position: relative;
+}
+
+/* Líneas de guía de fondo */
+.grid-line {
+  position: absolute;
+  left: 15px;
+  width: 1000%; /* Se extiende por todo el viewport */
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.bar-chart-viewport {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex: 1;
+  padding: 0 20px;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Barras */
+.bar-chart-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.bars-vertical-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 100%; /* Muy importante para que las barras suban */
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.bar-track-wrapper {
+  flex: 1;
+  height: 100%; /* Contenedor de la barra al 100% del eje */
+  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.bar-fill {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+}
+
 .bar-fill.estimated { background-color: #3498db; }
 .bar-fill.actual { background-color: #9b59b6; }
 
-/* Nombres y leyenda */
+/* Leyenda y Textos */
 .chart-user-name {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  color: #ccc;
   text-align: center;
-  white-space: nowrap;
+  margin-top: 5px;
 }
 
 .chart-legend-details {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 8px;
-  gap: 4px;
-  font-size: 0.75rem;
+  gap: 8px;
+  font-size: 0.85rem;
+  margin-top: 15px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-}
-
-.dot-completed, .dot-started, .dot-pending, .dot-estimated, .dot-actual {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
 }
 
 .dot-completed { background-color: #00da53; }
@@ -183,27 +197,27 @@
 .dot-estimated { background-color: #3498db; }
 .dot-actual { background-color: #9b59b6; }
 
-/* Barra de progreso global */
-.sprint-global-progress {
-  margin-top: 20px;
+.dot-completed, .dot-started, .dot-pending, .dot-estimated, .dot-actual {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
 }
 
-.progress-text {
-  font-size: 0.95rem;
-  color: #fff;
-  margin-bottom: 10px;
+/* Barra de progreso inferior */
+.sprint-global-progress {
+  margin-top: 30px;
 }
 
 .progress-bar-background {
   background: rgba(255, 255, 255, 0.1);
-  height: 12px;
-  border-radius: 6px;
+  height: 14px;
+  border-radius: 7px;
   overflow: hidden;
-  width: 100%;
 }
 
 .progress-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #cc2ec4, #ff00ff);
-  transition: width 0.5s ease;
+  transition: width 0.8s ease;
 }
