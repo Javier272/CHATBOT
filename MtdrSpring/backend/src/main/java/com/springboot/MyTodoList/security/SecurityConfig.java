@@ -40,7 +40,7 @@ public class SecurityConfig {
                 // NUEVO: Permitimos que el navegador haga sus preguntas previas (Preflight OPTIONS)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 
-                .requestMatchers("/users/login", "/users/register").permitAll()
+                .requestMatchers("/users/login", "/users/register", "/users/reset-password").permitAll()
                 .anyRequest().authenticated() 
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

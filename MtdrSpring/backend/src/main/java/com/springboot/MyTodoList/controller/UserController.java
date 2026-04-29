@@ -23,6 +23,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     public record LoginRequest(String email, String password) {}
+    public record ResetPasswordRequest(String email, String newPassword) {}
     
     // Regresa el token y algunos datos del usuario para guardarlos en React
     public record TokenResponse(String token, Long id, String name, String email) {}
@@ -86,4 +87,25 @@ public class UserController {
         // Se envia a react
         return ResponseEntity.ok(new TokenResponse(token, user.getId(), user.getName(), user.getEmail()));
     }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+     // 1. Buscamos al usuario por su correo
+     Optional<User> userOpt = userRepository.findByEmailAndIsDeleted(request.email(), 0);
+
+     if (userOpt.isEmpty()) {
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró ningún usuario con ese correo.");
+     }
+
+     User user = userOpt.get();
+
+     // 2. Encriptamos la NUEVA contraseña
+     String hashedPassword = passwordEncoder.encode(request.newPassword());
+     user.setPassword(hashedPassword);
+
+     // 3. Guardamos los cambios
+     userRepository.save(user);
+
+     return ResponseEntity.ok("Contraseña actualizada con éxito.");
+ }
 }
