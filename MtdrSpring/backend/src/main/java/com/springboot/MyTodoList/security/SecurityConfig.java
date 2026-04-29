@@ -3,6 +3,7 @@ package com.springboot.MyTodoList.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // NUEVO
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -10,13 +11,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays; // NUEVO
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private JwtAuthFilter jwtAuthFilter; // Filtro para validar el token en cada petición
+    private JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -26,21 +31,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desactivamos la protección CSRF porque no usaremos sesiones ni cookies
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // NUEVO: Activamos CORS
+            .csrf(csrf -> csrf.disable()) 
             
-            //No se usa Session, cada petición debe venir con su token
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas que no piden Token:
-                .requestMatchers("/users/login", "/users/register").permitAll()
+                // NUEVO: Permitimos que el navegador haga sus preguntas previas (Preflight OPTIONS)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 
-                // Cualquier otra ruta requiere autenticación
+                .requestMatchers("/users/login", "/users/register").permitAll()
                 .anyRequest().authenticated() 
             )
-            // Agrega filtro para validar el token en cada petición
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
             
         return http.build();
+    }
+
+    // NUEVO: Esta es la tarjeta de invitación VIP para tu frontend
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Aquí le decimos que confíe en cualquier origen (puedes poner "http://localhost:5173" si quieres ser más estricto)
+        configuration.setAllowedOrigins(Arrays.asList("*")); 
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
