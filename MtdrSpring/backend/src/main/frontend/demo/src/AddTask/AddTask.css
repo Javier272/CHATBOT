@@ -1,0 +1,135 @@
+.add-task-container {
+  max-width: 520px;
+  width: 100%;
+  padding: 28px;
+  background: linear-gradient(145deg, #031424, #062038);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.add-task-container h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.task-form input,
+.task-form select,
+.task-form textarea {
+  width: 100%;
+  padding: 12px;
+  background: rgba(103, 110, 122, 0.04);
+  border: 1px solid rgba(128, 128, 128, 0.08);
+  border-radius: 10px;
+  color: white;
+  transition: all 0.25s ease;
+}
+
+.task-form input:hover,
+.task-form select:hover,
+.task-form textarea:hover {
+  border-color: #3498db69;
+}
+
+.task-form input:focus,
+.task-form select:focus,
+.task-form textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px #3498db2a;
+}
+
+/* SELECT mejorado */
+.task-form select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Priority con color dinámico */
+.priority-low {
+  color: #4caf50;
+}
+
+.priority-medium {
+  color: #ffc107;
+}
+
+.priority-high {
+  color: #f44336;
+}
+
+.form-group h3 {
+  margin: 5px 0;
+  font-size: 0.75rem;
+  color: #3498db;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.field-container {
+  flex: 1;
+}
+
+/* Empuja priority */
+.field-container:last-child {
+  margin-left: 10px;
+}
+
+.field-container label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+}
+
+/* Botones */
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-save {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3498db, #344ddb);
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  cursor: pointer;
+}
+
+.task-form select {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Opciones (esto funciona en algunos navegadores) */
+.task-form select option {
+  background-color: #081d49;
+  color: #fff;
+}

@@ -92,12 +92,12 @@ h1 {
 }
 
 .btn-menu:hover {
-  background-color: #3498db;
+  background-color: #ff9100;
   transform: translateX(6px);
 }
 
 .btn-menu:active {
-  background-color: #344ddb;
+  background-color: #b90000;
 }
 
 /* 9. BOTÓN LOGIN */
@@ -179,13 +179,13 @@ h1 {
 /* barra visual */
 .bar {
   width: 30px;
-  background-color: #3498db;
+  background-color: #ff9100;
   border-radius: 5px;
   transition: height 0.3s ease;
 }
 
 .bar:hover {
-  background-color: #3498db;
+  background-color: #ffaa33;
 }
 
 .pie-chart {

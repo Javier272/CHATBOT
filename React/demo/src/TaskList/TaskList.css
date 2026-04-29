@@ -1,0 +1,71 @@
+.task-list {
+  width: 100%;
+  max-width: 700px;
+  margin-inline: auto;
+}
+
+/* Configuración del grid para alinear las 6 columnas */
+.task-header, .task-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); 
+  align-items: center;
+  padding: 10px;
+}
+
+/* Estilos del encabezado */
+.task-header {
+  font-weight: bold;
+  border-bottom: 2px solid rgba(255,255,255,0.2);
+}
+
+/* Estilos de cada fila */
+.task-row {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Prioridades con colores específicos */
+.priority.high { color: #ff4d4d; }
+.priority.medium { color: #ffaa33; }
+.priority.low { color: #4caf50; }
+
+/* Botón Started - Azul para diferenciar del completado */
+.btn-started {
+  background: #3498dbcc;
+  border: none;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-started.active {
+  background: #2980b9;
+  font-weight: bold;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
+
+/* Botón Complete */
+.btn-complete {
+  background: #19d400cc;
+  border: none;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-complete:hover {
+  background-color: #5eff36;
+  transform: translateX(6px);
+}
+
+/* Panel de detalles expandido */
+.task-details {
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.05);
+  border-left: 3px solid #ffae00;
+  margin-bottom: 10px;
+  display: block;
+}

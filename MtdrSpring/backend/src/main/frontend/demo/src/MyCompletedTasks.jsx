@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getTasks } from "./taskService";
 import "./MyCompletedTasks.css";
 
 function MyComTasks({ tasks }) {
@@ -8,14 +9,16 @@ function MyComTasks({ tasks }) {
 
   const total = tasks.length;
 
-  // 1. Tareas completadas (desde backend)
-  const completed = tasks.filter(t => t.status === "completed").length;
+  
+  // 1. Tareas marcadas como completadas (Tienen prioridad máxima)
+  const completed = tasks.filter(t => t.completed).length;
 
-  // 2. Tareas iniciadas pero no completadas
-  const started = tasks.filter(t => t.status === "in_progress").length;
+  // 2. Tareas iniciadas PERO que aún no están completadas 
+  // (Si t.completed es true, esta condición la ignora para no duplicar en la gráfica)
+  const started = tasks.filter(t => t.started && !t.completed).length;
 
-  // 3. Tareas pendientes
-  const pending = tasks.filter(t => t.status === "pending").length;
+  // 3. Tareas que no están ni iniciadas ni completadas
+  const pending = total - completed - started;
 
   // Cálculo de porcentajes para pasar al CSS
   const completedPercent = total > 0 ? (completed / total) * 100 : 0;

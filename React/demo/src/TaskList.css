@@ -1,71 +1,68 @@
-.task-list {
+/* Contenedor principal */
+.task-list { 
   width: 100%;
-  max-width: 700px;
-  margin-inline: auto;
+  max-width: 800px; 
+  margin-inline: auto; 
+  padding: 20px; 
+  color: white; }
+
+/* Tarjetas de Sprint */
+.sprint-group {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
 }
 
-/* Configuración del grid para alinear las 6 columnas */
+/* Título de Sprint */
+.sprint-title { 
+  color: #fff; 
+  border-bottom: 1px solid #555; 
+  padding-bottom: 5px; 
+  margin-bottom: 15px; 
+}
+
+/* Contenedor de horas en edición */
+.hours-edit-group { display: flex; gap: 15px; margin: 10px 0; }
+.hours-view { margin: 10px 0; }
+
+/* Estructura de filas */
 .task-header, .task-row {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); 
+  grid-template-columns: 2fr 0.8fr 1.5fr 1fr 1.2fr 1.2fr 1fr; 
+  gap: 15px;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
 }
 
-/* Estilos del encabezado */
-.task-header {
-  font-weight: bold;
-  border-bottom: 2px solid rgba(255,255,255,0.2);
-}
+.task-header { font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); text-transform: uppercase; font-size: 0.75rem; opacity: 0.7; }
+.task-row { border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; border-radius: 8px; }
+.task-row:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
 
-/* Estilos de cada fila */
-.task-row {
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-/* Prioridades con colores específicos */
-.priority.high { color: #ff4d4d; }
+/* Prioridades */
+.priority.high { color: #ff4986e3; font-weight: bold; }
 .priority.medium { color: #ffaa33; }
 .priority.low { color: #4caf50; }
 
-/* Botón Started - Azul para diferenciar del completado */
-.btn-started {
-  background: #3498dbcc;
-  border: none;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+/* Botones */
+.btn-started, .btn-complete, .btn-details { border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+.btn-started { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+.btn-started.active { background: #3498db; color: white; box-shadow: 0 0 10px rgba(52, 152, 219, 0.4); }
+.btn-complete { background: rgba(25, 212, 0, 0.2); color: #19d400; }
+.btn-details { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); }
 
-.btn-started.active {
-  background: #2980b9;
-  font-weight: bold;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-}
+/* Panel de detalles */
+.task-details { padding: 20px; background: rgba(0, 0, 0, 0.2); border-left: 4px solid #b000b6; margin: 10px 0; border-radius: 0 12px 12px 0; animation: slideDown 0.3s ease-out; }
 
-/* Botón Complete */
-.btn-complete {
-  background: #19d400cc;
-  border: none;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-.btn-complete:hover {
-  background-color: #5eff36;
-  transform: translateX(6px);
-}
-
-/* Panel de detalles expandido */
-.task-details {
-  padding: 10px 20px;
-  background: rgba(255,255,255,0.05);
-  border-left: 3px solid #ffae00;
-  margin-bottom: 10px;
-  display: block;
-}
+/* Inputs y formularios */
+.edit-mode input, .edit-mode textarea { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; margin: 8px 0; border-radius: 8px; }
+.details-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-save { background: #27ae60; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
+.btn-edit { background: #3498db; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
+.btn-delete { background: #5700c9; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
+.btn-cancel, .btn-close { background: #444; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }

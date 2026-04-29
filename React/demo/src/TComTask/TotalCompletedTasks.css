@@ -1,0 +1,143 @@
+/* Layout para poner los paneles lado a lado */
+.sprint-dashboard-layout {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.tasks-chart-panel, .hours-chart-panel { 
+  flex: 1; 
+  min-width: 300px; 
+}
+
+.bar-chart-section {
+  padding: 24px;
+  background-color: #212e3d;
+  color: white;
+  border-radius: 12px;
+}
+
+.bar-track {
+  width: 18px; 
+  height: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: hidden;
+}
+
+.chart-title {
+  text-align: left;     
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  padding-left: 10px; 
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 30px;
+  height: 320px;
+  padding: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 100px;
+}
+
+.bars-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 200px;
+  margin-bottom: 12px;
+}
+
+/* --- ESTILOS ESPECÍFICOS PARA EVITAR CONFLICTOS --- */
+.tasks-chart-panel .bar-track {
+  width: 14px; /* Ancho original para tareas */
+  height: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.hours-chart-panel .bar-track {
+  width: 30px; /* Ancho más grande para horas */
+  height: 150px; 
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.bar {
+  width: 100%;
+  transition: height 0.8s ease;
+}
+
+.bar.completed { background: #00da53; }
+.bar.started { background: #3498db; }
+.bar.pending { background: #d1ff51; }
+.bar.estimated { background: #3498db; }
+.bar.actual { background: #9b59b6; }
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.percentage-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  width: 100%;
+}
+
+.percentage-bar {
+  flex-grow: 1;
+  height: 8px;
+  background-color: #2c3e50;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.percentage-fill {
+  height: 100%;
+  background-color: #cc2ec4;
+  transition: width 0.5s ease-in-out;
+}
+
+.dot-completed { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #00da53; margin-right: 5px; }
+.dot-started { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #3498db; margin-right: 5px; }
+.dot-pending { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #d1ff51; margin-right: 5px; }
+.dot-estimated { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #3498db; margin-right: 5px; }
+.dot-actual { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #9b59b6; margin-right: 5px; }
+
+.chart-legend-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.legend-item {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  color: #a0aec0;
+}

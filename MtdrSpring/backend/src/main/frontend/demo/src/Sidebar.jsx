@@ -51,10 +51,7 @@ function Sidebar({ setVista }) {
               </button>
               <h2></h2>
 
-              <button
-                className="btn-Tasks pending"
-                onClick={() => setVista("TotalPending")}
-              >
+              <button className="btn-Tasks pending">
                 Pending Tasks
               </button>
               <h2></h2>

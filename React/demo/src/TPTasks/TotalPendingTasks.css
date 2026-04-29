@@ -1,0 +1,117 @@
+/* Contenedor principal */
+.pending-wrapper { 
+  padding: 20px; 
+  background-color: #1a2631; 
+  border-radius: 12px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  max-width: 1000px;
+  margin-inline: auto;
+  color: white;
+}
+
+/* Título principal */
+.pending-title-main {
+  color: #ffffff;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+/* Contenedor de grupos de Sprints */
+.sprint-group {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sprint-title { 
+  color: #3498db; 
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+}
+
+/* Estructura de Grilla (7 columnas) */
+.pending-header, .pending-row {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 0.8fr 0.8fr 1fr; 
+  gap: 15px;
+  align-items: center;
+  padding: 12px;
+}
+
+/* Encabezados */
+.pending-header { 
+  font-weight: bold; 
+  background-color: #005c99; 
+  border-radius: 8px;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+}
+
+/* Filas */
+.pending-row { 
+  border-bottom: 1px solid rgba(255,255,255,0.05); 
+  transition: background 0.3s;
+  border-radius: 6px;
+}
+
+.pending-row:hover { 
+  background-color: rgba(255, 255, 255, 0.05); 
+}
+
+/* Fila de Edición (Inline) */
+.edit-row { 
+  padding: 15px; 
+  background-color: #0d3c68; 
+  border-radius: 8px; 
+  margin-top: 5px;
+  border: 1px solid #3498db;
+}
+
+.edit-form-inline { 
+  display: flex; 
+  gap: 10px; 
+  align-items: center; 
+  flex-wrap: wrap;
+}
+
+.edit-form-inline input { 
+  flex: 1; 
+  padding: 8px; 
+  border: 1px solid #005c99; 
+  border-radius: 4px; 
+  background: #1a2631;
+  color: white;
+}
+
+/* Botones */
+.btn-edit-table { 
+  padding: 6px 12px; 
+  background: #3498db; 
+  color: white; 
+  border: none; 
+  border-radius: 4px; 
+  cursor: pointer; 
+}
+
+.btn-save2 { background: #27ae60; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+.btn-save2:hover { background: #219150; }
+
+.btn-delete2 { 
+  background-color: #ff4d4d; 
+  color: white; 
+  border: none; 
+  padding: 8px 16px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+}
+.btn-delete2:hover { background-color: #7c0000; }
+
+.btn-cancel { background: #555; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+
+/* Sin tareas */
+.pending-empty { color: #888; text-align: center; padding: 20px; }

@@ -1,52 +1,80 @@
-const BASE_URL = "http://163.192.143.182";
+const BASE_URL = "http://160.34.219.37";
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
 
-// 📥 Obtener tareas
-export const getTasks = async () => {
-  const res = await fetch(`${BASE_URL}/tasks`);
-  return await res.json();
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }) // evita mandar "Bearer null"
+  };
 };
 
-// ➕ Crear tarea
+//  Helper para manejar respuestas
+const handleResponse = async (res) => {
+  const text = await res.text();
+
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = text;
+  }
+
+  if (!res.ok) {
+    console.error("❌ Error:", res.status, data);
+    throw new Error(data?.message || "Request error");
+  }
+
+  return data;
+};
+
+// Obtener tareas
+export const getTasks = async () => {
+  const res = await fetch(`${BASE_URL}/tasks`, {
+    headers: getAuthHeaders()
+  });
+  return handleResponse(res);
+};
+
+// Crear tarea
 export const createTask = async (task) => {
   const res = await fetch(`${BASE_URL}/tasks`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(task)
   });
 
-  return await res.json();
+  return handleResponse(res);
 };
 
-// 🔄 Actualizar tarea
+// Actualizar tarea
 export const updateTask = async (task) => {
-  return fetch(`${BASE_URL}/tasks/${task.id}`, {
+  const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(task)
   });
+
+  return handleResponse(res);
 };
 
-// 🗑️ Eliminar tarea
+// Eliminar tarea
 export const deleteTask = async (id) => {
-  return fetch(`${BASE_URL}/tasks/${id}`, {
-    method: "DELETE"
+  const res = await fetch(`${BASE_URL}/tasks/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders()
   });
+
+  return handleResponse(res);
 };
 
-
-
-// 📥 Obtener usuarios
+// Obtener usuarios
 export const getUsers = async () => {
   const res = await fetch(`${BASE_URL}/users`);
-  return await res.json();
+  return handleResponse(res);
 };
 
-// ➕ Crear usuario (opcional)
+// Crear usuario
 export const createUser = async (user) => {
   const res = await fetch(`${BASE_URL}/users`, {
     method: "POST",
@@ -56,5 +84,47 @@ export const createUser = async (user) => {
     body: JSON.stringify(user)
   });
 
-  return await res.json();
+  return handleResponse(res);
+};
+
+// Obtener sprints
+export const getSprints = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/sprints`);
+    return await handleResponse(res);
+  } catch (error) {
+    console.error("❌ Error sprints:", error);
+    return [];
+  }
+};
+
+// LOGIN
+export const loginUser = async ({ email, password }) => {
+  try {
+    console.log("Enviando login:", { email, password });
+
+    const res = await fetch(`${BASE_URL}/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await handleResponse(res);
+
+    console.log("Login correcto:", data);
+
+    return data;
+
+  } catch (error) {
+    console.error("Error login:", error.message);
+
+    // Diferenciar error de conexión
+    if (error.message === "Failed to fetch") {
+      throw new Error("Connection error");
+    }
+
+    throw error;
+  }
 };

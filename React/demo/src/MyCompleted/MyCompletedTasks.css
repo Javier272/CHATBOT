@@ -1,0 +1,209 @@
+/* Contenedor principal */
+.dashboard-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 20px;
+  color: white;
+}
+
+.dashboard-title-main {
+  color: #ffffff;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+  font-size: 1.6rem;
+}
+
+/* Tarjetas de sprint */
+.sprint-card-block {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 25px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sprint-card-title {
+  color: #fff;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+}
+
+/* Layout de gráficas */
+.sprint-charts-layout {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  align-items: flex-start;
+  margin-bottom: 25px;
+}
+
+/* Paneles de graficas */
+.bar-chart-section {
+  padding: 24px;
+  background-color: #212e3d;
+  color: white;
+  border-radius: 12px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.chart-title {
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  padding-left: 10px;
+}
+
+/* Contenedor de scroll para barras */
+.bar-chart-viewport {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  height: 250px;
+  overflow-x: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+}
+
+/* Grupo de usuario para barras */
+.bar-chart-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70px;
+  flex-shrink: 0;
+}
+
+/* Barras verticales */
+.bars-vertical-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 180px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.bar-track-wrapper {
+  flex: 1;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  border-radius: 4px 4px 0 0;
+}
+
+.bar-fill {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+}
+
+/* Grafica de dona para tareas */
+.pie-chart-viewport {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pie-chart-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90px;
+}
+
+.pie-chart {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  background: conic-gradient(
+    #00da53 0 var(--completed),
+    #3498db var(--completed) calc(var(--completed) + var(--started)),
+    #d1ff51 calc(var(--completed) + var(--started)) 100%
+  );
+}
+
+.pie-chart-center {
+  width: 50px;
+  height: 50px;
+  background-color: #212e3d;
+  border-radius: 50%;
+}
+
+/* Colores de las barras */
+.bar-fill.completed { background-color: #00da53; }
+.bar-fill.started { background-color: #3498db; }
+.bar-fill.pending { background-color: #d1ff51; }
+.bar-fill.estimated { background-color: #3498db; }
+.bar-fill.actual { background-color: #9b59b6; }
+
+/* Nombres y leyenda */
+.chart-user-name {
+  font-size: 0.8rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.chart-legend-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.dot-completed, .dot-started, .dot-pending, .dot-estimated, .dot-actual {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.dot-completed { background-color: #00da53; }
+.dot-started { background-color: #3498db; }
+.dot-pending { background-color: #d1ff51; }
+.dot-estimated { background-color: #3498db; }
+.dot-actual { background-color: #9b59b6; }
+
+/* Barra de progreso global */
+.sprint-global-progress {
+  margin-top: 20px;
+}
+
+.progress-text {
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.progress-bar-background {
+  background: rgba(255, 255, 255, 0.1);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #cc2ec4, #ff00ff);
+  transition: width 0.5s ease;
+}
