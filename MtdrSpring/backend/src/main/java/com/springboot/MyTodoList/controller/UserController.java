@@ -27,6 +27,20 @@ public class UserController {
     // Regresa el token y algunos datos del usuario para guardarlos en React
     public record TokenResponse(String token, Long id, String name, String email) {}
 
+    @GetMapping
+    public ResponseEntity<?> getAllUsers() {
+        // Buscamos a todos los usuarios que no estén borrados lógicamente
+        java.util.List<User> users = userRepository.findAll().stream()
+                .filter(u -> u.getIsDeleted() == 0)
+                .map(u -> {
+                    // Por seguridad, NUNCA mandamos la contraseña al frontend
+                    u.setPassword(null);
+                    return u;
+                })
+                .toList();
+                
+        return ResponseEntity.ok(users);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
