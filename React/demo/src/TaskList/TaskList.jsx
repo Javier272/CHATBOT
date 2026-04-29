@@ -1,42 +1,41 @@
 import { useState } from "react";
-import { updateTask, deleteTask as deleteTaskAPI } from "../taskService";
+// 1. IMPORTAMOS LAS FUNCIONES DEL SERVICIO
+import { updateTask, deleteTask as deleteTaskAPI, getAiPriorities } from "../taskService";
 
 function TaskList({ tasks, setTasks, currentUser }) { 
-  // Estados locales para la interfaz
+  // Estados para la interfaz
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   
-  // Estado del formulario de edición con horas estimadas
-  // Se sincronizaron los nombres con tu base de datos (hoursEstimate, realHours)
+  // Estado del formulario de edición
   const [editData, setEditData] = useState({ 
     title: "", 
     description: "", 
     dueDate: "", 
     hoursEstimate: 0, 
-    realHours: 0 
+    realHours: 0,
+    userId: "",
+    sprint: "",
+    priority: 3
   });
 
-  // Fecha actual para límites en selectores
+  // 2. ESTADOS PARA LA IA
+  const [aiSuggestion, setAiSuggestion] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
   const today = new Date().toISOString().split("T")[0];
 
-// FILTRO MEJORADO: Busca por ID o por Nombre de usuario
-const myTasks = tasks.filter(t => {
-  const matchId = String(t.userId || t.user_id) === String(currentUser?.id);
-  const matchNombre = t.userName === currentUser?.name;
-  
-  return matchId || matchNombre;
-});
+  // Vista general: Usamos todas las tareas de la base de datos
+  const displayTasks = Array.isArray(tasks) ? tasks : [];
 
-  // Agrupación de tareas por sprint (usando solo mis tareas)
-  const groupedTasks = myTasks.reduce((acc, task) => {
-    // Categoría por defecto: Sin Sprint
+  // Agrupación por Sprint
+  const groupedTasks = displayTasks.reduce((acc, task) => {
     const sprint = task.sprint || "Sin Sprint";
     if (!acc[sprint]) acc[sprint] = [];
     acc[sprint].push(task);
     return acc;
   }, {});
 
-  // Datos del formulario para detalles
   const handleOpenDetails = (task) => {
     setSelectedTaskId(task.id);
     setIsEditing(false);
@@ -45,145 +44,133 @@ const myTasks = tasks.filter(t => {
       description: task.description, 
       dueDate: task.dueDate || "",
       hoursEstimate: task.hoursEstimate || 0, 
-      realHours: task.realHours || 0
+      realHours: task.realHours || 0,
+      userId: task.userId || "",
+      sprint: task.sprint || "",
+      priority: task.priority || 3
     });
   };
 
-  // Guardado de cambios desde edición
-  const handleSaveEdit = async (task) => {
+  const handleSaveEdit = async (originalTask) => {
+    // 🛡️ BLINDAJE DE DATOS PARA EL DASHBOARD:
+    // Forzamos conversión a Number para evitar que las gráficas reciban strings
     const updatedData = { 
-      ...task, 
-      title: editData.title, 
-      description: editData.description, 
+      ...originalTask, 
+      title: editData.title,
+      description: editData.description,
       dueDate: editData.dueDate,
-      hoursEstimate: Number(editData.hoursEstimate) || 0, 
-      realHours: Number(editData.realHours) || 0 
+      sprint: editData.sprint !== "" ? Number(editData.sprint) : originalTask.sprint,
+      hoursEstimate: Number(editData.hoursEstimate),
+      realHours: Number(editData.realHours),
+      priority: Number(editData.priority),
+      userId: editData.userId ? Number(editData.userId) : originalTask.userId
     };
 
     try {
-      // Actualización local inmediata
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedData : t)));
+      setTasks((prev) => prev.map((t) => (t.id === originalTask.id ? updatedData : t)));
       setIsEditing(false);
       setSelectedTaskId(null);
-      
-      // Sincronización con base de datos
       await updateTask(updatedData);
     } catch (err) {
-      console.error("Error al sincronizar con servidor:", err);
+      console.error("Error al sincronizar:", err);
     }
   };
 
-  // Alternancia de estado: Pendiente/Progreso
   const toggleStarted = async (task) => {
     const newStatus = task.status === "in_progress" ? "pending" : "in_progress";
     const updatedTask = { ...task, status: newStatus };
-    
-    // Actualización visual inmediata
     setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-    
-    try { 
-      await updateTask(updatedTask); 
-    } catch (err) { 
-      console.error("Error en toggleStarted:", err); 
-    }
+    try { await updateTask(updatedTask); } catch (err) { console.error(err); }
   };
 
-  // Cambio a completado con horas reales
   const toggleComplete = async (task) => {
-    // Verificación de estado de completado
     const isCompleting = task.status !== "completed";
-    
     if (isCompleting) {
-      // Entrada de horas reales
       const input = prompt("¿Cuántas horas reales tomó esta tarea?", task.realHours || 0);
       if (input === null) return; 
-      
       const realHours = Number(input) || 0;
       const updatedTask = { ...task, status: "completed", realHours };
-      
-      // Actualización de estados
       setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-      
-      try { 
-        await updateTask(updatedTask); 
-      } catch (err) { 
-        console.error(err); 
-      }
+      try { await updateTask(updatedTask); } catch (err) { console.error(err); }
     } else {
-      // Reversión a estado pendiente
       const updatedTask = { ...task, status: "pending" };
       setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-      
-      try { 
-        await updateTask(updatedTask); 
-      } catch (err) { 
-        console.error(err); 
-      }
+      try { await updateTask(updatedTask); } catch (err) { console.error(err); }
     }
   };
 
-  // Eliminación de tarea con confirmación
   const deleteTask = async (id) => {
     if (window.confirm("¿Eliminar esta tarea?")) {
-      // Eliminación local
       setTasks((prev) => prev.filter((task) => task.id !== id));
-      
-      try { 
-        await deleteTaskAPI(id); 
-      } catch (err) { 
-        console.error("Error al eliminar:", err); 
-      }
+      try { await deleteTaskAPI(id); } catch (err) { console.error(err); }
     }
   };
 
-  // Clasificación visual de prioridad
+  // 3. FUNCIÓN PARA LLAMAR A LA IA
+  const handleAskAI = async () => {
+    if (!currentUser || !currentUser.id) {
+      alert("Por favor inicia sesión para usar la IA.");
+      return;
+    }
+    setIsAiLoading(true);
+    setAiSuggestion(""); 
+    try {
+      const response = await getAiPriorities(currentUser.id);
+      setAiSuggestion(response);
+    } catch (error) {
+      console.error("Error con la IA:", error);
+      setAiSuggestion("Ocurrió un error al consultar a la IA.");
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   const getPriorityClass = (p) => (p >= 4 ? "high" : p >= 2 ? "medium" : "low");
 
   return (
     <section className="task-list">
-      <h2>My Tasks ({currentUser?.name})</h2>
+      <h2>General Task Board (User: {currentUser?.name || "Guest"})</h2>
 
-      {/* Si no hay tareas después del filtro, mostrar mensaje */}
-      {myTasks.length === 0 && <p>No tienes tareas asignadas.</p>}
+      {displayTasks.length === 0 && <p>No hay tareas en el sistema.</p>}
 
-      {/* Renderizado por grupos de sprint */}
       {Object.entries(groupedTasks).map(([sprintName, sprintTasks]) => (
         <div key={sprintName} className="sprint-group">
-          
           <h3 className="sprint-title">
             {sprintName === "Sin Sprint" ? sprintName : `Sprint ${sprintName}`}
           </h3>
           
           <div className="task-header">
             <span>Title</span> 
+            <span>Owner</span>
             <span>Est. Hours</span>
             <span>Due date</span> 
             <span>Priority</span> 
-            <span>Start</span> 
-            <span>Complete</span> 
+            <span>Actions</span>
             <span>Details</span>
           </div>
 
           {sprintTasks.map((task) => (
             <div key={task.id}>
-              <div className="task-row">
+              <div className={`task-row ${task.userName === currentUser?.name ? "my-own-task" : ""}`}>
                 <span>{task.title}</span>
+                <span className="owner-tag">{task.userName || "Unassigned"}</span>
                 <span>{task.hoursEstimate}h</span>
                 <span>{task.dueDate}</span>
                 <span className={`priority ${getPriorityClass(task.priority)}`}>
                   {task.priority >= 4 ? "High" : task.priority >= 2 ? "Medium" : "Low"}
                 </span>
 
-                <button 
-                  className={`btn-started ${task.status === "in_progress" ? "active" : ""}`} 
-                  onClick={() => toggleStarted(task)}
-                >
-                  {task.status === "in_progress" ? "In Progress" : "Start"}
-                </button>
-
-                <button className="btn-complete" onClick={() => toggleComplete(task)}>
-                  {task.status === "completed" ? "✔" : "Complete"}
-                </button>
+                <div className="actions-cell">
+                    <button 
+                        className={`btn-started ${task.status === "in_progress" ? "active" : ""}`} 
+                        onClick={() => toggleStarted(task)}
+                    >
+                        {task.status === "in_progress" ? "Doing" : "Start"}
+                    </button>
+                    <button className="btn-complete" onClick={() => toggleComplete(task)}>
+                        {task.status === "completed" ? "✔" : "Done"}
+                    </button>
+                </div>
 
                 <button className="btn-details" onClick={() => handleOpenDetails(task)}>Details</button>
               </div>
@@ -193,61 +180,35 @@ const myTasks = tasks.filter(t => {
                   {isEditing ? (
                     <div className="edit-mode">
                       <label>Title</label>
-                      <input 
-                        value={editData.title} 
-                        onChange={(e) => setEditData({...editData, title: e.target.value})} 
-                      />
+                      <input value={editData.title} onChange={(e) => setEditData({...editData, title: e.target.value})} />
                       
                       <label>Due Date</label>
-                      <input 
-                        type="date" 
-                        min={today} 
-                        value={editData.dueDate} 
-                        onChange={(e) => setEditData({...editData, dueDate: e.target.value})} 
-                      />
+                      <input type="date" min={today} value={editData.dueDate} onChange={(e) => setEditData({...editData, dueDate: e.target.value})} />
 
-                      <div className="hours-edit-group">
+                      <div className="hours-edit-group" style={{ display: 'flex', gap: '10px' }}>
                         <div>
                           <label>Est. Hours</label>
-                          <input 
-                            type="number" 
-                            value={editData.hoursEstimate} 
-                            onChange={(e) => setEditData({...editData, hoursEstimate: Number(e.target.value)})} 
-                          />
+                          <input type="number" value={editData.hoursEstimate} onChange={(e) => setEditData({...editData, hoursEstimate: e.target.value})} />
                         </div>
                         <div>
                           <label>Actual Hours</label>
-                          <input 
-                            type="number" 
-                            value={editData.realHours} 
-                            onChange={(e) => setEditData({...editData, realHours: Number(e.target.value)})} 
-                          />
+                          <input type="number" value={editData.realHours} onChange={(e) => setEditData({...editData, realHours: e.target.value})} />
                         </div>
                       </div>
 
                       <label>Description</label>
-                      <textarea 
-                        value={editData.description} 
-                        onChange={(e) => setEditData({...editData, description: e.target.value})} 
-                      />
+                      <textarea value={editData.description} onChange={(e) => setEditData({...editData, description: e.target.value})} />
                       
                       <div className="details-actions">
-                        <button className="btn-save" onClick={() => handleSaveEdit(task)}>Save</button>
+                        <button className="btn-save" onClick={() => handleSaveEdit(task)}>Save Changes</button>
                         <button className="btn-cancel" onClick={() => setIsEditing(false)}>Cancel</button>
                       </div>
                     </div>
                   ) : (
                     <div className="view-mode">
-                      <p><strong>Due Date:</strong> {task.dueDate || "No date set"}</p>
-                      <div className="hours-view">
-                        <p><strong>Estimated Hours:</strong> {task.hoursEstimate || 0}</p>
-                        {task.status === "completed" && (
-                          <p><strong>Actual Hours:</strong> {task.realHours || 0}</p>
-                        )}
-                      </div>
+                      <p><strong>Owner:</strong> {task.userName || "Not assigned"}</p>
                       <p><strong>Description:</strong> {task.description || "No description provided."}</p>
                       <p><strong>Status:</strong> {task.status}</p>
-                      
                       <div className="details-actions">
                         <button className="btn-edit" onClick={() => setIsEditing(true)}>Edit</button>
                         <button className="btn-delete" onClick={() => deleteTask(task.id)}>Delete Task</button>
@@ -261,6 +222,28 @@ const myTasks = tasks.filter(t => {
           ))}
         </div>
       ))}
+
+      {/* 4. SECCIÓN DE INTELIGENCIA ARTIFICIAL */}
+      <div className="ai-section" style={{ marginTop: "40px", padding: "20px", borderTop: "2px solid #555" }}>
+        <button 
+          className="btn-ai-magic" 
+          onClick={handleAskAI} 
+          disabled={isAiLoading}
+          style={{ padding: '12px 24px', cursor: 'pointer', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '8px' }}
+        >
+          {isAiLoading ? "🧠 Gemini is analyzing..." : "✨ Ask AI for My Priorities"}
+        </button>
+
+        {aiSuggestion && (
+          <div className="ai-response-card" style={{ marginTop: "20px", padding: "20px", backgroundColor: "#1e1e2e", borderLeft: "5px solid #9333ea", borderRadius: "8px", color: "#e2e2e2" }}>
+            <h3 style={{ color: "#a855f7", marginTop: 0 }}>🤖 AI Project Manager:</h3>
+            <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
+              {aiSuggestion}
+            </p>
+          </div>
+        )}
+      </div>
+
     </section>
   );
 }

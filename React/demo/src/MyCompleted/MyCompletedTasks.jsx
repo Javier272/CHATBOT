@@ -4,11 +4,17 @@ import "./MyCompletedTasks.css";
 function MyComTasks({ tasks = [] }) {
   const safeTasks = Array.isArray(tasks) ? tasks : [];
   
-  // 1. Cálculo de escala para el eje Y (Histograma)
-  const maxHoursRaw = Math.max(...safeTasks.map(t => Math.max(Number(t.hoursEstimate) || 0, Number(t.realHours) || 0)), 0);
-  // Aseguramos que el eje tenga al menos 1h para mostrarse
-  const maxAxis = maxHoursRaw > 0 ? Math.ceil(maxHoursRaw) : 1; 
-  const ticks = Array.from({ length: maxAxis + 1 }, (_, i) => i).reverse();
+const maxHoursRaw = Math.max(...safeTasks.map(t => Math.max(Number(t.hoursEstimate) || 0, Number(t.realHours) || 0)), 0);
+const maxAxis = maxHoursRaw > 0 ? Math.ceil(maxHoursRaw) : 1
+
+
+  const numTicks = 5; 
+const step = Math.ceil(maxAxis / (numTicks - 1)) || 1;
+const ticks = [];
+for (let i = 0; i <= maxAxis; i += step) {
+  ticks.push(i);
+}
+ticks.reverse();
 
   // 2. Filtros para la dona y leyendas
   const total = safeTasks.length;

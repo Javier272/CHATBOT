@@ -1,4 +1,4 @@
-/* Contenedor principal del Dashboard */
+/* --- Contenedor principal del Dashboard --- */
 .dashboard-container {
   width: 100%;
   max-width: 1200px;
@@ -16,7 +16,7 @@
   font-size: 1.6rem;
 }
 
-/* Bloque de tarjeta principal */
+/* --- Bloque de tarjeta principal --- */
 .sprint-card-block {
   background: rgba(255, 255, 255, 0.03);
   padding: 25px;
@@ -25,7 +25,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Layout: Dona a la izquierda, Barras a la derecha */
+/* --- Layout: Dona a la izquierda, Barras a la derecha --- */
 .sprint-charts-layout {
   display: flex;
   gap: 30px;
@@ -34,7 +34,6 @@
   margin-bottom: 25px;
 }
 
-/* Paneles de gráficas */
 .bar-chart-section {
   padding: 24px;
   background-color: #212e3d;
@@ -43,12 +42,12 @@
   flex: 1;
 }
 
-/* Ajuste específico para mover la dona a la izquierda */
+/* Ajuste específico para la dona */
 .bar-chart-section:first-child {
-  flex: 0 1 350px; /* Tamaño fijo para que no flote al centro */
+  flex: 0 1 350px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Alinea contenido de la sección a la izquierda */
+  align-items: flex-start;
 }
 
 .chart-title {
@@ -62,7 +61,7 @@
 .pie-chart-viewport {
   width: 100%;
   display: flex;
-  justify-content: flex-start; /* Dona a la izquierda del panel */
+  justify-content: flex-start;
   padding-left: 10px;
 }
 
@@ -88,73 +87,86 @@
   border-radius: 50%;
 }
 
-/* --- GRÁFICA DE BARRAS CON EJE --- */
+/* --- GRÁFICA DE BARRAS (CORREGIDA) --- */
 .chart-with-axis {
   display: flex;
   height: 250px;
   margin-top: 10px;
   position: relative;
+  overflow: hidden;
 }
 
-/* Eje Y (Frecuencia de horas) */
 .axis-y {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding-right: 15px;
-  border-right: 2px solid #555;
-  color: #888;
-  font-size: 0.8rem;
-  font-weight: bold;
+  /* Eliminamos el borde sólido por algo más limpio */
+  border-right: none; 
+  color: #7a869a; /* Un color gris más suave */
+  font-size: 0.75rem; /* Un poco más pequeño */
+  font-weight: 500;
+  flex-shrink: 0;
+  height: 100%;
+  margin-bottom: 20px; /* Alineación final */
 }
 
 .axis-tick {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 0;
   position: relative;
+  /* Quitamos el height:0 fijo para que se distribuyan solos */
 }
 
-/* Líneas de guía de fondo */
+/* Líneas de guía mucho más sutiles */
 .grid-line {
   position: absolute;
-  left: 15px;
-  width: 1000%; /* Se extiende por todo el viewport */
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  left: 10px; /* Un poco de margen para no tocar el texto */
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Muy tenue */
   pointer-events: none;
 }
 
 .bar-chart-viewport {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end; /* Alinea las barras al fondo */
   gap: 20px;
   flex: 1;
   padding: 0 20px;
   overflow-x: auto;
   position: relative;
+  height: 100%; /* ¡ESTO ES CLAVE! */
 }
 
-/* Barras */
+/* Scrollbar estilizado */
+.bar-chart-viewport::-webkit-scrollbar { height: 8px; }
+.bar-chart-viewport::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+.bar-chart-viewport::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+.bar-chart-viewport::-webkit-scrollbar-thumb:hover { background: #777; }
+
 .bar-chart-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 60px;
+  height: 100%;    /* ¡ESTO ES CLAVE! Ocupa toda la altura del contenedor padre */
+  min-width: 60px; /* Evita que se sigan comprimiendo */
+  flex-shrink: 0;  /* Evita que se encojan */
+  justify-content: flex-end; /* Alinea el contenido abajo */
 }
 
 .bars-vertical-container {
   display: flex;
   align-items: flex-end;
   gap: 5px;
-  height: 100%; /* Muy importante para que las barras suban */
+  height: 100%;
   width: 100%;
   margin-bottom: 10px;
 }
 
 .bar-track-wrapper {
   flex: 1;
-  height: 100%; /* Contenedor de la barra al 100% del eje */
+  height: 100%;
   background: rgba(255, 255, 255, 0.05);
   position: relative;
 }
@@ -164,18 +176,19 @@
   position: absolute;
   bottom: 0;
   border-radius: 3px 3px 0 0;
-  transition: height 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+  transition: height 0.6s ease;
 }
 
 .bar-fill.estimated { background-color: #3498db; }
 .bar-fill.actual { background-color: #9b59b6; }
 
-/* Leyenda y Textos */
+/* --- Leyenda y Textos --- */
 .chart-user-name {
   font-size: 0.75rem;
   color: #ccc;
   text-align: center;
   margin-top: 5px;
+  white-space: nowrap; /* Evita que el nombre salte de línea */
 }
 
 .chart-legend-details {
@@ -186,10 +199,7 @@
   margin-top: 15px;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-}
+.legend-item { display: flex; align-items: center; }
 
 .dot-completed { background-color: #00da53; }
 .dot-started { background-color: #3498db; }
@@ -204,10 +214,8 @@
   margin-right: 8px;
 }
 
-/* Barra de progreso inferior */
-.sprint-global-progress {
-  margin-top: 30px;
-}
+/* --- Barra de progreso inferior --- */
+.sprint-global-progress { margin-top: 30px; }
 
 .progress-bar-background {
   background: rgba(255, 255, 255, 0.1);

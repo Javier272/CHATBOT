@@ -31,11 +31,18 @@ const handleResponse = async (res) => {
 //
 // 📌 TASKS
 //
+// Temporal: Añade esto en getTasks
 export const getTasks = async () => {
+  const token = localStorage.getItem("token");
+  console.log("Token enviado:", token); // Verifícalo en consola
+  
   const res = await fetch(`${BASE_URL}/tasks`, {
     headers: getAuthHeaders()
   });
 
+  // Loguea el estado para ver qué ocurre exactamente
+  console.log("Respuesta del servidor:", res.status); 
+  
   return handleResponse(res);
 };
 
@@ -123,4 +130,13 @@ export const loginUser = async ({ email, password }) => {
 
     throw error;
   }
+};
+
+// 🤖 Obtener prioridades sugeridas por IA
+export const getAiPriorities = async (userId) => {
+  const res = await fetch(`${BASE_URL}/ai/prioritize/user/${userId}`, {
+    method: "GET",
+    headers: getAuthHeaders()
+  });
+  return handleResponse(res);
 };
