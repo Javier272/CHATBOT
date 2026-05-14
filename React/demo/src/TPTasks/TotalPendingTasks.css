@@ -72,15 +72,12 @@
   border: 1px solid #3498db;
 }
 
-.edit-form-inline { 
-  display: flex; 
-  gap: 10px; 
-  align-items: center; 
-  flex-wrap: wrap;
-}
-
-.edit-form-inline input { 
+/* Agregamos el select para que comparta el estilo de los inputs */
+/* Esto asegura que los select se vean iguales a los inputs */
+.edit-form-inline input,
+.edit-form-inline select { 
   flex: 1; 
+  min-width: 180px; /* Evita que se colapsen */
   padding: 8px; 
   border: 1px solid #005c99; 
   border-radius: 4px; 
@@ -88,7 +85,21 @@
   color: white;
 }
 
-/* Botones */
+.edit-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+/* Ajuste para que los botones de acción siempre tengan su propia línea si hay muchos campos */
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%; /* Obliga a los botones a bajar si es necesario */
+}
+
 .btn-edit-table { 
   padding: 6px 12px; 
   background: #3498db; 
@@ -97,7 +108,6 @@
   border-radius: 4px; 
   cursor: pointer; 
 }
-
 .btn-save2 { background: #27ae60; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
 .btn-save2:hover { background: #219150; }
 

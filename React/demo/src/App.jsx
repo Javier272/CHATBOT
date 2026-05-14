@@ -3,6 +3,7 @@ import Sidebar from "./Sidebar";
 import MyComTasks from "./MyCompleted/MyCompletedTasks";
 import TaskList from "./TaskList/TaskList";
 import Login from "./Login/Login";
+import ChangePassword from "./Login/ChangePassword"; // Componente para cambiar contraseña
 import AddTask from "./AddTask/AddTask";
 import TotalCompletedTasks from "./TComTask/TotalCompletedTasks";
 import TotalPendingTasks from "./TPTasks/TotalPendingTasks";
@@ -25,6 +26,9 @@ function App() {
 
   // Control del modal de login
   const [showLogin, setShowLogin] = useState(false);
+  
+  // Control del modal de cambio de contraseña
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Usuario actual logueado
   const [user, setUser] = useState(null);
@@ -69,14 +73,23 @@ function App() {
     setUser(newUser);
   };
 
+  // NUEVA FUNCIÓN PARA OLVIDASTE CONTRASEÑA
+  const handleForgotPassword = () => {
+    setShowLogin(false);
+    setShowChangePassword(true);
+  };
+
   // Filtrar tareas del usuario actual (soporta userId y user_id)
   const tareasFiltradas = user
-    ? tasks.filter((task) => {
-        const matchPorNombre = task.userName === user.name;
-        const matchPorId = String(task.userId || task.user_id) === String(user.id);
-        return matchPorNombre || matchPorId;
-      })
-    : [];
+  ? tasks.filter((task) => {
+      // Normalizamos IDs a string para evitar errores de tipo
+      const taskId = String(task.userId || task.user_id || "");
+      const currentUserId = String(user.id);
+      
+      // Filtramos por ID, que es lo más seguro
+      return taskId === currentUserId;
+    })
+  : [];
 
   // Refrescar tareas después de crear una nueva
   const addNewTask = async () => {
@@ -89,9 +102,16 @@ function App() {
       {/* HEADER */}
       <header className="header">
         {/* Botón de login o usuario actual */}
-        <button className="btn-login" onClick={() => setShowLogin(true)}>
-          {user ? `User: ${user.name}` : "Login"}
-        </button>
+        <div className="header-actions" style={{ display: 'flex', gap: '10px' }}>
+          {user && (
+            <button className="btn-change-pw" onClick={() => setShowChangePassword(true)}>
+               Cambiar Contraseña
+            </button>
+          )}
+          <button className="btn-login" onClick={() => setShowLogin(true)}>
+            {user ? `User: ${user.name}` : "Login"}
+          </button>
+        </div>
 
         {/* Logo y título */}
         <div className="header-title-container">
@@ -100,12 +120,22 @@ function App() {
         </div>
       </header>
 
-      {/*LOGIN */}
+      {/* LOGIN */}
       {showLogin && (
         <Login
           onLogin={handleLogin}
           onRegister={handleRegister}
+          onForgotPassword={handleForgotPassword} // PASAMOS LA FUNCIÓN AQUÍ
           onClose={() => setShowLogin(false)}
+        />
+      )}
+
+      {/* MODAL CAMBIO CONTRASEÑA */}
+      {/* Así debe quedar para que los usuarios aparezcan */}
+      {showChangePassword && (
+        <ChangePassword
+          users={users} // <--- ¡Esta es la pieza que faltaba!
+          onClose={() => setShowChangePassword(false)}
         />
       )}
 
@@ -141,18 +171,28 @@ function App() {
                 <TotalCompletedTasks
                   tasks={tasks}
                   users={users}
+                  currentUser={user}
                 />
               )}
 
               {/* Tareas pendientes del usuario */}
-              {(vista === "Mypending" || vista === "Individual") && (
+              {(vista === "Mypending") && (
                 <TaskList
-                tasks={tareasFiltradas}
-                users={users}
-                setTasks={setTasks}
-                currentUser={user} 
-              />
+                  tasks={tareasFiltradas.filter(t => t.status !== 'completed')} // Filtro explícito para pendientes
+                  users={users}
+                  setTasks={setTasks}
+                  currentUser={user} 
+                />
               )}
+
+              {(vista === "Mycompleted") && (
+  <TaskList
+    tasks={tareasFiltradas.filter(t => t.status === 'completed')} // Filtro explícito para completadas
+    users={users}
+    setTasks={setTasks}
+    currentUser={user} 
+  />
+)}
 
               {/* Todas las tareas pendientes */}
               {vista === "TotalPending" && (

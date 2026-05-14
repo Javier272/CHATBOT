@@ -80,12 +80,10 @@
 }
 
 .bar-track-wrapper {
-  width: 16px; /* Barras un poco más anchas */
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  height: 100%;
+  height: 220px;
+  width: 20px;
   display: flex;
-  flex-direction: column-reverse;
+  align-items: flex-end;
 }
 
 .bar-fill {
@@ -122,3 +120,61 @@
 .chart-scroll-wrapper::-webkit-scrollbar-track { background: #1a202c; border-radius: 4px; }
 .chart-scroll-wrapper::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
 .chart-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #636b76; }
+
+.chart-scroll-wrapper {
+  flex: 1;
+  /* Cambiamos 'auto' por 'scroll' para forzar la barra siempre */
+  overflow-x: scroll; 
+  padding-bottom: 10px;
+  margin-top: 15px;
+}
+
+/* Opcional: Esto ayuda a que no se vea tan intrusiva si no hay contenido */
+.chart-scroll-wrapper {
+  scrollbar-width: thin; /* Para Firefox */
+}
+
+/* Chrome, Edge, Safari */
+.chart-scroll-wrapper::-webkit-scrollbar { 
+  height: 8px; 
+}
+.chart-scroll-wrapper::-webkit-scrollbar-track { 
+  background: #1a202c; 
+  border-radius: 4px; 
+}
+.chart-scroll-wrapper::-webkit-scrollbar-thumb { 
+  background: #4a5568; 
+  border-radius: 4px; 
+}
+
+/* Aseguramos que ambos wrappers sean idénticos */
+.chart-scroll-wrapper {
+  flex: 1;
+  /* Forzamos el scroll siempre */
+  overflow-x: scroll; 
+  /* Añadimos padding para que el scroll no tape las barras */
+  padding-bottom: 12px; 
+  margin-top: 15px;
+  /* Esto ayuda a que el scroll siempre aparezca y no sea "auto" */
+  scrollbar-width: thin; 
+}
+
+/* Forzamos un ancho mínimo en el viewport para que SIEMPRE haya qué desplazar */
+.bar-chart-viewport {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  /* Si tus gráficas se ven "apretadas", aumenta este min-width */
+  min-width: 100%; 
+}
+
+/* Asegurar que ambos contenedores de sección tengan el mismo comportamiento */
+.bar-chart-section {
+  flex: 1;
+  min-width: 350px;
+  /* ... resto de tus estilos ... */
+  display: flex;
+  flex-direction: column;
+  /* Importante: esto permite que el scroll hijo viva dentro */
+  overflow: hidden; 
+}

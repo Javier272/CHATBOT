@@ -83,21 +83,40 @@ function TaskList({ tasks, setTasks, currentUser }) {
     try { await updateTask(updatedTask); } catch (err) { console.error(err); }
   };
 
-  const toggleComplete = async (task) => {
-    const isCompleting = task.status !== "completed";
-    if (isCompleting) {
-      const input = prompt("¿Cuántas horas reales tomó esta tarea?", task.realHours || 0);
-      if (input === null) return; 
-      const realHours = Number(input) || 0;
-      const updatedTask = { ...task, status: "completed", realHours };
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-      try { await updateTask(updatedTask); } catch (err) { console.error(err); }
-    } else {
-      const updatedTask = { ...task, status: "pending" };
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-      try { await updateTask(updatedTask); } catch (err) { console.error(err); }
-    }
-  };
+const toggleComplete = async (task) => {
+  const isCompleting = task.status !== "completed";
+  
+  // 1. Clonamos la tarea original para mantener todos sus campos (userId, userName, sprint, etc.)
+  // Esto evita que la tarea "desaparezca" si el backend devuelve datos incompletos.
+  let updatedTask = { ...task }; 
+
+  if (isCompleting) {
+    const input = prompt("¿Cuántas horas reales tomó esta tarea?", task.realHours || 0);
+    if (input === null) return; // Si el usuario cancela el prompt, no hacemos nada
+    
+    updatedTask.status = "completed";
+    updatedTask.realHours = Number(input) || 0;
+  } else {
+    updatedTask.status = "pending";
+    updatedTask.realHours = 0; // Opcional: resetear horas si vuelve a pendiente
+  }
+  console.log("ANTES:", task);
+  console.log("DESPUÉS:", updatedTask);
+  // 2. Actualización Optimista: Actualizamos la UI inmediatamente para una mejor experiencia
+  setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
+
+  // 3. Sincronización con el Servidor
+  try {
+    const response = await updateTask(updatedTask);
+    console.log("Servidor actualizado correctamente:", response);
+  } catch (err) {
+    console.error("Error al sincronizar con el backend:", err);
+    
+    // 4. Rollback (Reversión): Si la API falla, devolvemos la tarea a su estado original
+    alert("Error de conexión. El cambio no se guardó en el servidor.");
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
+  }
+};
 
   const deleteTask = async (id) => {
     if (window.confirm("¿Eliminar esta tarea?")) {

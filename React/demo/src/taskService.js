@@ -1,4 +1,4 @@
-const BASE_URL = "http://163.192.157.223";
+const BASE_URL = "http://159.54.134.63";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
@@ -139,4 +139,45 @@ export const getAiPriorities = async (userId) => {
     headers: getAuthHeaders()
   });
   return handleResponse(res);
+};
+
+// 📊 Obtener estadísticas y feedback del Agile Coach (IA)
+export const getAiStats = async (userId) => {
+  const res = await fetch(`${BASE_URL}/ai/stats/user/${userId}`, {
+    method: "GET",
+    headers: getAuthHeaders() // ¡Súper importante para que el cadenero te deje pasar!
+  });
+  
+  return handleResponse(res);
+};
+
+export const updatePassword = async (userId, oldPassword, newPassword) => {
+  // Ajusta la URL y el método según tu API
+  const response = await fetch(`${BASE_URL}/users/${userId}/password`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ oldPassword, newPassword }),
+  });
+  
+  if (!response.ok) throw new Error("No se pudo actualizar");
+  return response.json();
+};
+
+export const adminResetPassword = async (email, newPassword) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${BASE_URL}/users/reset-password`, { // Asegúrate de usar la URL correcta
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ email, newPassword })
+  });
+
+  if (!res.ok) {
+    const errorData = await res.text().catch(() => "Error desconocido");
+    throw new Error(errorData || "Error al actualizar la contraseña");
+  }
+
+  return res.text(); 
 };

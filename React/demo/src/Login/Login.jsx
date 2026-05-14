@@ -2,14 +2,14 @@ import { useState } from "react";
 import { loginUser } from "../taskService";
 import "./Login.css";
 
-function Login({ onLogin, onClose }) {
+function Login({ onLogin, onClose, onForgotPassword }) { // Recibimos la nueva prop
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    console.log("🔥 Intentando login");
+    console.log("Intentando login");
 
     setLoading(true);
     setError(false);
@@ -73,6 +73,27 @@ function Login({ onLogin, onClose }) {
           disabled={loading}
         >
           {loading ? "Loading..." : "Login"}
+        </button>
+
+        {/* BOTÓN OLVIDASTE CONTRASEÑA */}
+        <button
+          type="button"
+          className="btn-forgot"
+          onClick={onForgotPassword}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#666",
+            cursor: "pointer",
+            fontSize: "0.85rem",
+            textDecoration: "underline",
+            marginTop: "15px",
+            display: "block",
+            width: "100%",
+            textAlign: "center"
+          }}
+        >
+          ¿Olvidaste tu contraseña?
         </button>
 
         {error && (
