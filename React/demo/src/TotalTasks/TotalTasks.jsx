@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { updateTask, deleteTask } from "../taskService";
-import "./TotalPendingTasks.css";
+import "./CompletedTasks.css";
 
-function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
+function TotalTasks({ tasks = [], setTasks, users = [] }) {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const [editData, setEditData] = useState({
@@ -19,17 +19,10 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
   const today = new Date().toISOString().split("T")[0];
 
   // Todas las tareas agrupadas por sprint, sin filtro de estado
-  const pendingTasks = tasks.filter(
-    (task) => String(task.status).toLowerCase() !== "completed"
-  );
-
-  const groupedTasks = pendingTasks.reduce((acc, task) => {
+  const groupedTasks = tasks.reduce((acc, task) => {
     const sprint = task.sprint || "Sin Sprint";
-
     if (!acc[sprint]) acc[sprint] = [];
-
     acc[sprint].push(task);
-
     return acc;
   }, {});
 
@@ -117,7 +110,7 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
 
   return (
     <div className="pending-wrapper">
-      <h2 className="pending-title-main">Pending Tasks</h2>
+      <h2 className="pending-title-main">All Tasks</h2>
 
       {!hasTasks ? (
         <div className="empty-table">
@@ -269,4 +262,4 @@ function TotalPendingTasks({ tasks = [], setTasks, users = [] }) {
   );
 }
 
-export default TotalPendingTasks;
+export default TotalTasks;

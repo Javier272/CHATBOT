@@ -65,7 +65,7 @@ function Login({ onLogin, onClose, onForgotPassword }) { // Recibimos la nueva p
           }}
         />
 
-        {/* 🔥 BOTÓN DIRECTO (sin form, más confiable) */}
+        {/* BOTÓN DIRECTO (sin form, más confiable) */}
         <button
           type="button"
           className="btn-main"

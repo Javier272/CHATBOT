@@ -138,109 +138,91 @@ const getUserName = (id) => {
     }
   };
 
-   
   // ==============================
   // RENDER PRINCIPAL
   // ==============================
   return (
-
     <div className="pending-wrapper">
 
       {/* TÍTULO PRINCIPAL */}
       <h2 className="pending-title-main">
-        Tasks Dashboard by Sprint
+        Tasks Dashboard Divided by Sprint
       </h2>
 
       {/* RECORRE TODOS LOS SPRINTS */}
       {sprintEntries.map(([sprintName, sprintTasks]) => {
-      // ESTADÍSTICAS POR USUARIO
-        /*
-          Crea estadísticas individuales:
-
-          - tareas completadas
-          - tareas iniciadas
-          - pendientes
-          - horas estimadas
-          - horas reales
-        */
-console.log("USERS:", users);
-console.log("SPRINT TASKS:", sprintTasks);
-
-const userStats = (users || [])
-  // Agregamos el filtro para excluir al usuario "prueba"
-  .filter(u => {
-    const userName = String(u.NAME || u.name || "").trim().toLowerCase();
-    return userName !== "prueba";
-  })
-  .reduce((stats, u) => {
-    // Limpiamos las comillas extras que vimos en el log (ej: "'pending'")
-    const clean = (val) => String(val || "").replace(/['"]+/g, '').trim().toLowerCase();
-
-    const currentUserId = u.USER_ID || u.user_id || u.id;
-    const currentUserName = clean(u.NAME || u.name);
-
-    // 1. Filtramos comparando SOLO por el nombre del usuario
-    const userTasks = (sprintTasks || []).filter(t => {
-      const taskOwner = clean(t.userName || t.USERNAME);
-      return taskOwner !== "" && taskOwner === currentUserName;
-    });
-
-    // 2. Contamos los estados
-    stats[currentUserId] = {
-      completed: userTasks.filter(t => clean(t.STATUS || t.status) === "completed").length,
-      started: userTasks.filter(t => {
-        const s = clean(t.STATUS || t.status);
-        return s === "in_progress" || s === "started";
-      }).length,
-      pending: userTasks.filter(t => clean(t.STATUS || t.status) === "pending").length,
-      total: userTasks.length,
-
-      // Mantenemos tu lógica de horas que dijiste que funciona bien
-      estimatedHours: userTasks.reduce((a, t) => a + (Number(t.hoursEstimate) || 0), 0),
-      actualHours: userTasks.reduce((a, t) => a + (Number(t.realHours) || 0), 0)
-    };
-
-    return stats;
-  }, {});
-
-// 4. Cálculo de máximos dinámicos
-const maxTasks = Math.max(...Object.values(userStats).map(u => u.total), 1);
-const maxHours = Math.max(...Object.values(userStats).map(u => Math.max(u.estimatedHours, u.actualHours)), 1);
-
-
-
-
-
-
-
-// GENERAR TICKS DEL EJE Y
         // ==============================
-        /*
-          Genera marcas del eje Y:
-          100 
-          75
-          50
-          25
-          0
-        */
+        // LÓGICA Y CÁLCULOS DEL SPRINT
+        // ==============================
+        const userStats = (users || [])
+          // Excluir al usuario "prueba"
+          .filter(u => {
+            const userName = String(u.NAME || u.name || "").trim().toLowerCase();
+            return userName !== "prueba";
+          })
+          .reduce((stats, u) => {
+            const clean = (val) => String(val || "").replace(/['"]+/g, '').trim().toLowerCase();
+
+            const currentUserId = u.USER_ID || u.user_id || u.id;
+            const currentUserName = clean(u.NAME || u.name);
+
+            // Filtramos tareas por usuario
+            const userTasks = (sprintTasks || []).filter(t => {
+              const taskOwner = clean(t.userName || t.USERNAME);
+              return taskOwner !== "" && taskOwner === currentUserName;
+            });
+
+            // Contamos estados y horas
+            stats[currentUserId] = {
+              completed: userTasks.filter(t => clean(t.STATUS || t.status) === "completed").length,
+              started: userTasks.filter(t => {
+                const s = clean(t.STATUS || t.status);
+                return s === "in_progress" || s === "started";
+              }).length,
+              pending: userTasks.filter(t => clean(t.STATUS || t.status) === "pending").length,
+              total: userTasks.length,
+
+              estimatedHours: userTasks.reduce((a, t) => a + (Number(t.hoursEstimate) || 0), 0),
+              actualHours: userTasks.reduce((a, t) => a + (Number(t.realHours) || 0), 0)
+            };
+
+            return stats;
+          }, {});
+
+        // Totales globales del sprint
+        let totalCompleted = 0;
+        let totalStarted = 0;
+        let totalPending = 0;
+
+        Object.values(userStats).forEach(stat => {
+          totalCompleted += stat.completed;
+          totalStarted += stat.started;
+          totalPending += stat.pending;
+        });
+
+        // Cálculo total (Corregido: Declarado una sola vez)
+        const totalSprintTasks = totalCompleted + totalStarted + totalPending;
+
+        // Porcentajes para el Dashboard inferior
+        const percentCompleted = totalSprintTasks > 0 ? Math.round((totalCompleted / totalSprintTasks) * 100) : 0;
+        const percentStarted = totalSprintTasks > 0 ? Math.round((totalStarted / totalSprintTasks) * 100) : 0;
+        const percentPending = totalSprintTasks > 0 ? Math.round((totalPending / totalSprintTasks) * 100) : 0;
+
+        // Cálculo de máximos para la altura de las gráficas
+        const maxTasks = Math.max(...Object.values(userStats).map(u => u.total), 1);
+        const maxHours = Math.max(...Object.values(userStats).map(u => Math.max(u.estimatedHours, u.actualHours)), 1);
+
+        // Función para marcas del eje Y
         const getTicks = (max) =>
           Array.from(
             { length: 5 },
-            (_, i) =>
-              Math.round(
-                max - (i * (max / 4))
-              )
+            (_, i) => Math.round(max - (i * (max / 4)))
           );
-
-
-        // ==============================
+// ==============================
         // RENDER DEL SPRINT
         // ==============================
-console.log("USERS:", users);
-console.log("TASKS:", tasks);
-console.log("SPRINT TASKS:", sprintTasks);
-        return (
 
+        return (
           <section
             key={sprintName}
             className="sprint-group"
@@ -253,7 +235,6 @@ console.log("SPRINT TASKS:", sprintTasks);
             {/* CONTENEDOR PRINCIPAL */}
             <div className="sprint-dashboard-layout">
 
-             
               {/* PANEL DE HORAS
               ============================== */}
               <div className="bar-chart-section">
@@ -261,9 +242,8 @@ console.log("SPRINT TASKS:", sprintTasks);
                 <div className="chart-with-axis">
 
                   {/* Eje Y: Números y líneas de fondo */}
-                 <div className="axis-y">
+                  <div className="axis-y">
                     {getTicks(maxHours).map((t, index) => (
-                      /* Agregamos el nombre del sprint y el índice para asegurar unicidad */
                       <div key={`hours-tick-${sprintName}-${t}-${index}`} className="axis-tick">
                         <span>{t}h</span>
                         <div className="grid-line"></div>
@@ -277,29 +257,22 @@ console.log("SPRINT TASKS:", sprintTasks);
                           const { estimatedHours = 0, actualHours = 0 } = userStats[userId] || {};
                           const divisor = maxHours || 1;
                           
-                          // SOLUCIÓN: Key compuesta única para este Sprint y este Usuario
+                          // Key compuesta única para este Sprint y este Usuario
                           const uniqueKey = `hours-bar-${sprintName}-${userId}`;
-
 
                           return (
                             <div key={uniqueKey} className="bar-chart-group">
                               <div className="bars-vertical-container">
-
-                                {/* Barra Estimada: altura proporcional al máximo */}
+                                {/* Barra Estimada */}
                                 <div className="bar-track-wrapper">
-                                  <div className="bar-fill estimated" style={{
-                                     height: `${(estimatedHours / divisor) * 100}%` 
-                                     }}></div>
+                                  <div className="bar-fill estimated" style={{ height: `${(estimatedHours / divisor) * 100}%` }}></div>
                                 </div>
-
-                                {/* Barra Real: altura proporcional al máximo */}
+                                {/* Barra Real */}
                                 <div className="bar-track-wrapper">
-                                  <div className="bar-fill actual" style={{ 
-                                    height: `${(actualHours / divisor) * 100}%` 
-                                    }}></div>
+                                  <div className="bar-fill actual" style={{ height: `${(actualHours / divisor) * 100}%` }}></div>
                                 </div>
                               </div>
-                              {/* Nombre del usuario debajo de sus barras */}
+                              {/* Nombre del usuario */}
                               <span className="chart-user-name">{getUserName(userId)}</span>
                             </div>
                           );
@@ -319,14 +292,12 @@ console.log("SPRINT TASKS:", sprintTasks);
                   PANEL DE TAREAS
               ============================== */}
               <div className="bar-chart-section">
-                {/* Título dinámico que muestra el máximo de tareas actual */}
-                <h4 className="chart-title">Tasks per user (Max: {maxTasks})</h4>
+                <h4 className="chart-title">Tasks per user</h4>
                 
                 <div className="chart-with-axis">
-                  {/* Eje Y: Marcas numéricas para contar tareas */}
+                  {/* Eje Y */}
                   <div className="axis-y">
                     {getTicks(maxTasks).map((t, i) => (
-                      /* Combinamos valor e índice para una key única */
                       <div key={`tick-task-${t}-${i}`} className="axis-tick">
                         <span>{t}</span>
                         <div className="grid-line"></div>
@@ -338,123 +309,170 @@ console.log("SPRINT TASKS:", sprintTasks);
                     <div className="bar-chart-viewport">
                       {Object.keys(userStats).map((userId) => {
                         const { completed, started, pending } = userStats[userId];
-                        const divisor = maxTasks || 1; // Evita errores si no hay tareas
+                        const divisor = maxTasks || 1; 
 
                         const uniqueKey = `tasks-bar-${sprintName}-${userId}`;
 
                         return (
                           <div key={uniqueKey} className="bar-chart-group">
-                            {/* Contenedor de las 3 barras de estado */}
                             <div className="bars-vertical-container">
-                              {/* Barra de Completadas */}
+                              {/* Barra Completadas */}
                               <div className="bar-track-wrapper">
-                                <div 
-                                  className="bar-fill completed" 
-                                  style={{ height: `${(completed / divisor) * 100}%` }}
-                                ></div>
+                                <div className="bar-fill completed" style={{ height: `${(completed / divisor) * 100}%` }}></div>
                               </div>
-                              {/* Barra de En Progreso / Iniciadas */}
+                              {/* Barra En Progreso */}
                               <div className="bar-track-wrapper">
-                                <div 
-                                  className="bar-fill started" 
-                                  style={{ height: `${(started / divisor) * 100}%` }}
-                                ></div>
+                                <div className="bar-fill started" style={{ height: `${(started / divisor) * 100}%` }}></div>
                               </div>
-                              {/* Barra de Pendientes */}
+                              {/* Barra Pendientes */}
                               <div className="bar-track-wrapper">
-                                <div 
-                                  className="bar-fill pending" 
-                                  style={{ height: `${(pending / divisor) * 100}%` }}
-                                ></div>
+                                <div className="bar-fill pending" style={{ height: `${(pending / divisor) * 100}%` }}></div>
                               </div>
                             </div>
-                            {/* Identificador del usuario */}
                             <span className="chart-user-name">{getUserName(userId)}</span>
                           </div>
+                          
                         );
                       })}
+
+                      
                     </div>
+                    
                   </div>
+                  
+                </div>
+                <h2></h2>
+
+                        <div className="legend-label-row">
+                          <span className="indicator-dot dot-done"></span>
+                          <span className="label-text">Done</span>
+                        </div>
+                <div className="legend-label-row">
+                          <span className="indicator-dot dot-doing"></span>
+                          <span className="label-text">Doing</span>
+                </div>
+                <div className="legend-label-row">
+                  <span className="indicator-dot dot-todo"></span>
+                  <span className="label-text">To Do</span>
                 </div>
 
-                {/* Leyenda para identificar qué significa cada color */}
-                <div className="chart-legend-details">
-                  <span className="legend-item"><span className="dot-completed"></span> Done</span>
-                  <span className="legend-item"><span className="dot-started"></span> Doing</span>
-                  <span className="legend-item"><span className="dot-pending"></span> To Do</span>
-                </div>
               </div>
 
+              {/* ========================================================================= */}
+              {/* COMPONENTE DE PROGRESO DE SPRINT ESTILO PREFABS */}
+              {/* ========================================================================= */}
+              <div className="sprint-progress-dashboard-card">
+                <h3 className="dashboard-card-title">Sprint Progress</h3>
+                
+                <div className="dashboard-card-body">
+                  
+                  {/* LADO IZQUIERDO: Anillo Circular de Porcentaje */}
+                  <div className="progress-circle-wrapper">
+                    <svg className="progress-svg" viewBox="0 0 100 100">
+                      <circle className="circle-bg" cx="50" cy="50" r="40" />
+                      <circle 
+                        className="circle-stroke-fill" 
+                        cx="50" 
+                        cy="50" 
+                        r="40" 
+                        style={{
+                          strokeDasharray: `${2 * Math.PI * 40}`,
+                          strokeDashoffset: `${2 * Math.PI * 40 * (1 - percentCompleted / 100)}`
+                        }}
+                      />
+                    </svg>
+                    <div className="circle-inner-text">
+                      <span className="circle-number">{percentCompleted}%</span>
+                    </div>
+                  </div>
 
-              
+                  {/* LADO DERECHO: Barra total y Estadísticas detalladas */}
+                  <div className="progress-details-wrapper">
+                    <h4 className="total-tasks-count">Total: {totalSprintTasks} tasks</h4>
+                    
+                    {/* Barra apilada redondeada */}
+                    <div className="dashboard-stacked-bar">
+                      {totalSprintTasks > 0 ? (
+                        <>
+                          <div className="fill-done" style={{ width: `${percentCompleted}%` }}></div>
+                          <div className="fill-doing" style={{ width: `${percentStarted}%` }}></div>
+                          <div className="fill-todo" style={{ width: `${percentPending}%` }}></div>
+                        </>
+                      ) : (
+                        <div style={{ width: '100%', background: '#1e293b' }}></div>
+                      )}
+                    </div>
+
+                    {/* Leyenda vertical estilizada en columnas */}
+                    <div className="dashboard-legend-grid">
+                      <div className="legend-column-item">
+                        <div className="legend-label-row">
+                          <span className="indicator-dot dot-done"></span>
+                          <span className="label-text">Done</span>
+                        </div>
+                        <span className="legend-metrics">{totalCompleted} ({percentCompleted}%)</span>
+                      </div>
+
+                      <div className="legend-column-item">
+                        <div className="legend-label-row">
+                          <span className="indicator-dot dot-doing"></span>
+                          <span className="label-text">Doing</span>
+                        </div>
+                        <span className="legend-metrics">{totalStarted} ({percentStarted}%)</span>
+                      </div>
+
+                      <div className="legend-column-item">
+                        <div className="legend-label-row">
+                          <span className="indicator-dot dot-todo"></span>
+                          <span className="label-text">To Do</span>
+                        </div>
+                        <span className="legend-metrics">{totalPending} ({percentPending}%)</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              {/* ========================================================================= */}
+
             </div>
           </section>
         );
       })}
 
+      {/* ========================================================= */}
+      {/* Seccionn IA*/}
+      {/* ========================================================= */}
+      <div className="ai-section">
+      {/* TÍTULO PRINCIPAL */}
+      <h3 className="ai-section-title">Team Insights</h3>
 
-
-      {/* ==============================
-          SECCIÓN DE IA
-      ============================== */}
-      <div
-        className="ai-section"
-        style={{
-          marginTop: "40px",
-          padding: "20px",
-          borderTop: "2px solid #eee"
-        }}
+      {/* BOTÓN PARA PEDIR FEEDBACK */}
+      <button
+        className={`btn-ai-magic ${isAiLoading ? "loading" : ""}`}
+        onClick={handleAskAI}
+        disabled={isAiLoading}
       >
-
-        {/* TÍTULO */}
-        <h3
-          style={{
-            marginBottom: "15px",
-            color: "#ffffff"
-          }}
-        >
-          Team Insights
-        </h3>
-
-
-        {/* BOTÓN PARA PEDIR FEEDBACK */}
-        <button
-
-          className="btn-ai-magic"
-
-          onClick={handleAskAI}
-
-          disabled={isAiLoading}
-
-        >
-
-          {/* Texto dinámico */}
-          {isAiLoading
-
-            ? "📊 Analizando productividad..."
-
-            : "✨ Pedir feedback al Agile Coach (AI)"}
-
-        </button>
-
-
-
-        {/* RESPUESTA DE IA */}
-        {aiSuggestion && (
-
-          <div className="ai-response-card">
-
-            <h3>
-              🤖 Agile Coach AI:
-            </h3>
-
-            <p className="ai-text">
-              {aiSuggestion}
-            </p>
-
-          </div>
+        {isAiLoading ? (
+          <>
+            <span className="ai-spinner"></span>
+            📊 Analizing productivity...
+          </>
+        ) : (
+          "✨ Ask for feedback to Agile Coach (AI)"
         )}
-      </div>
+      </button>
+
+      {/* RESPUESTA DE IA */}
+      {aiSuggestion && (
+        <div className="ai-response-card">
+          <h3 className="ai-card-title">
+            <span className="ai-icon-pulse">🤖</span> Agile Coach AI:
+          </h3>
+          <p className="ai-text">{aiSuggestion}</p>
+        </div>
+      )}
+    </div>
     </div>
   );
 }
