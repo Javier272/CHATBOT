@@ -122,13 +122,25 @@ const groupedTasks = completedTasks.reduce((acc, task) => {
       {!hasTasks ? (
         <div className="empty-table">
           <div className="pending-header">
-            <span>Task</span><span>Description</span><span>Assigned</span>
-            <span>Status</span><span>Due Date</span><span>Priority</span>
+            <span>Task</span>
+            <span>Description</span>
+            <span>Assigned</span>
+            <span>Status</span>
+            <span>Due Date</span>
+            <span>Priority</span>
             <span>Est. Hours</span>
+            <span>Real Hours</span>
           </div>
+
           <div className="pending-row empty-row">
-            <span>-</span><span>-</span><span>-</span><span>-</span>
-            <span>-</span><span>-</span><span>-</span><span>-</span>
+            <span>-</span>
+            <span>-</span>
+            <span>-</span>
+            <span>-</span>
+            <span>-</span>
+            <span>-</span>
+            <span>-</span>
+            <span>-</span>
           </div>
         </div>
       ) : (
@@ -137,9 +149,14 @@ const groupedTasks = completedTasks.reduce((acc, task) => {
             <h3 className="sprint-title">Sprint: {sprintName}</h3>
 
             <div className="pending-header">
-              <span>Task</span><span>Description</span><span>Assigned</span>
-              <span>Status</span><span>Due Date</span><span>Priority</span>
+              <span>Task</span>
+              <span>Description</span>
+              <span>Assigned</span>
+              <span>Status</span>
+              <span>Due Date</span>
+              <span>Priority</span>
               <span>Est. Hours</span>
+              <span>Real Hours</span>
             </div>
 
             {sprintTasks.map((task) => (
@@ -152,9 +169,8 @@ const groupedTasks = completedTasks.reduce((acc, task) => {
                   <span>{task.dueDate || "-"}</span>
                   <span>{task.priority || "N/A"}</span>
                   <span>{task.hoursEstimate || 0}h</span>
-                  <button className="btn-edit-table" onClick={() => handleEditClick(task)}>
-                    Edit
-                  </button>
+                  <span>{task.realHours || 0}h</span>
+                  
                 </div>
 
                 {selectedTaskId === task.id && (

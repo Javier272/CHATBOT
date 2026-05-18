@@ -397,7 +397,7 @@ h1 {
   align-items: center;
   gap: 8px;
 
-  background: linear-gradient(135deg, #2563eb, #3498db);
+  background: linear-gradient(135deg, #213050, #3498db);
   color: white;
 
   border: none;
@@ -424,7 +424,7 @@ h1 {
 
 .btn-change-pw:hover {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #1d4ed8, #3498db);
+  background: linear-gradient(135deg, #04060c, #3498db);
 
   box-shadow:
     0 6px 16px rgba(37, 99, 235, 0.35);

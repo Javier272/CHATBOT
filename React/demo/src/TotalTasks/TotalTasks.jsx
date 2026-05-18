@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { updateTask, deleteTask } from "../taskService";
-import "./CompletedTasks.css";
+import "./TotalTasks.css";
 
 function TotalTasks({ tasks = [], setTasks, users = [] }) {
   const [selectedTaskId, setSelectedTaskId] = useState(null);

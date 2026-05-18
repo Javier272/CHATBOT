@@ -9,6 +9,7 @@ import TotalCompletedTasks from "./TComTask/TotalCompletedTasks";
 import TotalPendingTasks from "./TPTasks/TotalPendingTasks";
 import CompletedTasks from "./CompletedTasks/CompletedTasks";
 import { getTasks, getUsers } from "./taskService";
+import TotalTasks from "./TotalTasks/TotalTasks";
 
 import logo from "./assets/logo.png";
 import login from "./assets/login.png";
@@ -17,7 +18,7 @@ import team from "./assets/team.png";
 import "./App.css";
 import "./TaskList/TaskList.css";
 import "./MyCompleted/MyCompletedTasks.css";
-
+                 
 function App() {
   // Control de vistas (navegación interna)
   const [vista, setVista] = useState("TeamAnalytics");
@@ -235,10 +236,19 @@ function App() {
                 />
               )}
 
-                {/* Todas las tareas pendientes */}
+                {/* Todas las tareas Completadas */}
               {vista === "CompletedTasks" && (
                 <CompletedTasks
                   tasks={tasks.filter(t => t.status === "completed")}
+                  setTasks={setTasks}
+                  users={users}
+                />
+              )}
+
+                {/* Todas las tareas Completadas */}
+              {vista === "TotalTasks" && (
+                <TotalTasks
+                  tasks={tasks}
                   setTasks={setTasks}
                   users={users}
                 />

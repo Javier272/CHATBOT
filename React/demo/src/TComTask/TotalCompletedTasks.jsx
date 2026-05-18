@@ -183,7 +183,16 @@ const getUserName = (id) => {
               total: userTasks.length,
 
               estimatedHours: userTasks.reduce((a, t) => a + (Number(t.hoursEstimate) || 0), 0),
-              actualHours: userTasks.reduce((a, t) => a + (Number(t.realHours) || 0), 0)
+              realHours: userTasks.reduce(
+                (a, t) =>
+                  a + Number(
+                    t.REAL_HOURS ??
+                    t.real_hours ??
+                    t.realHours ??
+                    0
+                  ),
+                0
+              )
             };
 
             return stats;
@@ -210,7 +219,7 @@ const getUserName = (id) => {
 
         // Cálculo de máximos para la altura de las gráficas
         const maxTasks = Math.max(...Object.values(userStats).map(u => u.total), 1);
-        const maxHours = Math.max(...Object.values(userStats).map(u => Math.max(u.estimatedHours, u.actualHours)), 1);
+        const maxHours = Math.max(...Object.values(userStats).map(u => Math.max(u.estimatedHours, u.realHours)), 1);
 
         // Función para marcas del eje Y
         const getTicks = (max) =>
@@ -218,226 +227,372 @@ const getUserName = (id) => {
             { length: 5 },
             (_, i) => Math.round(max - (i * (max / 4)))
           );
-// ==============================
+        // ==============================
         // RENDER DEL SPRINT
         // ==============================
 
-        return (
-          <section
-            key={sprintName}
-            className="sprint-group"
-          >
-            {/* TÍTULO DEL SPRINT */}
-            <h3 className="sprint-title">
-              {`Sprint ${sprintName}`}
-            </h3>
 
-            {/* CONTENEDOR PRINCIPAL */}
-            <div className="sprint-dashboard-layout">
+          return (
+  <section
+    key={sprintName}
+    className="total-sprint-group"
+  >
+    {/* ===================================================== */}
+    {/* SPRINT TITLE */}
+    {/* ===================================================== */}
+    <h3 className="total-sprint-title">
+      Sprint {sprintName}
+    </h3>
 
-              {/* PANEL DE HORAS
-              ============================== */}
-              <div className="bar-chart-section">
-                <h4 className="chart-title">Est. vs Actual Hours</h4>
-                <div className="chart-with-axis">
+    {/* ===================================================== */}
+    {/* MAIN DASHBOARD LAYOUT */}
+    {/* ===================================================== */}
+    <div className="total-dashboard-layout">
 
-                  {/* Eje Y: Números y líneas de fondo */}
-                  <div className="axis-y">
-                    {getTicks(maxHours).map((t, index) => (
-                      <div key={`hours-tick-${sprintName}-${t}-${index}`} className="axis-tick">
-                        <span>{t}h</span>
-                        <div className="grid-line"></div>
-                      </div>
-                    ))}
-                  </div>
+      {/* ===================================================== */}
+      {/* HOURS CHART */}
+      {/* ===================================================== */}
+      <div className="total-chart-section">
 
-                  <div className="chart-scroll-wrapper">
-                      <div className="bar-chart-viewport">
-                        {Object.keys(userStats).map((userId) => {
-                          const { estimatedHours = 0, actualHours = 0 } = userStats[userId] || {};
-                          const divisor = maxHours || 1;
-                          
-                          // Key compuesta única para este Sprint y este Usuario
-                          const uniqueKey = `hours-bar-${sprintName}-${userId}`;
+        <h4 className="total-chart-title">
+          Est. vs Actual Hours
+        </h4>
 
-                          return (
-                            <div key={uniqueKey} className="bar-chart-group">
-                              <div className="bars-vertical-container">
-                                {/* Barra Estimada */}
-                                <div className="bar-track-wrapper">
-                                  <div className="bar-fill estimated" style={{ height: `${(estimatedHours / divisor) * 100}%` }}></div>
-                                </div>
-                                {/* Barra Real */}
-                                <div className="bar-track-wrapper">
-                                  <div className="bar-fill actual" style={{ height: `${(actualHours / divisor) * 100}%` }}></div>
-                                </div>
-                              </div>
-                              {/* Nombre del usuario */}
-                              <span className="chart-user-name">{getUserName(userId)}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                  </div>
-                </div>
+        <div className="total-chart-with-axis">
 
-                {/* Leyenda de colores */}
-                <div className="chart-legend-details">
-                  <span className="legend-item"><span className="dot-estimated"></span> Est.</span>
-                  <span className="legend-item"><span className="dot-actual"></span> Actual</span>
-                </div>
+          {/* Y AXIS */}
+          <div className="total-axis-y">
+            {getTicks(maxHours).map((t, index) => (
+              <div
+                key={`hours-tick-${sprintName}-${t}-${index}`}
+                className="total-axis-tick"
+              >
+                <span>{t}h</span>
+                <div className="total-grid-line"></div>
               </div>
+            ))}
+          </div>
 
-               {/* ==============================
-                  PANEL DE TAREAS
-              ============================== */}
-              <div className="bar-chart-section">
-                <h4 className="chart-title">Tasks per user</h4>
-                
-                <div className="chart-with-axis">
-                  {/* Eje Y */}
-                  <div className="axis-y">
-                    {getTicks(maxTasks).map((t, i) => (
-                      <div key={`tick-task-${t}-${i}`} className="axis-tick">
-                        <span>{t}</span>
-                        <div className="grid-line"></div>
-                      </div>
-                    ))}
-                  </div>
+          {/* CHART */}
+          <div className="total-chart-scroll-wrapper">
 
-                  <div className="chart-scroll-wrapper">
-                    <div className="bar-chart-viewport">
-                      {Object.keys(userStats).map((userId) => {
-                        const { completed, started, pending } = userStats[userId];
-                        const divisor = maxTasks || 1; 
+            <div className="total-bar-chart-viewport">
 
-                        const uniqueKey = `tasks-bar-${sprintName}-${userId}`;
+              {Object.keys(userStats).map((userId) => {
 
-                        return (
-                          <div key={uniqueKey} className="bar-chart-group">
-                            <div className="bars-vertical-container">
-                              {/* Barra Completadas */}
-                              <div className="bar-track-wrapper">
-                                <div className="bar-fill completed" style={{ height: `${(completed / divisor) * 100}%` }}></div>
-                              </div>
-                              {/* Barra En Progreso */}
-                              <div className="bar-track-wrapper">
-                                <div className="bar-fill started" style={{ height: `${(started / divisor) * 100}%` }}></div>
-                              </div>
-                              {/* Barra Pendientes */}
-                              <div className="bar-track-wrapper">
-                                <div className="bar-fill pending" style={{ height: `${(pending / divisor) * 100}%` }}></div>
-                              </div>
-                            </div>
-                            <span className="chart-user-name">{getUserName(userId)}</span>
-                          </div>
-                          
-                        );
-                      })}
+                const {
+                  estimatedHours = 0,
+                  realHours = 0
+                } = userStats[userId] || {};
 
-                      
-                    </div>
-                    
-                  </div>
-                  
-                </div>
-                <h2></h2>
+                const divisor = maxHours || 1;
 
-                        <div className="legend-label-row">
-                          <span className="indicator-dot dot-done"></span>
-                          <span className="label-text">Done</span>
-                        </div>
-                <div className="legend-label-row">
-                          <span className="indicator-dot dot-doing"></span>
-                          <span className="label-text">Doing</span>
-                </div>
-                <div className="legend-label-row">
-                  <span className="indicator-dot dot-todo"></span>
-                  <span className="label-text">To Do</span>
-                </div>
+                return (
+                  <div
+                    key={`hours-bar-${sprintName}-${userId}`}
+                    className="total-bar-chart-group"
+                  >
 
-              </div>
+                    <div className="total-bars-vertical-container">
 
-              {/* ========================================================================= */}
-              {/* COMPONENTE DE PROGRESO DE SPRINT ESTILO PREFABS */}
-              {/* ========================================================================= */}
-              <div className="sprint-progress-dashboard-card">
-                <h3 className="dashboard-card-title">Sprint Progress</h3>
-                
-                <div className="dashboard-card-body">
-                  
-                  {/* LADO IZQUIERDO: Anillo Circular de Porcentaje */}
-                  <div className="progress-circle-wrapper">
-                    <svg className="progress-svg" viewBox="0 0 100 100">
-                      <circle className="circle-bg" cx="50" cy="50" r="40" />
-                      <circle 
-                        className="circle-stroke-fill" 
-                        cx="50" 
-                        cy="50" 
-                        r="40" 
-                        style={{
-                          strokeDasharray: `${2 * Math.PI * 40}`,
-                          strokeDashoffset: `${2 * Math.PI * 40 * (1 - percentCompleted / 100)}`
-                        }}
-                      />
-                    </svg>
-                    <div className="circle-inner-text">
-                      <span className="circle-number">{percentCompleted}%</span>
-                    </div>
-                  </div>
-
-                  {/* LADO DERECHO: Barra total y Estadísticas detalladas */}
-                  <div className="progress-details-wrapper">
-                    <h4 className="total-tasks-count">Total: {totalSprintTasks} tasks</h4>
-                    
-                    {/* Barra apilada redondeada */}
-                    <div className="dashboard-stacked-bar">
-                      {totalSprintTasks > 0 ? (
-                        <>
-                          <div className="fill-done" style={{ width: `${percentCompleted}%` }}></div>
-                          <div className="fill-doing" style={{ width: `${percentStarted}%` }}></div>
-                          <div className="fill-todo" style={{ width: `${percentPending}%` }}></div>
-                        </>
-                      ) : (
-                        <div style={{ width: '100%', background: '#1e293b' }}></div>
-                      )}
-                    </div>
-
-                    {/* Leyenda vertical estilizada en columnas */}
-                    <div className="dashboard-legend-grid">
-                      <div className="legend-column-item">
-                        <div className="legend-label-row">
-                          <span className="indicator-dot dot-done"></span>
-                          <span className="label-text">Done</span>
-                        </div>
-                        <span className="legend-metrics">{totalCompleted} ({percentCompleted}%)</span>
+                      {/* ESTIMATED */}
+                      <div className="total-bar-track-wrapper">
+                        <div
+                          className="total-bar-fill estimated"
+                          style={{
+                            height: `${(estimatedHours / divisor) * 100}%`
+                          }}
+                        />
                       </div>
 
-                      <div className="legend-column-item">
-                        <div className="legend-label-row">
-                          <span className="indicator-dot dot-doing"></span>
-                          <span className="label-text">Doing</span>
-                        </div>
-                        <span className="legend-metrics">{totalStarted} ({percentStarted}%)</span>
+                      {/* ACTUAL */}
+                      <div className="total-bar-track-wrapper">
+                        <div
+                          className="total-bar-fill actual"
+                          style={{
+                            height: `${(realHours / divisor) * 100}%`
+                          }}
+                        />
                       </div>
 
-                      <div className="legend-column-item">
-                        <div className="legend-label-row">
-                          <span className="indicator-dot dot-todo"></span>
-                          <span className="label-text">To Do</span>
-                        </div>
-                        <span className="legend-metrics">{totalPending} ({percentPending}%)</span>
-                      </div>
                     </div>
 
+                    <span className="total-chart-user-name">
+                      {getUserName(userId)}
+                    </span>
+
                   </div>
-                </div>
-              </div>
-              {/* ========================================================================= */}
+                );
+              })}
 
             </div>
-          </section>
-        );
+          </div>
+        </div>
+
+        {/* LEGEND */}
+        <div className="total-chart-legend">
+
+          <div className="total-legend-item">
+            <span className="total-legend-dot total-dot-estimated"></span>
+            <span>Estimated</span>
+          </div>
+
+          <div className="total-legend-item">
+            <span className="total-legend-dot total-dot-actual"></span>
+            <span>Real</span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ===================================================== */}
+      {/* TASKS CHART */}
+      {/* ===================================================== */}
+      <div className="total-chart-section">
+
+        <h4 className="total-chart-title">
+          Tasks per user
+        </h4>
+
+        <div className="total-chart-with-axis">
+
+          {/* Y AXIS */}
+          <div className="total-axis-y">
+            {getTicks(maxTasks).map((t, i) => (
+              <div
+                key={`tick-task-${t}-${i}`}
+                className="total-axis-tick"
+              >
+                <span>{t}</span>
+                <div className="total-grid-line"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* CHART */}
+          <div className="total-chart-scroll-wrapper">
+
+            <div className="total-bar-chart-viewport">
+
+              {Object.keys(userStats).map((userId) => {
+
+                const {
+                  completed,
+                  started,
+                  pending
+                } = userStats[userId];
+
+                const divisor = maxTasks || 1;
+
+                return (
+                  <div
+                    key={`tasks-bar-${sprintName}-${userId}`}
+                    className="total-bar-chart-group"
+                  >
+
+                    <div className="total-bars-vertical-container">
+
+                      {/* DONE */}
+                      <div className="total-bar-track-wrapper">
+                        <div
+                          className="total-bar-fill completed"
+                          style={{
+                            height: `${(completed / divisor) * 100}%`
+                          }}
+                        />
+                      </div>
+
+                      {/* DOING */}
+                      <div className="total-bar-track-wrapper">
+                        <div
+                          className="total-bar-fill started"
+                          style={{
+                            height: `${(started / divisor) * 100}%`
+                          }}
+                        />
+                      </div>
+
+                      {/* TODO */}
+                      <div className="total-bar-track-wrapper">
+                        <div
+                          className="total-bar-fill pending"
+                          style={{
+                            height: `${(pending / divisor) * 100}%`
+                          }}
+                        />
+                      </div>
+
+                    </div>
+
+                    <span className="total-chart-user-name">
+                      {getUserName(userId)}
+                    </span>
+
+                  </div>
+                );
+              })}
+
+            </div>
+          </div>
+        </div>
+
+        {/* LEGEND */}
+        <div className="total-chart-legend">
+
+          <div className="total-legend-item">
+            <span className="total-legend-dot total-dot-done"></span>
+            <span>Done</span>
+          </div>
+
+          <div className="total-legend-item">
+            <span className="total-legend-dot total-dot-doing"></span>
+            <span>Doing</span>
+          </div>
+
+          <div className="total-legend-item">
+            <span className="total-legend-dot total-dot-todo"></span>
+            <span>To Do</span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ===================================================== */}
+      {/* SPRINT PROGRESS CARD */}
+      {/* ===================================================== */}
+      <div className="total-progress-card">
+
+        <h3 className="total-progress-card-title">
+          Sprint Progress
+        </h3>
+
+        <div className="total-progress-card-body">
+
+          {/* ================================================= */}
+          {/* PROGRESS CIRCLE */}
+          {/* ================================================= */}
+          <div className="total-progress-circle-wrapper">
+
+            <svg
+              className="total-progress-svg"
+              viewBox="0 0 100 100"
+            >
+              <circle
+                className="total-circle-bg"
+                cx="50"
+                cy="50"
+                r="40"
+              />
+
+              <circle
+                className="total-circle-fill"
+                cx="50"
+                cy="50"
+                r="40"
+                style={{
+                  strokeDasharray: `${2 * Math.PI * 40}`,
+                  strokeDashoffset:
+                    `${2 * Math.PI * 40 * (1 - percentCompleted / 100)}`
+                }}
+              />
+            </svg>
+
+            <div className="total-circle-inner">
+              <span className="total-circle-number">
+                {percentCompleted}%
+              </span>
+            </div>
+          </div>
+
+          {/* ================================================= */}
+          {/* DETAILS */}
+          {/* ================================================= */}
+          <div className="total-progress-details">
+
+            <h4 className="total-tasks-count">
+              Total: {totalSprintTasks} tasks
+            </h4>
+
+            {/* STACKED BAR */}
+            <div className="total-dashboard-stacked-bar">
+
+              {totalSprintTasks > 0 ? (
+                <>
+                  <div
+                    className="total-fill-done"
+                    style={{
+                      width: `${percentCompleted}%`
+                    }}
+                  />
+
+                  <div
+                    className="total-fill-doing"
+                    style={{
+                      width: `${percentStarted}%`
+                    }}
+                  />
+
+                  <div
+                    className="total-fill-todo"
+                    style={{
+                      width: `${percentPending}%`
+                    }}
+                  />
+                </>
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    background: "#1e293b"
+                  }}
+                />
+              )}
+
+            </div>
+
+            {/* LEGEND */}
+            <div className="total-dashboard-legend-grid">
+
+              <div className="total-legend-column-item">
+                <div className="total-legend-label-row">
+                  <span className="total-legend-dot total-dot-done"></span>
+                  <span className="total-label-text">Done</span>
+                </div>
+
+                <span className="total-legend-metrics">
+                  {totalCompleted} ({percentCompleted}%)
+                </span>
+              </div>
+
+              <div className="total-legend-column-item">
+                <div className="total-legend-label-row">
+                  <span className="total-legend-dot total-dot-doing"></span>
+                  <span className="total-label-text">Doing</span>
+                </div>
+
+                <span className="total-legend-metrics">
+                  {totalStarted} ({percentStarted}%)
+                </span>
+              </div>
+
+              <div className="total-legend-column-item">
+                <div className="total-legend-label-row">
+                  <span className="total-legend-dot total-dot-todo"></span>
+                  <span className="total-label-text">To Do</span>
+                </div>
+
+                <span className="total-legend-metrics">
+                  {totalPending} ({percentPending}%)
+                </span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
       })}
 
       {/* ========================================================= */}

@@ -35,12 +35,24 @@
 }
 
 /* Estructura de Grilla (7 columnas) */
-.pending-header, .pending-row {
+.pending-header,
+.pending-row {
   display: grid;
-  grid-template-columns: 1.5fr 2fr 1fr 1fr 0.8fr 0.8fr 1fr; 
+  grid-template-columns:
+    1.5fr   /* Task */
+    2fr     /* Description */
+    1fr     /* Assigned */
+    1fr     /* Status */
+    1fr     /* Due Date */
+    0.8fr   /* Priority */
+    1fr     /* Est. Hours */
+    1fr;    /* Real Hours */
+
   gap: 15px;
   align-items: center;
   padding: 12px;
+    overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Encabezados */

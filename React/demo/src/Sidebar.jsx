@@ -6,6 +6,8 @@ import tasks from "./assets/tasks.png";
 import analysis from "./assets/analysis.png";
 import ComTasks from "./assets/ComTasks.png";
 import PendingTasks from "./assets/PendingTasks.png";
+import Resume from "./assets/Resume.png"
+
 
 
 function Sidebar({ setVista }) {
@@ -105,7 +107,7 @@ function Sidebar({ setVista }) {
               </button>
 
               <button className="btn-Tasks completed" onClick={() => setVista("TeamAnalytics")}>
-              <img src={analysis} alt="analysis" className="img-sideButton" />
+              <img src={Resume} alt="analysis" className="img-sideButton" />
 
                Total Tasks Resume
               </button>
