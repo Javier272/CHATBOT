@@ -1,139 +1,211 @@
+/* =========================================================
+   PENDING WRAPPER (VERSIÓN COQUETA)
+========================================================= */
+
 /* Contenedor principal */
 .pending-wrapper { 
-  padding: 20px; 
-  background-color: #1a2631; 
-  border-radius: 12px; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  max-width: 1000px;
+  padding: 32px; 
+  background: linear-gradient(145deg, #131b24 0%, #1a2631 100%); 
+  border-radius: 20px; 
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  max-width: 1100px; /* Un poquito más de aire */
   margin-inline: auto;
-  color: white;
+  color: #e2e8f0; /* Blanco suavizado para que no canse la vista */
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 /* Título principal */
 .pending-title-main {
   color: #ffffff;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  padding-bottom: 12px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Una línea neón coqueta en lugar del borde plano */
+.pending-title-main::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(to right, #3498db, #00c6ff);
+  border-radius: 999px;
 }
 
 /* Contenedor de grupos de Sprints */
 .sprint-group {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.01);
 }
 
 .sprint-title { 
   color: #3498db; 
-  margin-bottom: 15px;
+  margin-bottom: 18px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 1.1rem;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
 }
 
-/* Estructura de Grilla (7 columnas) */
+/* Estructura de Grilla (8 columnas según tu código) */
 .pending-header,
 .pending-row {
   display: grid;
-  grid-template-columns:
-    1.5fr   /* Task */
-    2fr     /* Description */
-    1fr     /* Assigned */
-    1fr     /* Status */
-    1fr     /* Due Date */
-    0.8fr   /* Priority */
-    1fr     /* Est. Hours */
-    1fr;    /* Real Hours */
-
-  gap: 15px;
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 0.8fr 1fr 1fr;
+  gap: 16px;
   align-items: center;
-  padding: 12px;
-    overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 14px 16px;
 }
 
-/* Encabezados */
+/* Encabezados - Cambiado a un degradado elegante */
 .pending-header { 
-  font-weight: bold; 
-  background-color: #005c99; 
-  border-radius: 8px;
-  margin-bottom: 5px;
+  font-weight: 600; 
+  background: linear-gradient(to right, #1e3c72, #2a5298); 
+  border-radius: 10px;
+  margin-bottom: 8px;
   font-size: 0.85rem;
+  color: #adbac7;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Filas */
 .pending-row { 
-  border-bottom: 1px solid rgba(255,255,255,0.05); 
-  transition: background 0.3s;
-  border-radius: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+  font-size: 0.9rem;
 }
 
 .pending-row:hover { 
-  background-color: rgba(255, 255, 255, 0.05); 
+  background-color: rgba(255, 255, 255, 0.04); 
+  transform: translateX(4px); /* Ligero desplazamiento coqueto al pasar el mouse */
+  color: #ffffff;
 }
 
-/* Fila de Edición (Inline) */
+/* Fila de Edición (Inline) - Efecto Neón Suave */
 .edit-row { 
-  padding: 15px; 
-  background-color: #0d3c68; 
-  border-radius: 8px; 
-  margin-top: 5px;
-  border: 1px solid #3498db;
+  padding: 20px; 
+  background-color: #112235; 
+  border-radius: 12px; 
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(52, 152, 219, 0.4);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px rgba(52, 152, 219, 0.1);
 }
 
-/* Agregamos el select para que comparta el estilo de los inputs */
-/* Esto asegura que los select se vean iguales a los inputs */
+/* Estilos para Inputs y Selects */
 .edit-form-inline input,
 .edit-form-inline select { 
   flex: 1; 
-  min-width: 180px; /* Evita que se colapsen */
-  padding: 8px; 
-  border: 1px solid #005c99; 
-  border-radius: 4px; 
-  background: #1a2631;
+  min-width: 180px; 
+  padding: 10px 14px; 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 8px; 
+  background: #192735;
   color: white;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.edit-form-inline input:focus,
+.edit-form-inline select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+  background: #1e3042;
 }
 
 .edit-input-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-/* Ajuste para que los botones de acción siempre tengan su propia línea si hay muchos campos */
+/* Ajuste para que los botones de acción */
 .edit-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  width: 100%; /* Obliga a los botones a bajar si es necesario */
+  gap: 12px;
+  margin-top: 16px;
+  width: 100%; 
 }
 
+/* BOTONES ESTILIZADOS */
+.btn-edit-table, .btn-save2, .btn-delete2, .btn-cancel {
+  padding: 10px 20px; 
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none; 
+  border-radius: 8px; 
+  cursor: pointer; 
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botón Editar */
 .btn-edit-table { 
-  padding: 6px 12px; 
+  background: rgba(52, 152, 219, 0.15); 
+  color: #3498db; 
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+.btn-edit-table:hover { 
   background: #3498db; 
   color: white; 
-  border: none; 
-  border-radius: 4px; 
-  cursor: pointer; 
+  transform: translateY(-1px);
 }
-.btn-save2 { background: #27ae60; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
-.btn-save2:hover { background: #219150; }
 
+/* Botón Guardar */
+.btn-save2 { 
+  background: #2ecc71; 
+  color: white;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
+}
+.btn-save2:hover { 
+  background: #27ae60; 
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+}
+
+/* Botón Eliminar */
 .btn-delete2 { 
-  background-color: #ff4d4d; 
-  color: white; 
-  border: none; 
-  padding: 8px 16px; 
-  border-radius: 4px; 
-  cursor: pointer; 
+  background-color: rgba(231, 76, 60, 0.15); 
+  color: #e74c3c; 
+  border: 1px solid rgba(231, 76, 60, 0.3);
 }
-.btn-delete2:hover { background-color: #7c0000; }
+.btn-delete2:hover { 
+  background-color: #e74c3c; 
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
 
-.btn-cancel { background: #555; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+/* Botón Cancelar */
+.btn-cancel { 
+  background: #34495e; 
+  color: #b4c4d4; 
+}
+.btn-cancel:hover { 
+  background: #455a64; 
+  color: white;
+}
 
 /* Sin tareas */
-.pending-empty { color: #888; text-align: center; padding: 20px; }
+.pending-empty { 
+  color: #6272a4; 
+  text-align: center; 
+  padding: 30px; 
+  font-style: italic;
+}

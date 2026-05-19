@@ -1,135 +1,194 @@
+/* =========================================================
+   ADD TASK CONTAINER (VERSIÓN ULTRA COQUETA + FIX DE REJILLA)
+========================================================= */
+
 .add-task-container {
   max-width: 520px;
   width: 100%;
-  padding: 28px;
-  background: linear-gradient(145deg, #031424, #062038);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  padding: 32px;
+  background: linear-gradient(145deg, #020f1c, #072542);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(52, 152, 219, 0.05);
 }
 
 .add-task-container h2 {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .task-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
+/* Campos de entrada refinados */
 .task-form input,
 .task-form select,
 .task-form textarea {
   width: 100%;
-  padding: 12px;
-  background: rgba(103, 110, 122, 0.04);
-  border: 1px solid rgba(128, 128, 128, 0.08);
-  border-radius: 10px;
-  color: white;
-  transition: all 0.25s ease;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #f1f5f9;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box; /* Asegura que el padding no estire el input */
 }
 
+/* Hover suave en inputs */
 .task-form input:hover,
 .task-form select:hover,
 .task-form textarea:hover {
-  border-color: #344ddb;
+  border-color: rgba(52, 152, 219, 0.5);
+  background: rgba(255, 255, 255, 0.05);
 }
 
+/* Focus unificado */
 .task-form input:focus,
 .task-form select:focus,
 .task-form textarea:focus {
   outline: none;
   border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(255, 145, 0, 0.2);
+  background: rgba(7, 37, 66, 0.4);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15), inset 0 0 8px rgba(52, 152, 219, 0.1);
 }
 
-/* SELECT mejorado */
+/* Arreglo específico para el input de tipo DATE (Evita deformaciones) */
+.task-form input[type="date"] {
+  position: relative;
+}
+/* Estilo coqueto para el icono del calendario nativo */
+.task-form input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+}
+/* Añadimos un bonito icono de calendario usando CSS en su lugar si lo deseas, o dejamos que el padding respire */
+
+/* SELECT con flecha personalizada */
 .task-form select {
   appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233498db'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px;
+  padding-right: 40px;
 }
 
-/* Priority con color dinámico */
-.priority-low {
-  color: #4caf50;
+.task-form select option {
+  background-color: #041424;
+  color: #fff;
 }
 
-.priority-medium {
-  color: #ffc107;
-}
-
-.priority-high {
-  color: #f44336;
-}
-
+/* Títulos de secciones */
 .form-group h3 {
-  margin: 5px 0;
+  margin: 0 0 12px 0;
   font-size: 0.75rem;
   color: #3498db;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
 }
 
+/* === EL FIX DEL ENCIMADO === */
+/* Cambiamos flex por grid para controlar perfectamente el espacio de los 4 elementos inferiores */
 .row {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Crea una cuadrícula de 2x2 muy elegante */
+  gap: 16px;
+}
+
+/* Si tu pantalla es un poco más ancha y prefieres que los 4 queden en una sola línea sin aplastarse: */
+@media (min-width: 480px) {
+  .row {
+    grid-template-columns: 1.2fr 0.8fr 1.3fr 1fr; /* Tamaños proporcionales a lo que ocupa cada input */
+  }
 }
 
 .field-container {
-  flex: 1;
-}
-
-/* Empuja priority */
-.field-container:last-child {
-  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .field-container label {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.6);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
 }
+
+/* Prioridades */
+.priority-low { color: #2ecc71; font-weight: 600; text-shadow: 0 0 10px rgba(46, 204, 113, 0.2); }
+.priority-medium { color: #f1c40f; font-weight: 600; text-shadow: 0 0 10px rgba(241, 196, 15, 0.2); }
+.priority-high { color: #e74c3c; font-weight: 600; text-shadow: 0 0 10px rgba(231, 76, 60, 0.2); }
 
 /* Botones */
 .form-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 14px;
+  margin-top: 12px;
 }
 
 .btn-save {
   flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #3498db, #344ddb);
+  padding: 14px;
+  border-radius: 12px;
+  /* Cambiado al verde coqueto que tenías en tu imagen pero con degradado */
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
   border: none;
-  font-weight: bold;
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.25);
+  transition: all 0.25s ease;
 }
 
 .btn-save:hover {
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+  filter: brightness(1.1);
 }
 
 .btn-cancel {
   flex: 1;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.task-form select {
-  background-color: #000;
-  color: #fff;
-}
-
-/* Opciones (esto funciona en algunos navegadores) */
-.task-form select option {
-  background-color: #081d49;
-  color: #fff;
+.btn-cancel:hover {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
 }

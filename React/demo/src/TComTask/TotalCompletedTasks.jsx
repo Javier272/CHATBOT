@@ -48,19 +48,19 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
   }, [tasks]);
 
 
-// OBTENER NOMBRE DEL USUARIO
-  // ==============================
-  /*
-    Busca un usuario por ID y devuelve su nombre
-  */
-const getUserName = (id) => {
-  if (!users || !Array.isArray(users)) return "Unknown";
-  // Buscamos el usuario probando todas las variantes de ID posibles
-  const user = users.find(
-    u => String(u.USER_ID || u.user_id || u.id) === String(id)
-  );
-  return user ? (user.name || user.USERNAME || user.userName) : "Unassigned";
-};
+  // OBTENER NOMBRE DEL USUARIO
+    // ==============================
+    /*
+      Busca un usuario por ID y devuelve su nombre
+    */
+  const getUserName = (id) => {
+    if (!users || !Array.isArray(users)) return "Unknown";
+    // Buscamos el usuario probando todas las variantes de ID posibles
+    const user = users.find(
+      u => String(u.USER_ID || u.user_id || u.id) === String(id)
+    );
+    return user ? (user.name || user.USERNAME || user.userName) : "Unassigned";
+  };
 
 
 
@@ -219,7 +219,7 @@ const getUserName = (id) => {
 
         // Cálculo de máximos para la altura de las gráficas
         const maxTasks = Math.max(...Object.values(userStats).map(u => u.total), 1);
-        const maxHours = Math.max(...Object.values(userStats).map(u => Math.max(u.estimatedHours, u.realHours)), 1);
+        const maxHours = Math.max(...Object.values(userStats).map(u => Math.max(u.estimatedHours, u.realHours)),1);
 
         // Función para marcas del eje Y
         const getTicks = (max) =>
@@ -227,11 +227,80 @@ const getUserName = (id) => {
             { length: 5 },
             (_, i) => Math.round(max - (i * (max / 4)))
           );
-        // ==============================
-        // RENDER DEL SPRINT
-        // ==============================
+
+          // ======================================
+          // HOURS ANALYSIS
+          // ======================================
+
+          // Total horas estimadas del sprint
+          const totalEstimatedHours = sprintTasks.reduce(
+            (acc, t) =>
+              acc + Number(
+                t.hoursEstimate ??
+                t.HOURS_ESTIMATE ??
+                0
+              ),
+            0
+          );
+
+          // Total horas reales del sprint
+          const totalRealHours = sprintTasks.reduce(
+            (acc, t) =>
+              acc + Number(
+                t.REAL_HOURS ??
+                t.real_hours ??
+                t.realHours ??
+                0
+              ),
+            0
+          );
+
+          // Diferencia
+          const hoursDifference =
+            totalRealHours - totalEstimatedHours;
+
+          // Precisión
+          const estimationAccuracy =
+            totalEstimatedHours > 0
+              ? Math.max(
+                  0,
+                  (
+                    100 -
+                    (Math.abs(hoursDifference) /
+                      totalEstimatedHours) *
+                      100
+                  )
+                ).toFixed(1)
+              : 100;
+
+          // Estado visual
+          const balanceStatus =
+            hoursDifference > 0
+              ? "warning"
+              : "success";
+
+          const balanceText =
+            hoursDifference > 0
+              ? `+${hoursDifference}h de desfase`
+              : `${Math.abs(hoursDifference)}h dentro del rango`;
+
+          const accuracyLabel =
+            estimationAccuracy >= 90
+              ? "Excelente"
+              : estimationAccuracy >= 75
+              ? "Buena"
+              : "Mejorable";
+
+          const accuracyStatus =
+            estimationAccuracy >= 75
+              ? "success"
+              : "warning";
 
 
+
+  // ==============================
+  // RENDER DEL SPRINT
+  // ==============================
           return (
   <section
     key={sprintName}
@@ -504,6 +573,7 @@ const getUserName = (id) => {
             </div>
           </div>
 
+         
           {/* ================================================= */}
           {/* DETAILS */}
           {/* ================================================= */}
@@ -590,11 +660,49 @@ const getUserName = (id) => {
           </div>
         </div>
       </div>
-    </div>
-  </section>
-);
-      })}
+         {/* ================================================= */}
+          {/* HORAS ANALISIS */}
+          {/* ================================================= */}
+      
+      <div class="hours-analysis-container">
+          {/* BALANCE GLOBAL */}
+            <div class="analysis-card">
+              <span class="card-icon">⏱️</span>
+              <div class="card-info">
+                <label>Balance Global</label>
+                <div class="hours-compare">
+                  <span class="actual-total">
+                     {totalRealHours}h <small>Reales</small>
+                  </span>
 
+                  <span class="divider">/</span>
+
+                  <span class="estimated-total">
+                    {totalEstimatedHours}h <small>Est.</small>
+                  </span>
+                </div>
+              </div>
+
+              <div className={`status-badge ${balanceStatus}`}>
+                {balanceText}
+              </div>
+
+            </div>
+
+          {/* PRECISIÓN */}
+            <div class="analysis-card">
+              <span class="card-icon">🎯</span>
+              <div class="card-info">
+                <label>Precisión de Estimación</label>
+                <h3>{estimationAccuracy}%</h3>
+              </div>
+              <div className={`status-badge ${accuracyStatus}`}>
+                 {accuracyLabel}
+              </div>
+            </div>
+          </div>
+      </div>
+      
       {/* ========================================================= */}
       {/* Seccionn IA*/}
       {/* ========================================================= */}
@@ -628,6 +736,10 @@ const getUserName = (id) => {
         </div>
       )}
     </div>
+  </section>
+);
+      })}
+
     </div>
   );
 }

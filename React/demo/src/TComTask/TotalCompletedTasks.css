@@ -206,7 +206,7 @@
 
 /* Cian/Celeste a un azul cielo profundo */
 .total-bar-fill.estimated {
-  background: linear-gradient(to right, #56ccf2, #2f80ed);
+  background: linear-gradient(to right, #7ffff4, #25b4a8);
 }
 
 /* Morado/Amatista a un rosa magenta coqueto */
@@ -254,7 +254,7 @@
 }
 
 .total-dot-estimated {
-  background: #56ccf2;
+  background: #7ffff4;
 }
 
 .total-dot-actual {
@@ -329,6 +329,118 @@
   gap: 40px; /* Un poco más de aire entre el círculo y las barras */
   padding-top: 4px;
 }
+/* =========================================================
+   HORAS ANALISIS
+========================================================= */
+
+/* =========================================================
+   HOURS ANALYSIS CARDS
+========================================================= */
+
+.hours-analysis-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.analysis-card {
+  flex: 1;
+  background: linear-gradient(145deg, #132238 0%, #1a2d4a 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.card-icon {
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  margin-left: 16px;
+}
+
+.card-info label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #56ccf2; /* Color cyan que combina con tu interfaz */
+  font-weight: 700;
+}
+
+.card-info h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.hours-compare {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.actual-total {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #9b59b6; /* Tu color morado de horas reales */
+  text-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
+}
+
+.actual-total small, .estimated-total small {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.divider {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 1.2rem;
+}
+
+.estimated-total {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #56ccf2; /* Tu color cyan de horas estimadas */
+}
+
+/* Badges de estado coquetos */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.warning {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f1c40f;
+  border: 1px solid rgba(241, 196, 15, 0.2);
+  text-shadow: 0 0 8px rgba(241, 196, 15, 0.2);
+}
+
+.status-badge.success {
+  background: rgba(0, 230, 118, 0.1);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  text-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
+}
+
+
 /* =========================================================
    CIRCLE PROGRESS
 ========================================================= */
