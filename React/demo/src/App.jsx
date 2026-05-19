@@ -8,7 +8,7 @@ import AddTask from "./AddTask/AddTask";
 import TotalCompletedTasks from "./TComTask/TotalCompletedTasks";
 import TotalPendingTasks from "./TPTasks/TotalPendingTasks";
 import CompletedTasks from "./CompletedTasks/CompletedTasks";
-import { getTasks, getUsers } from "./taskService";
+import { getTasks, getUsers, BASE_URL } from "./taskService";
 import TotalTasks from "./TotalTasks/TotalTasks";
 
 import logo from "./assets/logo.png";
@@ -23,7 +23,7 @@ function App() {
   // Control de vistas (navegación interna)
   const [vista, setVista] = useState("TeamAnalytics");
 
-  // Lista global de tareas
+  // Lista global de tareas 
   const [tasks, setTasks] = useState([]);
 
   // Lista global de usuarios (desde backend)
@@ -42,6 +42,7 @@ function App() {
   useEffect(() => {
     loadTasks();
     loadUsers();
+    checkSession();
   }, []);
 
   // Obtener tareas desde el backend
@@ -65,10 +66,64 @@ function App() {
     }
   };
 
+// checkSession()
+  const checkSession = async () => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    try {
+
+      const response = await fetch(`${BASE_URL}/users/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Token inválido");
+      }
+
+      const data = await response.json();
+
+      setUser(data);
+
+      await loadTasks();
+      await loadUsers();
+
+    } catch (error) {
+
+      console.error(error);
+
+      localStorage.removeItem("token");
+
+      setUser(null);
+    }
+  };
+
   // Manejo de login (usando backend)
-  const handleLogin = (selectedUser) => {
-    console.log("USER FINAL:", selectedUser);
-    setUser(selectedUser);
+  const handleLogin = async (loginResponse) => {
+
+    console.log("LOGIN:", loginResponse);
+
+    // guardar JWT
+    localStorage.setItem("token", loginResponse.token);
+
+    // guardar usuario
+    setUser({
+      id: loginResponse.id,
+      name: loginResponse.name,
+      email: loginResponse.email,
+    });
+
+    await loadTasks();
+    await loadUsers();
+
     setShowLogin(false);
   };
 
@@ -82,6 +137,11 @@ function App() {
   const handleForgotPassword = () => {
     setShowLogin(false);
     setShowChangePassword(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
   };
 
   // Filtrar tareas del usuario actual (soporta userId y user_id)
@@ -117,6 +177,13 @@ function App() {
     >
       <i className="fas fa-key"></i>
       Change Password
+    </button>
+    
+  )}
+
+  {user && (
+    <button className="btn-logout" onClick={handleLogout}>
+      Logout
     </button>
   )}
 

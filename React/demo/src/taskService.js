@@ -1,11 +1,14 @@
-const BASE_URL = "";
+export const BASE_URL = "";
 
 const getAuthHeaders = () => {
+
   const token = localStorage.getItem("token");
 
   return {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` })
+    ...(token && {
+      Authorization: `Bearer ${token}`
+    })
   };
 };
 
