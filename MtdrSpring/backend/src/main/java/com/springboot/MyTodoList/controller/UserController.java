@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/users")
@@ -42,6 +44,36 @@ public class UserController {
                 
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("No autenticado");
+        }
+
+        String email = authentication.getName();
+
+        Optional<User> userOptional =
+                userRepository.findByEmailAndIsDeleted(email, 0);
+
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Usuario no encontrado");
+        }
+
+        User user = userOptional.get();
+
+        // nunca mandar password al frontend
+        user.setPassword(null);
+
+        return ResponseEntity.ok(user);
+    }
+    public String getMethodName(@RequestParam String param) {
+        return new String();
+    }
+    
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
