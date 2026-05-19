@@ -31,16 +31,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // NUEVO: Activamos CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable()) 
             
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
             .authorizeHttpRequests(auth -> auth
-                // NUEVO: Permitimos que el navegador haga sus preguntas previas (Preflight OPTIONS)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 
+                // NUEVO: Dejamos pasar los archivos estáticos de React para que cargue la página
+                .requestMatchers("/", "/index.html", "/assets/**", "/*.svg", "/*.png", "/*.ico").permitAll()
+                
+                // Tus rutas de la API de usuarios que ya tenías
                 .requestMatchers("/users/login", "/users/register", "/users/reset-password").permitAll()
+                
                 .anyRequest().authenticated() 
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
