@@ -72,6 +72,9 @@ public class TaskService {
             task.setTeamId(td.getTeamId());
             task.setUserId(td.getUserId());
             task.setIsDeleted(td.getIsDeleted());
+            task.setRealHours(td.getRealHours());
+            task.setHoursEstimate(td.getHoursEstimate());
+            task.setSprint(td.getSprint());
             
             // No actualizamos createdAt manualmente, la base de datos lo maneja
             // El campo updatedAt se actualiza solo gracias a tu trigger trg_tasks_updated_at
