@@ -1,11 +1,35 @@
-import { useState, useEffect } from "react";
 import "./MyCompletedTasks.css";
 
 function MyComTasks({ tasks = [] }) {
   const safeTasks = Array.isArray(tasks) ? tasks : [];
-  
-const maxHoursRaw = Math.max(...safeTasks.map(t => Math.max(Number(t.hoursEstimate) || 0, Number(t.realHours) || 0)), 0);
-const maxAxis = maxHoursRaw > 0 ? Math.ceil(maxHoursRaw) : 1
+
+  const normalizeStatus = (status) => {
+    const value = String(status ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, "_");
+
+    if (value === "done" || value === "completed") return "done";
+    if (value === "doing" || value === "in_progress" || value === "started") return "doing";
+    if (value === "to_do" || value === "todo" || value === "pending") return "todo";
+
+    return value;
+  };
+
+  const getEstimatedHours = (task) =>
+    Number(task.hoursEstimate ?? task.estimatedHours ?? task.ESTIMATED_HOURS ?? task.HOURS_ESTIMATE ?? 0) || 0;
+
+  const getActualHours = (task) =>
+    Number(task.realHours ?? task.actualHours ?? task.REAL_HOURS ?? task.ACTUAL_HOURS ?? 0) || 0;
+
+  const getTaskLabel = (task, index) =>
+    task.title ?? task.TITLE ?? task.name ?? task.id ?? task.ID ?? `Task ${index + 1}`;
+
+  const maxHoursRaw = Math.max(
+    ...safeTasks.map((task) => Math.max(getEstimatedHours(task), getActualHours(task))),
+    0
+  );
+  const maxAxis = maxHoursRaw > 0 ? Math.ceil(maxHoursRaw) : 1;
 
 
   const numTicks = 5; 
@@ -18,9 +42,9 @@ ticks.reverse();
 
   // 2. Filtros para la dona y leyendas
   const total = safeTasks.length;
-  const completed = safeTasks.filter(t => t.status === "completed").length;
-  const started = safeTasks.filter(t => t.status === "in_progress" || t.status === "doing").length;
-  const pending = safeTasks.filter(t => t.status === "pending").length;
+  const completed = safeTasks.filter((task) => normalizeStatus(task.status ?? task.STATUS) === "done").length;
+  const started = safeTasks.filter((task) => normalizeStatus(task.status ?? task.STATUS) === "doing").length;
+  const pending = safeTasks.filter((task) => normalizeStatus(task.status ?? task.STATUS) === "todo").length;
 
   const totalPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
@@ -70,25 +94,27 @@ ticks.reverse();
               </div>
 
               <div className="bar-chart-viewport">
-                {safeTasks.map((task) => (
-                  <div key={task.id} className="bar-chart-group">
+                {safeTasks.map((task, index) => (
+                  <div key={task.id ?? task.ID ?? `${getTaskLabel(task, index)}-${index}`} className="bar-chart-group">
                     <div className="bars-vertical-container">
                       {/* Barra Estimada */}
                       <div className="bar-track-wrapper">
                         <div 
                           className="bar-fill estimated" 
-                          style={{ height: `${(Number(task.hoursEstimate || 0) / maxAxis) * 100}%` }}
+                          style={{ height: `${(getEstimatedHours(task) / maxAxis) * 100}%` }}
                         ></div>
                       </div>
                       {/* Barra Real */}
                       <div className="bar-track-wrapper">
                         <div 
                           className="bar-fill actual" 
-                          style={{ height: `${(Number(task.realHours || 0) / maxAxis) * 100}%` }}
+                          style={{ height: `${(getActualHours(task) / maxAxis) * 100}%` }}
                         ></div>
                       </div>
                     </div>
-                    <span className="chart-user-name">{task.title}</span>
+                    <span className="chart-user-name" title={String(getTaskLabel(task, index))}>
+                      {getTaskLabel(task, index)}
+                    </span>
                   </div>
                 ))}
               </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 // 1. IMPORTAMOS LAS FUNCIONES DEL SERVICIO
 import { updateTask, deleteTask as deleteTaskAPI, getAiPriorities } from "../taskService";
 
-function TaskList({ tasks, setTasks, currentUser }) { 
+function TaskList({ tasks, setTasks, currentUser, title = "General Task Board" }) { 
   // Estados para la interfaz
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -148,7 +148,7 @@ const toggleComplete = async (task) => {
 
   return (
     <section className="task-list">
-      <h2>General Task Board (User: {currentUser?.name || "Guest"})</h2>
+      <h2>{title} (User: {currentUser?.name || "Guest"})</h2>
 
       {displayTasks.length === 0 && <p>No hay tareas en el sistema.</p>}
 

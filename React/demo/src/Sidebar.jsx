@@ -54,7 +54,7 @@ function Sidebar({ setVista }) {
 
             <h2></h2>
 
-            <button className="btn-Tasks completed" onClick={() => setVista("Mycompleted")}>
+            <button className="btn-Tasks completed" onClick={() => setVista("MyAnalytics")}>
         <img src={analysis} alt="analysis" className="img-sideButton" />
 
               My Analytics

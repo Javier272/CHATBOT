@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Sidebar from "./Sidebar";
 import MyComTasks from "./MyCompleted/MyCompletedTasks";
 import TaskList from "./TaskList/TaskList";
@@ -13,7 +13,6 @@ import TotalTasks from "./TotalTasks/TotalTasks";
 
 import logo from "./assets/logo.png";
 import login from "./assets/login.png";
-import team from "./assets/team.png";
 
 import "./App.css";
 import "./TaskList/TaskList.css";
@@ -36,16 +35,16 @@ function App() {
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Usuario actual logueado
-  const [user, setUser] = useState(null);
-
-  // Cargar datos al iniciar la app
-  useEffect(() => {
-    loadTasks();
-    loadUsers();
-  }, []);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || null;
+    } catch {
+      return null;
+    }
+  });
 
   // Obtener tareas desde el backend
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
       const data = await getTasks();
       console.log("DATA BACKEND:", data);
@@ -53,23 +52,37 @@ function App() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   // Obtener usuarios desde el backend
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const data = await getUsers();
       setUsers(data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
+
+  const loadDashboardData = useCallback(async () => {
+    await Promise.all([loadTasks(), loadUsers()]);
+  }, [loadTasks, loadUsers]);
+
+  // Cargar datos al iniciar la app
+  useEffect(() => {
+    if (!localStorage.getItem("token")) return;
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   // Manejo de login (usando backend)
-  const handleLogin = (selectedUser) => {
+  const handleLogin = async (selectedUser) => {
     console.log("USER FINAL:", selectedUser);
     setUser(selectedUser);
+    localStorage.setItem("user", JSON.stringify(selectedUser));
     setShowLogin(false);
+    await loadDashboardData();
   };
 
   // Registro simple (no persistente)
@@ -84,17 +97,62 @@ function App() {
     setShowChangePassword(true);
   };
 
-  // Filtrar tareas del usuario actual (soporta userId y user_id)
+  const normalizeText = (value) =>
+    String(value ?? "")
+      .replace(/['"]+/g, "")
+      .trim()
+      .toLowerCase();
+
+  const getLoggedInUserId = (value) =>
+    value?.id ?? value?.userId ?? value?.user_id ?? value?.USER_ID ?? value?.ID;
+
+  const getTaskOwnerId = (value) =>
+    value?.userId ?? value?.user_id ?? value?.USER_ID ?? value?.assignedUserId ?? value?.ownerId;
+
+  const getUserName = (value) =>
+    value?.name ?? value?.userName ?? value?.username ?? value?.NAME ?? value?.USERNAME;
+
+  const getUserEmail = (value) =>
+    value?.email ?? value?.EMAIL ?? value?.userEmail ?? value?.USER_EMAIL;
+
+  const taskBelongsToUser = (task, currentUser) => {
+    if (!currentUser) return false;
+
+    const currentUserId = getLoggedInUserId(currentUser);
+    const taskUserId = getTaskOwnerId(task);
+
+    if (currentUserId != null && taskUserId != null) {
+      if (String(taskUserId) === String(currentUserId)) {
+        return true;
+      }
+    }
+
+    const currentUserName = normalizeText(getUserName(currentUser));
+    const taskUserName = normalizeText(
+      task.userName ?? task.username ?? task.assignedTo ?? task.owner ?? task.NAME ?? task.USERNAME
+    );
+
+    if (currentUserName && taskUserName) {
+      return taskUserName === currentUserName;
+    }
+
+    const currentUserEmail = normalizeText(getUserEmail(currentUser));
+    const taskUserEmail = normalizeText(
+      task.email ?? task.userEmail ?? task.assignedEmail ?? task.ownerEmail ?? task.EMAIL
+    );
+
+    return Boolean(currentUserEmail && taskUserEmail && taskUserEmail === currentUserEmail);
+  };
+
+  const isDoneStatus = (status) => {
+    const normalizedStatus = normalizeText(status).replace(/[\s-]+/g, "_");
+    return normalizedStatus === "done" || normalizedStatus === "completed";
+  };
+
+  // Filtrar tareas del usuario actual usando ID y nombres como respaldo
   const tareasFiltradas = user
-  ? tasks.filter((task) => {
-      // Normalizamos IDs a string para evitar errores de tipo
-      const taskId = String(task.userId || task.user_id || "");
-      const currentUserId = String(user.id);
-      
-      // Filtramos por ID, que es lo más seguro
-      return taskId === currentUserId;
-    })
-  : [];
+    ? tasks.filter((task) => taskBelongsToUser(task, user))
+    : [];
 
   // Refrescar tareas después de crear una nueva
   const addNewTask = async () => {
@@ -194,8 +252,8 @@ function App() {
 
           {vista !== "add" && (
             <>
-              {/* Tareas completadas del usuario */}
-              {(vista === "MyAnalytics" || vista === "Mycompleted") && (
+              {/* Analytics del usuario */}
+              {vista === "MyAnalytics" && (
                 <MyComTasks tasks={tareasFiltradas} />
               )}
 
@@ -211,10 +269,11 @@ function App() {
               {/* Tareas pendientes del usuario */}
               {(vista === "Mypending") && (
                 <TaskList
-                  tasks={tareasFiltradas.filter(t => t.status !== 'completed')} // Filtro explícito para pendientes
+                  tasks={tareasFiltradas.filter(t => !isDoneStatus(t.status ?? t.STATUS))}
                   users={users}
                   setTasks={setTasks}
                   currentUser={user} 
+                  title="My Pending Tasks"
                 />
               )}
 
