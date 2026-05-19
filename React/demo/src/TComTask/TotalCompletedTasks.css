@@ -1,0 +1,683 @@
+/* =========================================================
+   TOTAL COMPLETED TASKS DASHBOARD
+========================================================= */
+
+.total-dashboard-wrapper {
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  color: white;
+}
+
+/* =========================================================
+   TITLES
+========================================================= */
+
+.total-dashboard-title {
+  color: #ffffff;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+.total-sprint-title {
+  color: #3498db;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* =========================================================
+   SPRINT CARD
+========================================================= */
+
+.total-sprint-group {
+  background: #0d1b2a;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+.total-dashboard-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CHART PANELS
+========================================================= */
+
+.total-chart-section {
+  flex: 1;
+  min-width: 350px;
+  background: #132238;
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.total-chart-title {
+  color: #cbd5e1;
+  font-size: 1rem;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   CHART STRUCTURE
+========================================================= */
+
+.total-chart-with-axis {
+  display: flex;
+  height: 260px;
+}
+
+.total-axis-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 35px;
+  margin-right: 10px;
+  padding-bottom: 25px;
+}
+
+.total-axis-tick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #718096;
+  font-size: 11px;
+}
+
+.total-grid-line {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+/* =========================================================
+   SCROLL AREA
+========================================================= */
+
+.total-chart-scroll-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  scrollbar-width: thin;
+}
+
+.total-chart-scroll-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.total-chart-scroll-wrapper::-webkit-scrollbar-track {
+  background: #1a202c;
+  border-radius: 4px;
+}
+
+.total-chart-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.total-chart-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* =========================================================
+   BARS VIEWPORT
+========================================================= */
+
+.total-bar-chart-viewport {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* =========================================================
+   USER GROUP
+========================================================= */
+
+.total-bar-chart-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   BARS
+========================================================= */
+
+.total-bars-vertical-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 220px;
+}
+
+.total-bar-track-wrapper {
+  width: 22px;
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.total-bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.4s ease;
+}
+
+/* =========================================================
+   COLORS (VERSIÓN DEGRADADO DE ALTO NIVEL)
+========================================================= */
+
+/* Verde neón brillante a un tono esmeralda */
+.total-bar-fill.completed {
+  background: linear-gradient(to right, #00e676, #0e9461);
+}
+
+/* Azul eléctrico a un morado neón */
+.total-bar-fill.started {
+  background: linear-gradient(to right, #1e88e5, #00c6ff);
+}
+
+/* Lima/Amarillo brillante a un verde manzana */
+.total-bar-fill.pending {
+  background: linear-gradient(to right, #d1ff51, #e6d435);
+}
+
+/* Cian/Celeste a un azul cielo profundo */
+.total-bar-fill.estimated {
+  background: linear-gradient(to right, #7ffff4, #25b4a8);
+}
+
+/* Morado/Amatista a un rosa magenta coqueto */
+.total-bar-fill.actual {
+  background: linear-gradient(to right, #9b59b6, #e040fb);
+}
+
+/* =========================================================
+   USER NAMES
+========================================================= */
+
+.total-chart-user-name {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+}
+
+/* =========================================================
+   LEGENDS
+========================================================= */
+
+.total-chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.total-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.total-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.total-dot-estimated {
+  background: #7ffff4;
+}
+
+.total-dot-actual {
+  background: #9b59b6;
+}
+
+.total-dot-done {
+  background: #00e676;
+}
+
+.total-dot-doing {
+  background: #1e88e5;
+}
+
+.total-dot-todo {
+  background: #d1ff51;
+}
+
+/* =========================================================
+   PROGRESS CARD (VERSIÓN COQUETA)
+========================================================= */
+
+.total-progress-card {
+  width: 100%;
+  background: linear-gradient(135deg, #132238 0%, #1a2d4a 100%);
+  border-radius: 18px; /* Esquinas un poco más suaves y modernas */
+  padding: 24px;
+  margin-top: 16px;
+  
+  /* Un borde ultra fino que simula un reflejo de luz */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* Sombra difuminada para que la tarjeta "flote" sobre el fondo */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  
+  /* Animación suave por si el usuario pasa el mouse por encima */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto coqueto al pasar el cursor (Hover) */
+.total-progress-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 230, 118, 0.1); /* Destello verde sutil en el fondo */
+  border-color: rgba(0, 230, 118, 0.2); /* El borde se ilumina un poquito */
+}
+
+.total-progress-card-title {
+  margin-bottom: 24px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.5px; /* Más espacio entre letras para que se vea sofisticado */
+  color: #747e94;
+  
+  /* Un detalle coqueto: una línea degradada debajo del título */
+  position: relative;
+  display: inline-block;
+}
+
+.total-progress-card-title::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 30px;
+  height: 3px;
+  background: #00e676; /* Tu verde brillante */
+  border-radius: 999px;
+}
+
+.total-progress-card-body {
+  display: flex;
+  align-items: center;
+  gap: 40px; /* Un poco más de aire entre el círculo y las barras */
+  padding-top: 4px;
+}
+/* =========================================================
+   HORAS ANALISIS
+========================================================= */
+
+/* =========================================================
+   HOURS ANALYSIS CARDS
+========================================================= */
+
+.hours-analysis-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.analysis-card {
+  flex: 1;
+  background: linear-gradient(145deg, #132238 0%, #1a2d4a 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.card-icon {
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  margin-left: 16px;
+}
+
+.card-info label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #56ccf2; /* Color cyan que combina con tu interfaz */
+  font-weight: 700;
+}
+
+.card-info h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.hours-compare {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.actual-total {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #9b59b6; /* Tu color morado de horas reales */
+  text-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
+}
+
+.actual-total small, .estimated-total small {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.divider {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 1.2rem;
+}
+
+.estimated-total {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #56ccf2; /* Tu color cyan de horas estimadas */
+}
+
+/* Badges de estado coquetos */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.warning {
+  background: rgba(241, 196, 15, 0.1);
+  color: #f1c40f;
+  border: 1px solid rgba(241, 196, 15, 0.2);
+  text-shadow: 0 0 8px rgba(241, 196, 15, 0.2);
+}
+
+.status-badge.success {
+  background: rgba(0, 230, 118, 0.1);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  text-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
+}
+
+
+/* =========================================================
+   CIRCLE PROGRESS
+========================================================= */
+
+.total-progress-circle-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.total-progress-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  /* OPCIONAL: Un ligero brillo general a todo el SVG */
+  filter: drop-shadow(0 0 4px rgba(0, 230, 118, 0.2));
+}
+
+.total-circle-bg {
+  fill: none;
+  stroke: #1f314d;
+  stroke-width: 8;
+}
+
+.total-circle-fill {
+  fill: none;
+  stroke: #00e676; /* Tu verde brillante actual */
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+  
+  /* === EFECTO DE BRILLO === */
+  /* El primer drop-shadow da el núcleo brillante, el segundo da el aura expandida */
+  filter: drop-shadow(0 0 1px #00e676) drop-shadow(0 0 8px rgba(0, 230, 118, 0.6));
+}
+
+.total-circle-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.total-circle-number {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #00e676; /* Cambiado a verde para que combine, o usa #ffffff si prefieres contraste */
+  
+  /* === BRILLO EN EL TEXTO === */
+  text-shadow: 0 0 5px #00e676, 0 0 10px rgba(0, 230, 118, 0.5);
+}
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+.total-progress-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.total-tasks-count {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* =========================================================
+   STACKED BAR
+========================================================= */
+
+.total-dashboard-stacked-bar {
+  display: flex;
+  height: 18px;
+  border-radius: 999px;
+  /* Eliminamos overflow: hidden para que el brillo pueda salir de la barra */
+  /* overflow: hidden; */ 
+  background: #1f314d;
+  position: relative;
+}
+
+/* Para mantener las esquinas redondeadas de los extremos sin usar overflow:hidden */
+.total-dashboard-stacked-bar > div:first-child {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+}
+.total-dashboard-stacked-bar > div:last-child {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+}
+
+.total-fill-done {
+  background: #00e676;
+  position: relative;
+  z-index: 1; /* Asegura que el brillo se superponga correctamente */
+
+  /* === EFECTO DE BRILLO SOLO AL VERDE === */
+  box-shadow: 
+    0 0 8px #00e676,                /* Brillo exterior suave */
+    0 0 15px rgba(0, 230, 118, 0.6), /* Aura exterior más expandida */
+    inset 0 0 4px rgba(255, 255, 255, 0.8); /* Brillo interno blanco para dar efecto de "neón encendido" */
+}
+
+.total-fill-doing {
+  background: #1e88e5;
+  position: relative;
+}
+
+.total-fill-todo {
+  background: #d1ff51;
+  position: relative;
+}
+/* =========================================================
+   LEGEND GRID
+========================================================= */
+
+.total-dashboard-legend-grid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.total-legend-column-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.total-legend-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.total-label-text {
+  font-size: 14px;
+  color: white;
+}
+
+.total-legend-metrics {
+  color: #94a3b8;
+  font-size: 12px;
+  padding-left: 20px;
+}
+
+/* =========================================================
+   AI SECTION
+========================================================= */
+
+.total-ai-section {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.total-ai-title {
+  margin-bottom: 18px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.total-btn-ai {
+  background: linear-gradient(
+    135deg,
+    #6366f1 0%,
+    #a855f7 50%,
+    #ec4899 100%
+  );
+
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.total-btn-ai:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(168,85,247,0.4);
+}
+
+.total-btn-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   AI CARD
+========================================================= */
+
+.total-ai-response-card {
+  margin: 25px auto 0;
+  max-width: 700px;
+  background: rgba(13,27,45,0.7);
+  border: 1px solid rgba(168,85,247,0.2);
+  border-top: 3px solid #a855f7;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.total-ai-card-title {
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.total-ai-text {
+  line-height: 1.7;
+  color: #e2e8f0;
+  white-space: pre-line;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .total-dashboard-layout {
+    flex-direction: column;
+  }
+
+  .total-chart-section {
+    min-width: 100%;
+  }
+
+  .total-progress-card-body {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .total-dashboard-legend-grid {
+    flex-direction: column;
+    gap: 14px;
+  }
+}

@@ -1,0 +1,479 @@
+/* --- LAYOUT GENERAL --- */
+.pending-wrapper { padding: 20px; }
+
+.sprint-dashboard-layout {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  flex-wrap: wrap; 
+}
+
+/* --- CONTENEDOR PRINCIPAL DE CADA PANEL --- */
+.bar-chart-section {
+  flex: 1;
+  min-width: 350px;
+  padding: 24px;
+  background-color: #212e3d;
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Mantiene todo contenido dentro del panel */
+}
+
+.chart-title {
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #a0aec0;
+}
+
+/* --- ESTRUCTURA DE LA GRÁFICA --- */
+.chart-with-axis {
+  display: flex;
+  height: 250px; 
+  margin-top: 10px;
+}
+
+.axis-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-right: 10px;
+  font-size: 0.75rem;
+  color: #718096;
+  padding-bottom: 25px; 
+  min-width: 30px;
+}
+
+/* Scroll Wrapper: El contenedor que hace el scroll horizontal */
+.chart-scroll-wrapper {
+  flex: 1;
+  overflow-x: auto; 
+  padding-bottom: 10px;
+  margin-top: 15px;
+}
+
+/* Viewport: El contenedor interno que se expande */
+.bar-chart-viewport {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px; /* Un poco más de espacio para que se vea "grande" */
+  min-width: max-content;
+}
+
+/* --- COLUMNAS DE USUARIO --- */
+.bar-chart-group {
+  flex-shrink: 0; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 65px; /* Aumentado ligeramente para que se vea más grande */
+}
+
+.bars-vertical-container {
+  display: flex;
+  align-items: flex-end;
+  height: 200px; 
+  gap: 6px; /* Más espacio entre barras */
+}
+
+.bar-track-wrapper {
+  height: 220px;
+  width: 20px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-fill {
+  width: 100%;
+  transition: height 0.6s ease;
+  border-radius: 4px;
+}
+
+/* --- COLORES --- */
+.bar-fill.completed { background: #00da53; }
+.bar-fill.started { background: #3498db; }
+.bar-fill.pending { background: #d1ff51; }
+.bar-fill.estimated { background: #3498db; }
+.bar-fill.actual { background: #9b59b6; }
+
+.chart-user-name {
+  font-size: 12px; /* Un poco más grande para mejor lectura */
+  font-weight: 600;
+  margin-top: 10px;
+  color: #cbd5e0;
+}
+
+/* --- LEYENDAS --- */
+.chart-legend-details {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+/* --- SCROLLBARS ESTILIZADOS --- */
+.chart-scroll-wrapper::-webkit-scrollbar { height: 8px; }
+.chart-scroll-wrapper::-webkit-scrollbar-track { background: #1a202c; border-radius: 4px; }
+.chart-scroll-wrapper::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+.chart-scroll-wrapper::-webkit-scrollbar-thumb:hover { background: #636b76; }
+
+.chart-scroll-wrapper {
+  flex: 1;
+  /* Cambiamos 'auto' por 'scroll' para forzar la barra siempre */
+  overflow-x: scroll; 
+  padding-bottom: 10px;
+  margin-top: 15px;
+}
+
+/* Opcional: Esto ayuda a que no se vea tan intrusiva si no hay contenido */
+.chart-scroll-wrapper {
+  scrollbar-width: thin; /* Para Firefox */
+}
+
+/* Chrome, Edge, Safari */
+.chart-scroll-wrapper::-webkit-scrollbar { 
+  height: 8px; 
+}
+.chart-scroll-wrapper::-webkit-scrollbar-track { 
+  background: #1a202c; 
+  border-radius: 4px; 
+}
+.chart-scroll-wrapper::-webkit-scrollbar-thumb { 
+  background: #4a5568; 
+  border-radius: 4px; 
+}
+
+/* Aseguramos que ambos wrappers sean idénticos */
+.chart-scroll-wrapper {
+  flex: 1;
+  /* Forzamos el scroll siempre */
+  overflow-x: scroll; 
+  /* Añadimos padding para que el scroll no tape las barras */
+  padding-bottom: 12px; 
+  margin-top: 15px;
+  /* Esto ayuda a que el scroll siempre aparezca y no sea "auto" */
+  scrollbar-width: thin; 
+}
+
+/* Forzamos un ancho mínimo en el viewport para que SIEMPRE haya qué desplazar */
+.bar-chart-viewport {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  /* Si tus gráficas se ven "apretadas", aumenta este min-width */
+  min-width: 100%; 
+}
+
+/* Asegurar que ambos contenedores de sección tengan el mismo comportamiento */
+.bar-chart-section {
+    background-color: #0d1b2a; /* Fondo oscuro idéntico a tus tarjetas */
+
+  flex: 1;
+  min-width: 350px;
+  /* ... resto de tus estilos ... */
+  display: flex;
+  flex-direction: column;
+  /* Importante: esto permite que el scroll hijo viva dentro */
+  overflow: hidden; 
+}
+
+/* Contenedor principal que empuja todo a la derecha */
+.sprint-total-wrapper-right {
+  display: flex;
+  justify-content: flex-end; /* Alinea el contenido a la derecha */
+  width: 100%;
+}
+
+/* Ajusta el ancho que ocupará el bloque en el lado derecho (ej: 45% o 50% de la tarjeta) */
+.sprint-total-section {
+  width: 45%; 
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.total-stacked-bar {
+  display: flex;
+  height: 24px;
+  background-color: #1a2631;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+/* Colores de las secciones de la barra usando los de tus badges */
+.fill-completed { background-color: #00e676; border-right: 1px solid #0f0f0f;}
+.fill-started { background-color: #56ccf2; border-right: 1px solid #0f0f0f;}
+.fill-pending { background-color: #d1ff51; }
+
+/* Leyenda de texto y puntitos de color */
+.total-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #ecf0f1;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.dot-completed { background-color: #00e676; }
+.dot-started { background-color: #56ccf2; }
+.dot-pending { background-color: #d1ff51; }
+
+/* Contenedor principal de la sección de IA centrado */
+.ai-section {
+  margin-top: 40px;
+  padding: 25px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  
+  /* ESTO CORRIGE EL CENTRADO */
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  text-align: center;
+}
+
+/* Título de la sección */
+.ai-section-title {
+  margin-bottom: 18px;
+  color: #ffffff;
+  font-size: 1.5rem; /* Un pelín más grande para que luzca en el centro */
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* BOTÓN COQUETO DE IA (Se mantiene igual pero ahora hereda el centrado) */
+.btn-ai-magic {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  background-size: 200% auto;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-ai-magic:hover:not(:disabled) {
+  background-position: right center;
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
+  transform: translateY(-2px);
+}
+
+.btn-ai-magic:disabled {
+  background: #2a313d;
+  color: #8a99ad;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* TARJETA DE RESPUESTA DE LA IA CENTRADA */
+.ai-response-card {
+  margin-top: 25px;
+  background: rgba(13, 27, 45, 0.6);
+  
+  /* Cambiamos el borde izquierdo por uno completo o superior para que se vea simétrico en el centro */
+  border-top: 3px solid #a855f7;   
+  border-left: 1px solid rgba(168, 85, 247, 0.15);
+  border-right: 1px solid rgba(168, 85, 247, 0.15);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+  
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 600px; /* Evita que el texto de la IA se estire feo en pantallas gigantes */
+  width: 100%;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  animation: aiFadeIn 0.4s ease-out;
+}
+
+/* Título dentro de la tarjeta */
+.ai-card-title {
+  margin: 0 0 12px 0;
+  color: #cbd5e1;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra el título del robot */
+  gap: 6px;
+}
+
+/* Texto de la sugerencia alineado al centro */
+.ai-text {
+  color: #ecf0f1;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  text-align: center; /* Centra la respuesta que dé la IA */
+  white-space: pre-line;
+}
+
+
+
+
+/* Contenedor tipo tarjeta para el Dashboard de Progreso */
+.sprint-progress-dashboard-card {
+  background-color: #0d1b2a; /* Fondo oscuro idéntico a tus tarjetas */
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  margin-top: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-card-title {
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+/* Cuerpo distribuido en Flexbox para alinear Anillo + Datos */
+.dashboard-card-body {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+
+/* LADO IZQUIERDO: Estilos del círculo SVG interactivo */
+.progress-circle-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.progress-svg {
+  transform: rotate(-90deg); /* Hace que empiece arriba en el centro */
+  width: 100%;
+  height: 100%;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #14213d; /* Fondo apagado de la pista del anillo */
+  stroke-width: 8;
+}
+
+.circle-stroke-fill {
+  fill: none;
+  stroke: #00e676; /* Verde brillante idéntico a tu barra */
+  stroke-width: 8;
+  stroke-linecap: round; /* Bordes del anillo redondeados */
+  transition: stroke-dashoffset 0.5s ease-out;
+}
+
+/* Textos internos del círculo */
+.circle-inner-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.circle-number {
+  color: #ffffff;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.circle-label {
+  color: #8a99ad;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* LADO DERECHO: Detalles y Barras */
+.progress-details-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.total-tasks-count {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Barra apilada ultra-redondeada */
+.dashboard-stacked-bar {
+  display: flex;
+  height: 16px;
+  background-color: #14213d;
+  border-radius: 30px; /* Redondeado completo estilo píldora */
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Colores planos e idénticos a tu mockup */
+.fill-done { background-color: #00e676; }
+.fill-doing { background-color: #1e88e5; }
+.fill-todo { background-color: #d1ff51; }
+
+/* Distribución de la Leyenda en Grid */
+.dashboard-legend-grid {
+  display: flex;
+  gap: 25px;
+  margin-top: 5px;
+}
+
+.legend-column-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legend-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px; /* Pequeño cuadrado redondeado */
+  display: inline-block;
+}
+
+.dot-done { background-color: #00e676; }
+.dot-doing { background-color: #1e88e5; }
+.dot-todo { background-color: #d1ff51; }
+
+.label-text {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.legend-metrics {
+  color: #8a99ad;
+  font-size: 12px;
+  padding-left: 20px; /* Alineado justo abajo del texto de la etiqueta */
+}
