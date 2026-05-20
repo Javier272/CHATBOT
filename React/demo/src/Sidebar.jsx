@@ -106,7 +106,7 @@ function Sidebar({ setVista }) {
                Tasks Resume per Sprint
               </button>
 
-              <button className="btn-Tasks completed" onClick={() => setVista("TeamAnalytics")}>
+              <button className="btn-Tasks completed" onClick={() => setVista("SprintOverviewCharts ")}>
               <img src={Resume} alt="analysis" className="img-sideButton" />
 
                Total Tasks Resume

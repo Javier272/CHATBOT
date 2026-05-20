@@ -1,127 +1,485 @@
-/* Contenedor principal */
-.pending-wrapper { 
-  padding: 20px; 
-  background-color: #1a2631; 
-  border-radius: 12px; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  max-width: 1000px;
+/* =========================================================
+   PENDING TASKS TABLE
+   ESTILO FUTURISTA / NEÓN
+========================================================= */
+
+.pending-wrapper {
+  padding: 32px;
+  max-width: 1250px;
   margin-inline: auto;
+
+  border-radius: 30px;
+
+  background:
+    radial-gradient(circle at top left,
+      rgba(0,255,255,0.08),
+      transparent 30%),
+    linear-gradient(
+      180deg,
+      rgba(8, 22, 58, 0.96),
+      rgba(3, 10, 28, 0.98)
+    );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.02),
+    0 20px 60px rgba(0,0,0,0.55),
+    inset 0 0 30px rgba(0,174,255,0.06);
+
   color: white;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Título principal */
+/* glow */
+.pending-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,255,255,0.06),
+      transparent,
+      rgba(217,70,239,0.06)
+    );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   TITULO PRINCIPAL
+========================================================= */
+
 .pending-title-main {
-  color: #ffffff;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
+  font-size: 3rem;
+  font-weight: 800;
+
+  margin-bottom: 40px;
+  text-align: center;
+
+  background: linear-gradient(
+    90deg,
+    #36dfff,
+    #7c5cff,
+    #d946ef
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  letter-spacing: -1px;
+  border: none;
+  padding: 0;
 }
 
-/* Contenedor de grupos de Sprints */
+/* =========================================================
+   SPRINT CARD
+========================================================= */
+
 .sprint-group {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 35px;
+  padding: 28px;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(7, 20, 50, 0.92),
+      rgba(2, 10, 28, 0.98)
+    );
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    inset 0 0 25px rgba(0,174,255,0.05),
+    0 10px 35px rgba(0,0,0,0.4);
+
+  position: relative;
 }
 
-.sprint-title { 
-  color: #3498db; 
-  margin-bottom: 15px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 1.1rem;
+/* brillo */
+.sprint-group::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at top left,
+    rgba(0,255,255,0.05),
+    transparent 28%);
+
+  pointer-events: none;
 }
 
-/* Estructura de Grilla (7 columnas) */
-.pending-header, .pending-row {
-  display: grid;
-  grid-template-columns: 1.5fr 2fr 1fr 1fr 0.8fr 0.8fr 1fr; 
-  gap: 15px;
+/* =========================================================
+   TITULO SPRINT
+========================================================= */
+
+.sprint-title {
+  margin-bottom: 22px;
+
+  font-size: 1.5rem;
+  font-weight: 700;
+
+  color: #ffffff;
+
+  letter-spacing: 0.5px;
+  text-transform: none;
+
+  display: flex;
   align-items: center;
-  padding: 12px;
+  gap: 12px;
 }
 
-/* Encabezados */
-.pending-header { 
-  font-weight: bold; 
-  background-color: #005c99; 
-  border-radius: 8px;
-  margin-bottom: 5px;
-  font-size: 0.85rem;
+/* pequeño punto glow */
+.sprint-title::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: #36dfff;
+
+  box-shadow:
+    0 0 10px #36dfff,
+    0 0 20px #36dfff;
 }
 
-/* Filas */
-.pending-row { 
-  border-bottom: 1px solid rgba(255,255,255,0.05); 
-  transition: background 0.3s;
-  border-radius: 6px;
+/* =========================================================
+   TABLA
+========================================================= */
+
+.pending-header,
+.pending-row {
+  display: grid;
+
+  grid-template-columns:
+    1.4fr
+    2fr
+    1fr
+    1fr
+    0.8fr
+    0.8fr
+    1fr;
+
+  gap: 14px;
+  align-items: center;
 }
 
-.pending-row:hover { 
-  background-color: rgba(255, 255, 255, 0.05); 
+/* =========================================================
+   HEADER
+========================================================= */
+
+.pending-header {
+  padding: 18px;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,195,255,0.18),
+      rgba(139,92,246,0.14)
+    );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  margin-bottom: 10px;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  color: rgba(255,255,255,0.92);
+
+  backdrop-filter: blur(10px);
 }
 
-/* Fila de Edición (Inline) */
-.edit-row { 
-  padding: 15px; 
-  background-color: #0d3c68; 
-  border-radius: 8px; 
-  margin-top: 5px;
-  border: 1px solid #3498db;
+/* =========================================================
+   ROWS
+========================================================= */
+
+.pending-row {
+  padding: 18px;
+  margin-bottom: 8px;
+
+  border-radius: 16px;
+
+  border: 1px solid transparent;
+
+  transition:
+    background 0.25s ease,
+    transform 0.2s ease,
+    border 0.25s ease;
 }
 
-/* Agregamos el select para que comparta el estilo de los inputs */
-/* Esto asegura que los select se vean iguales a los inputs */
-.edit-form-inline input,
-.edit-form-inline select { 
-  flex: 1; 
-  min-width: 180px; /* Evita que se colapsen */
-  padding: 8px; 
-  border: 1px solid #005c99; 
-  border-radius: 4px; 
-  background: #1a2631;
-  color: white;
+/* hover estilo glow */
+.pending-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04),
+      rgba(0,255,255,0.03)
+    );
+
+  border: 1px solid rgba(0,255,255,0.12);
+
+  transform: translateY(-2px);
+}
+
+/* separación */
+.pending-row:not(:last-child) {
+  border-bottom:
+    1px solid rgba(255,255,255,0.04);
+}
+
+/* =========================================================
+   TEXTO CELDAS
+========================================================= */
+
+.pending-row span,
+.pending-row div,
+.pending-header span,
+.pending-header div {
+  color: rgba(255,255,255,0.88);
+  font-size: 0.95rem;
+}
+
+/* =========================================================
+   FILA EDICIÓN
+========================================================= */
+
+.edit-row {
+  margin-top: 12px;
+  margin-bottom: 18px;
+
+  padding: 22px;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 28, 70, 0.96),
+      rgba(4, 14, 40, 0.98)
+    );
+
+  border: 1px solid rgba(56,189,248,0.25);
+
+  box-shadow:
+    0 0 25px rgba(56,189,248,0.08);
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.edit-form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .edit-input-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
+  gap: 12px;
+
+  flex: 1;
+  min-width: 240px;
 }
 
-/* Ajuste para que los botones de acción siempre tengan su propia línea si hay muchos campos */
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.edit-form-inline input,
+.edit-form-inline select {
+  width: 100%;
+  padding: 13px 15px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background:
+    rgba(255,255,255,0.04);
+
+  color: white;
+  font-size: 0.95rem;
+
+  outline: none;
+
+  transition:
+    border 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+/* focus glow */
+.edit-form-inline input:focus,
+.edit-form-inline select:focus {
+  border: 1px solid rgba(56,189,248,0.6);
+
+  background:
+    rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 0 15px rgba(56,189,248,0.2);
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
 .edit-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  width: 100%; /* Obliga a los botones a bajar si es necesario */
+  flex-wrap: wrap;
+  gap: 12px;
+
+  margin-top: 22px;
 }
 
-.btn-edit-table { 
-  padding: 6px 12px; 
-  background: #3498db; 
-  color: white; 
-  border: none; 
-  border-radius: 4px; 
-  cursor: pointer; 
+/* base */
+.btn-edit-table,
+.btn-save2,
+.btn-delete2,
+.btn-cancel {
+  border: none;
+  cursor: pointer;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  font-weight: 600;
+  font-size: 0.92rem;
+
+  color: white;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.25s ease;
 }
-.btn-save2 { background: #27ae60; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
-.btn-save2:hover { background: #219150; }
 
-.btn-delete2 { 
-  background-color: #ff4d4d; 
-  color: white; 
-  border: none; 
-  padding: 8px 16px; 
-  border-radius: 4px; 
-  cursor: pointer; 
+.btn-edit-table:hover,
+.btn-save2:hover,
+.btn-delete2:hover,
+.btn-cancel:hover {
+  transform: translateY(-2px);
 }
-.btn-delete2:hover { background-color: #7c0000; }
 
-.btn-cancel { background: #555; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+/* EDIT */
+.btn-edit-table {
+  background:
+    linear-gradient(
+      180deg,
+      #38bdf8,
+      #2563eb
+    );
 
-/* Sin tareas */
-.pending-empty { color: #888; text-align: center; padding: 20px; }
+  box-shadow:
+    0 0 18px rgba(56,189,248,0.28);
+}
+
+/* SAVE */
+.btn-save2 {
+  background:
+    linear-gradient(
+      180deg,
+      #32ff8f,
+      #16a34a
+    );
+
+  box-shadow:
+    0 0 18px rgba(34,197,94,0.25);
+}
+
+/* DELETE */
+.btn-delete2 {
+  background:
+    linear-gradient(
+      180deg,
+      #000000,
+      #744f00
+    );
+
+  box-shadow:
+    0 0 18px rgba(239,68,68,0.28);
+}
+
+/* CANCEL */
+.btn-cancel {
+  background:
+    linear-gradient(
+      180deg,
+      #4b5563,
+      #374151
+    );
+
+  box-shadow:
+    0 0 18px rgba(107,114,128,0.18);
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.pending-empty {
+  text-align: center;
+  padding: 40px;
+
+  color: rgba(255,255,255,0.45);
+
+  font-size: 1rem;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .pending-header,
+  .pending-row {
+    min-width: 950px;
+  }
+
+  .sprint-group {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .pending-wrapper {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .pending-title-main {
+    font-size: 2.2rem;
+  }
+
+  .sprint-group {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .pending-header,
+  .pending-row {
+    padding: 14px;
+  }
+
+  .btn-edit-table,
+  .btn-save2,
+  .btn-delete2,
+  .btn-cancel {
+    width: 100%;
+  }
+}

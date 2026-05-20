@@ -169,6 +169,9 @@ h1 {
   background-color: #1a365d; /* Un azul sutil que combina mejor con el modo oscuro de tu captura */
   color: #ffffff;            /* El texto pasa a blanco brillante */
   transform: translateX(4px); /* Movimiento fluido hacia la derecha (reducido a 4px para que sea sutil) */
+
+  box-shadow:
+    0 6px 16px #203a5e;
 }
 
 /* EFECTO CLICK */
@@ -289,6 +292,8 @@ h1 {
 }
 
 
+
+
 /* 10. BOTONES DE TASKS */
 .btn-Tasks {
    display: flex;
@@ -397,7 +402,7 @@ h1 {
   align-items: center;
   gap: 8px;
 
-  background: linear-gradient(135deg, #213050, #3498db);
+  background: linear-gradient(135deg, #0a040c, #411047);
   color: white;
 
   border: none;
@@ -414,8 +419,7 @@ h1 {
 
   white-space: nowrap;
 
-  box-shadow:
-    0 4px 12px rgba(37, 99, 235, 0.25);
+
 }
 
 .btn-change-pw i {
@@ -424,12 +428,52 @@ h1 {
 
 .btn-change-pw:hover {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #04060c, #3498db);
+  background: linear-gradient(135deg, #0c040c, #8b1d79);
 
   box-shadow:
-    0 6px 16px rgba(37, 99, 235, 0.35);
+    0 6px 16px #db34bf;
 }
 
 .btn-change-pw:active {
+  transform: scale(0.98);
+}
+
+.btn-logout{
+    display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: linear-gradient(135deg, #13271f, #0a5230);
+  color: white;
+
+  border: none;
+  border-radius: 12px;
+
+  padding: 10px 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+  white-space: nowrap;
+
+}
+
+.btn-logout-logout i {
+  font-size: 13px;
+}
+
+.btn-logout:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #215031, #16613b);
+
+  box-shadow:
+    0 6px 16px #34db8d;
+}
+
+.btn-logout:active {
   transform: scale(0.98);
 }
