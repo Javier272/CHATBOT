@@ -26,9 +26,11 @@ steps:
 
   - type: Command
     name: "Build"
-    command:  cd MtdrSpring;
-              source env.sh;
-              (cd backend;source build.sh)
-
+    command: |
+      export DOCKER_REGISTRY="mx-queretaro-1.ocir.io/axcdvq8akxbl"
+      cd MtdrSpring
+      source env.sh
+      cd backend
+        source build.sh
 
 
