@@ -33,7 +33,7 @@ function Sidebar({ setVista }) {
           onClick={() => setModo("team")}
         >
         <img src={team} alt="team" className="img-sideButton" />
-          Teamkanckadkj
+          Team
         </button>
 
         <hr className="sidebar-divider" />
