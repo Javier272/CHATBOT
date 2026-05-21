@@ -8,22 +8,70 @@ import AddTask from "./AddTask/AddTask";
 import TotalCompletedTasks from "./TComTask/TotalCompletedTasks";
 import TotalPendingTasks from "./TPTasks/TotalPendingTasks";
 import CompletedTasks from "./CompletedTasks/CompletedTasks";
-import { getTasks, getUsers } from "./taskService";
+import { getTasks, getUsers, BASE_URL } from "./taskService";
 import TotalTasks from "./TotalTasks/TotalTasks";
+import SprintOverviewCharts from "./TComTask/SprintOverviewCharts";
 
 import logo from "./assets/logo.png";
 import login from "./assets/login.png";
-import team from "./assets/team.png";
 
 import "./App.css";
 import "./TaskList/TaskList.css";
 import "./MyCompleted/MyCompletedTasks.css";
+
+const normalizeValue = (value) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+const getUserId = (value) =>
+  value?.id ?? value?.userId ?? value?.user_id ?? value?.USER_ID ?? value?.ID ?? "";
+
+const getUserName = (value) =>
+  value?.name ?? value?.userName ?? value?.username ?? value?.USERNAME ?? value?.NAME ?? "";
+
+const getTaskUserId = (task) =>
+  task?.userId ?? task?.user_id ?? task?.USER_ID ?? task?.assignedUserId ?? task?.ASSIGNED_USER_ID ?? "";
+
+const getTaskUserName = (task) =>
+  task?.userName ??
+  task?.USERNAME ??
+  task?.user_name ??
+  task?.assignedTo ??
+  task?.ASSIGNED_TO ??
+  task?.owner ??
+  task?.OWNER ??
+  "";
+
+const getEmailName = (email) => String(email || "").split("@")[0];
+
+const taskBelongsToUser = (task, currentUser) => {
+  if (!task || !currentUser) return false;
+
+  const taskUserId = normalizeValue(getTaskUserId(task));
+  const currentUserId = normalizeValue(getUserId(currentUser));
+
+  if (taskUserId && currentUserId && taskUserId === currentUserId) {
+    return true;
+  }
+
+  const taskUserName = normalizeValue(getTaskUserName(task));
+  const currentUserName = normalizeValue(getUserName(currentUser));
+  const currentEmailName = normalizeValue(getEmailName(currentUser.email || currentUser.EMAIL));
+
+  return Boolean(
+    taskUserName &&
+      (taskUserName === currentUserName || taskUserName === currentEmailName)
+  );
+};
+
+const isCompletedStatus = (status) => normalizeValue(status) === "completed";
                  
 function App() {
   // Control de vistas (navegación interna)
   const [vista, setVista] = useState("TeamAnalytics");
 
-  // Lista global de tareas
+  // Lista global de tareas 
   const [tasks, setTasks] = useState([]);
 
   // Lista global de usuarios (desde backend)
@@ -42,6 +90,7 @@ function App() {
   useEffect(() => {
     loadTasks();
     loadUsers();
+    checkSession();
   }, []);
 
   // Obtener tareas desde el backend
@@ -65,10 +114,64 @@ function App() {
     }
   };
 
+// checkSession()
+  const checkSession = async () => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    try {
+
+      const response = await fetch(`${BASE_URL}/users/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Token inválido");
+      }
+
+      const data = await response.json();
+
+      setUser(data);
+
+      await loadTasks();
+      await loadUsers();
+
+    } catch (error) {
+
+      console.error(error);
+
+      localStorage.removeItem("token");
+
+      setUser(null);
+    }
+  };
+
   // Manejo de login (usando backend)
-  const handleLogin = (selectedUser) => {
-    console.log("USER FINAL:", selectedUser);
-    setUser(selectedUser);
+  const handleLogin = async (loginResponse) => {
+
+    console.log("LOGIN:", loginResponse);
+
+    // guardar JWT
+    localStorage.setItem("token", loginResponse.token);
+
+    // guardar usuario
+    setUser({
+      id: loginResponse.id,
+      name: loginResponse.name,
+      email: loginResponse.email,
+    });
+
+    await loadTasks();
+    await loadUsers();
+
     setShowLogin(false);
   };
 
@@ -84,17 +187,15 @@ function App() {
     setShowChangePassword(true);
   };
 
-  // Filtrar tareas del usuario actual (soporta userId y user_id)
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
+  // Filtrar tareas del usuario actual por ID o por nombre, segun lo que devuelva el backend.
   const tareasFiltradas = user
-  ? tasks.filter((task) => {
-      // Normalizamos IDs a string para evitar errores de tipo
-      const taskId = String(task.userId || task.user_id || "");
-      const currentUserId = String(user.id);
-      
-      // Filtramos por ID, que es lo más seguro
-      return taskId === currentUserId;
-    })
-  : [];
+    ? tasks.filter((task) => taskBelongsToUser(task, user))
+    : [];
 
   // Refrescar tareas después de crear una nueva
   const addNewTask = async () => {
@@ -109,7 +210,11 @@ function App() {
         
        {/* Botón de login o usuario actual */}
 <div className="header-actions">
-
+ {user && (
+    <button className="btn-logout" onClick={handleLogout}>
+      Logout
+    </button>
+  )}
   {user && (
     <button
       className="btn-change-pw"
@@ -118,7 +223,9 @@ function App() {
       <i className="fas fa-key"></i>
       Change Password
     </button>
+    
   )}
+
 
   <button
     className={`btn-login ${user ? "logged" : ""}`}
@@ -195,7 +302,7 @@ function App() {
           {vista !== "add" && (
             <>
               {/* Tareas completadas del usuario */}
-              {(vista === "MyAnalytics" || vista === "Mycompleted") && (
+              {vista === "MyAnalytics" && (
                 <MyComTasks tasks={tareasFiltradas} />
               )}
 
@@ -211,7 +318,7 @@ function App() {
               {/* Tareas pendientes del usuario */}
               {(vista === "Mypending") && (
                 <TaskList
-                  tasks={tareasFiltradas.filter(t => t.status !== 'completed')} // Filtro explícito para pendientes
+                  tasks={tareasFiltradas.filter(t => !isCompletedStatus(t.status || t.STATUS))} // Filtro explícito para pendientes
                   users={users}
                   setTasks={setTasks}
                   currentUser={user} 
@@ -220,7 +327,7 @@ function App() {
 
               {(vista === "Mycompleted") && (
                 <TaskList
-                  tasks={tareasFiltradas.filter(t => t.status === 'completed')} // Filtro explícito para completadas
+                  tasks={tareasFiltradas.filter(t => isCompletedStatus(t.status || t.STATUS))} // Filtro explícito para completadas
                   users={users}
                   setTasks={setTasks}
                   currentUser={user} 
@@ -248,6 +355,15 @@ function App() {
                 {/* Todas las tareas Completadas */}
               {vista === "TotalTasks" && (
                 <TotalTasks
+                  tasks={tasks}
+                  setTasks={setTasks}
+                  users={users}
+                />
+              )}
+
+                {/* Todas las tareas Completadas */}
+              {vista === "SprintOverviewCharts " && (
+                <SprintOverviewCharts 
                   tasks={tasks}
                   setTasks={setTasks}
                   users={users}

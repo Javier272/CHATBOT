@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { getAiStats } from "../taskService"; // FUNCIÓN QUE HACE LA PETICIÓN A LA IA
 import "./TotalCompletedTasks.css";
 
+import balance from "../assets/balance.png"
+import presicion from "../assets/presicion.png"
+
  
 // COMPONENTE PRINCIPAL
 function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
@@ -80,7 +83,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
     return (
       <div className="pending-wrapper">
         <p>
-          Cargando datos... / sin tareas disponibles
+          Charging data... / No tasks available
         </p>
       </div>
     );
@@ -281,15 +284,15 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
 
           const balanceText =
             hoursDifference > 0
-              ? `+${hoursDifference}h de desfase`
-              : `${Math.abs(hoursDifference)}h dentro del rango`;
+              ? `+${hoursDifference}h of delay`
+              : `${Math.abs(hoursDifference)}h within the range`;
 
           const accuracyLabel =
             estimationAccuracy >= 90
-              ? "Excelente"
+              ? "Excellent"
               : estimationAccuracy >= 75
-              ? "Buena"
-              : "Mejorable";
+              ? "Good"
+              : "Improvable";
 
           const accuracyStatus =
             estimationAccuracy >= 75
@@ -330,17 +333,13 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
         <div className="total-chart-with-axis">
 
           {/* Y AXIS */}
-          <div className="total-axis-y">
-            {getTicks(maxHours).map((t, index) => (
-              <div
-                key={`hours-tick-${sprintName}-${t}-${index}`}
-                className="total-axis-tick"
-              >
-                <span>{t}h</span>
-                <div className="total-grid-line"></div>
-              </div>
-            ))}
-          </div>
+<div className="total-axis-y">
+  {getTicks(maxHours).map((t, index) => (
+    <div key={`hours-tick-${t}-${index}`} className="total-axis-tick">
+      <span>{t}h</span>
+    </div>
+  ))}
+</div>
 
           {/* CHART */}
           <div className="total-chart-scroll-wrapper">
@@ -510,17 +509,17 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
 
           <div className="total-legend-item">
             <span className="total-legend-dot total-dot-done"></span>
-            <span>Done</span>
+            <span>Completed</span>
           </div>
 
           <div className="total-legend-item">
             <span className="total-legend-dot total-dot-doing"></span>
-            <span>Doing</span>
+            <span>In progress</span>
           </div>
 
           <div className="total-legend-item">
             <span className="total-legend-dot total-dot-todo"></span>
-            <span>To Do</span>
+            <span>Pending</span>
           </div>
 
         </div>
@@ -626,7 +625,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
               <div className="total-legend-column-item">
                 <div className="total-legend-label-row">
                   <span className="total-legend-dot total-dot-done"></span>
-                  <span className="total-label-text">Done</span>
+                  <span className="total-label-text">Completed</span>
                 </div>
 
                 <span className="total-legend-metrics">
@@ -637,7 +636,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
               <div className="total-legend-column-item">
                 <div className="total-legend-label-row">
                   <span className="total-legend-dot total-dot-doing"></span>
-                  <span className="total-label-text">Doing</span>
+                  <span className="total-label-text">In progress</span>
                 </div>
 
                 <span className="total-legend-metrics">
@@ -648,7 +647,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
               <div className="total-legend-column-item">
                 <div className="total-legend-label-row">
                   <span className="total-legend-dot total-dot-todo"></span>
-                  <span className="total-label-text">To Do</span>
+                  <span className="total-label-text">Pending</span>
                 </div>
 
                 <span className="total-legend-metrics">
@@ -667,18 +666,19 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
       <div class="hours-analysis-container">
           {/* BALANCE GLOBAL */}
             <div class="analysis-card">
-              <span class="card-icon">⏱️</span>
+              <img src={presicion} alt="presicion" className="img-sideButton-hours " />
+
               <div class="card-info">
-                <label>Balance Global</label>
+                <label>Global Balance</label>
                 <div class="hours-compare">
                   <span class="actual-total">
-                     {totalRealHours}h <small>Reales</small>
+                     {totalRealHours}h <small>Real</small>
                   </span>
 
                   <span class="divider">/</span>
 
                   <span class="estimated-total">
-                    {totalEstimatedHours}h <small>Est.</small>
+                    {totalEstimatedHours}h <small>Estimated</small>
                   </span>
                 </div>
               </div>
@@ -691,9 +691,9 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
 
           {/* PRECISIÓN */}
             <div class="analysis-card">
-              <span class="card-icon">🎯</span>
+              <img src={balance} alt="balance" className="img-sideButton-hours " />
               <div class="card-info">
-                <label>Precisión de Estimación</label>
+                <label>Estimation Accuracy</label>
                 <h3>{estimationAccuracy}%</h3>
               </div>
               <div className={`status-badge ${accuracyStatus}`}>

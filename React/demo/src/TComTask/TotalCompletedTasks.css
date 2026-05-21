@@ -3,10 +3,18 @@
 ========================================================= */
 
 .total-dashboard-wrapper {
-  padding: 20px;
   width: 100%;
+  padding: 40px 28px;
   box-sizing: border-box;
+
+  background:
+    radial-gradient(circle at top, rgba(75, 0, 130, 0.25), transparent 40%),
+    radial-gradient(circle at left, rgba(0, 174, 255, 0.12), transparent 35%),
+    linear-gradient(180deg, #020617 0%, #030b1f 100%);
+
   color: white;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
 /* =========================================================
@@ -32,12 +40,43 @@
 ========================================================= */
 
 .total-sprint-group {
-  background: #0d1b2a;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 30px;
-  border: 1px solid rgba(255,255,255,0.05);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  border-radius: 28px;
+
+  padding: 26px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #0a193ceb,
+      #091b5870
+    );
+
+  border: 1px solid #7878ff2e;
+
+  box-shadow:
+    0 0 0 1px #ffffff05,
+    0 20px 60px #3707758c,
+    inset 0 0 40px #008cff14;
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glow borde */
+.total-sprint-group::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 82, 82, 0.12),
+      transparent,
+      rgba(110, 21, 124, 0.12)
+    );
+
+  pointer-events: none;
 }
 
 /* =========================================================
@@ -79,33 +118,108 @@
    CHART STRUCTURE
 ========================================================= */
 
-.total-chart-with-axis {
-  display: flex;
-  height: 260px;
+.total-chart-section {
+  flex: 1;
+  min-width: 420px;
+
+  border-radius: 26px;
+  padding: 28px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 22, 58, 0.92),
+      rgba(4, 12, 34, 0.98)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    inset 0 0 25px rgba(0,174,255,0.05),
+    0 10px 35px rgba(0,0,0,0.45);
+
+  position: relative;
 }
 
-.total-axis-y {
+/* brillo interno */
+.total-chart-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at top left,
+    rgba(0,255,255,0.08),
+    transparent 28%);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   TITLES
+========================================================= */
+
+.total-chart-title {
+  font-size: 1rem;
+  font-weight: 750;
+  color: #62c6ff94;
+  margin-bottom: 15px;
+}
+
+.total-chart-subtitle {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 24px;
+}
+
+/* =========================================================
+   CHART AREA
+========================================================= */
+
+.total-chart-with-axis {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-width: 35px;
-  margin-right: 10px;
-  padding-bottom: 25px;
+  height: 300px;             /* Ajustamos la altura total para contener el gráfico de 250px + nombres */
+  position: relative;
+  padding-left: 60px;        /* Espacio fijo para el eje Y a la izquierda */
+  box-sizing: border-box;
+
+  /* Líneas de fondo automáticas espaciadas perfectamente cada 50px */
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 100% 50px; 
+  background-position: bottom 50px; /* La cuadrícula inicia exactamente en la base de las barras */
+}
+/* =========================================================
+   AXIS
+========================================================= */
+
+.total-axis-y {
+  position: absolute;
+  left: 10px;
+  bottom: 50px;              /* Alineado milimétricamente con el inicio de las barras (valor 0) */
+  height: 250px;             /* Misma altura exacta que tienen tus barras (.total-bars-vertical-container) */
+  width: 45px;
+  
+  display: flex;
+  flex-direction: column; /* Hace que el tick 0 se quede abajo y los máximos suban */
+  justify-content: space-between; /* Distribuye los números coincidiendo con las líneas de 50px */
+  pointer-events: none;
+  z-index: 2;
 }
 
 .total-axis-tick {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  height: 0;                 /* Altura cero para que el texto flote centrado sobre su respectiva línea */
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #718096;
-  font-size: 11px;
+  white-space: nowrap;
 }
 
 .total-grid-line {
-  width: 100%;
-  height: 1px;
-  background: rgba(255,255,255,0.08);
+  display: none !important;
 }
+
 
 /* =========================================================
    SCROLL AREA
@@ -113,29 +227,22 @@
 
 .total-chart-scroll-wrapper {
   flex: 1;
+  width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 10px;
-  scrollbar-width: thin;
+  padding-bottom: 15px;      /* Espacio para la barra de scroll */
+  box-sizing: border-box;
 }
 
 .total-chart-scroll-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.total-chart-scroll-wrapper::-webkit-scrollbar-track {
-  background: #1a202c;
-  border-radius: 4px;
+  height: 6px;
 }
 
 .total-chart-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #4a5568;
-  border-radius: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
 }
 
-.total-chart-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #718096;
-}
 
 /* =========================================================
    BARS VIEWPORT
@@ -168,51 +275,136 @@
 .total-bars-vertical-container {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  height: 220px;
+  gap: 6px;                  /* Separación interna si hay barras dobles/triples */
+  height: 250px;             /* Altura máxima de la escala de renderizado */
 }
 
 .total-bar-track-wrapper {
-  width: 22px;
-  height: 220px;
+  width: 22px;               /* Ancho uniforme para cada barra individual */
+  height: 250px;
   display: flex;
   align-items: flex-end;
 }
-
 .total-bar-fill {
   width: 100%;
-  border-radius: 6px 6px 0 0;
-  transition: height 0.4s ease;
+  border-radius: 14px 14px 6px 6px;
+
+  transition:
+    height 0.4s ease,
+    transform 0.25s ease;
+
+  position: relative;
+}
+
+/* hover */
+.total-bar-fill:hover {
+  transform: translateY(-4px);
+}
+
+/* brillo */
+.total-bar-fill::after {
+  content: "";
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 35%;
+
+  background: rgba(255,255,255,0.22);
+
+  border-radius: 14px 14px 0 0;
 }
 
 /* =========================================================
-   COLORS (VERSIÓN DEGRADADO DE ALTO NIVEL)
+   COLORS 
 ========================================================= */
 
-/* Verde neón brillante a un tono esmeralda */
-.total-bar-fill.completed {
-  background: linear-gradient(to right, #00e676, #0e9461);
-}
-
-/* Azul eléctrico a un morado neón */
-.total-bar-fill.started {
-  background: linear-gradient(to right, #1e88e5, #00c6ff);
-}
-
-/* Lima/Amarillo brillante a un verde manzana */
-.total-bar-fill.pending {
-  background: linear-gradient(to right, #d1ff51, #e6d435);
-}
-
-/* Cian/Celeste a un azul cielo profundo */
+/* ESTIMATED */
 .total-bar-fill.estimated {
-  background: linear-gradient(to right, #7ffff4, #25b4a8);
+  background:
+    linear-gradient(
+      180deg,
+      #4df7ff 0%,
+      #2cc7ff 45%,
+      #2584ff 100%
+    );
+
+  box-shadow:
+    0 0 18px rgba(54, 215, 255, 0.55);
 }
 
-/* Morado/Amatista a un rosa magenta coqueto */
+/* ACTUAL */
 .total-bar-fill.actual {
-  background: linear-gradient(to right, #9b59b6, #e040fb);
+  background:
+    linear-gradient(
+      180deg,
+      #ff78ff 0%,
+      #d946ef 45%,
+      #8b5cf6 100%
+    );
+
+  box-shadow:
+    0 0 18px rgba(217, 70, 239, 0.5);
 }
+
+/* DONE */
+.total-bar-fill.completed {
+  background:
+    linear-gradient(
+      180deg,
+      #32ff8f 0%,
+      #22c55e 55%,
+      #169c46 100%
+    );
+
+  box-shadow:
+    0 0 18px rgba(34,197,94,0.5);
+}
+
+/* DOING */
+.total-bar-fill.started {
+  background:
+    linear-gradient(
+      180deg,
+      #38bdf8 0%,
+      #2563eb 100%
+    );
+
+  box-shadow:
+    0 0 18px rgba(56,189,248,0.45);
+}
+
+/* TODO */
+.total-bar-fill.pending {
+  background:
+    linear-gradient(
+      180deg,
+      #ffe95a 0%,
+      #facc15 100%
+    );
+
+  box-shadow:
+    0 0 18px rgba(250,204,21,0.45);
+}
+
+
+/* =========================================================
+   VALUE LABELS
+========================================================= */
+
+.total-bar-value {
+  margin-bottom: 10px;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  color: white;
+
+  text-shadow: 0 0 10px rgba(255,255,255,0.35);
+}
+
 
 /* =========================================================
    USER NAMES
@@ -222,7 +414,7 @@
   margin-top: 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #a0dcffd3;
   text-align: center;
 }
 
@@ -233,59 +425,75 @@
 .total-chart-legend {
   display: flex;
   justify-content: center;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 26px;
+
+  margin-top: 26px;
   flex-wrap: wrap;
 }
 
 .total-legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #cbd5e1;
-  font-size: 13px;
+  gap: 10px;
+
+  color: #2eb2ff9f;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .total-legend-dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  display: inline-block;
+
+  box-shadow: 0 0 12px currentColor;
 }
 
 .total-dot-estimated {
-  background: #7ffff4;
+  background: #38dfff;
+  color: #38dfff;
 }
 
 .total-dot-actual {
-  background: #9b59b6;
+  background: #d946ef;
+  color: #d946ef;
 }
 
 .total-dot-done {
-  background: #00e676;
+  background: #22c55e;
+  color: #22c55e;
 }
 
 .total-dot-doing {
-  background: #1e88e5;
+  background: #3855f8;
+  color: #0571ff;
 }
 
 .total-dot-todo {
-  background: #d1ff51;
+  background: #facc15;
+  color: #facc15;
 }
-
 /* =========================================================
    PROGRESS CARD (VERSIÓN COQUETA)
 ========================================================= */
 
 .total-progress-card {
+  flex: 1;
+  min-width: 420px;
   width: 100%;
-  background: linear-gradient(135deg, #132238 0%, #1a2d4a 100%);
+  border-radius: 26px;
+  padding: 28px;
+  background: linear-gradient(
+      180deg,
+      rgba(8, 22, 58, 0.92),
+      rgba(4, 12, 34, 0.98)
+    );
   border-radius: 18px; /* Esquinas un poco más suaves y modernas */
   padding: 24px;
   margin-top: 16px;
   
   /* Un borde ultra fino que simula un reflejo de luz */
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 0, 0, 0.05);
   /* Sombra difuminada para que la tarjeta "flote" sobre el fondo */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   
@@ -305,7 +513,7 @@
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.5px; /* Más espacio entre letras para que se vea sofisticado */
-  color: #747e94;
+  color: #a0dcffd3;
   
   /* Un detalle coqueto: una línea degradada debajo del título */
   position: relative;
@@ -329,9 +537,6 @@
   gap: 40px; /* Un poco más de aire entre el círculo y las barras */
   padding-top: 4px;
 }
-/* =========================================================
-   HORAS ANALISIS
-========================================================= */
 
 /* =========================================================
    HOURS ANALYSIS CARDS
@@ -346,7 +551,11 @@
 
 .analysis-card {
   flex: 1;
-  background: linear-gradient(145deg, #132238 0%, #1a2d4a 100%);
+  background: linear-gradient(
+      180deg,
+      rgba(8, 22, 58, 0.92),
+      rgba(4, 12, 34, 0.98)
+    );
   border-radius: 16px;
   padding: 20px 24px;
   display: flex;
@@ -383,7 +592,7 @@
 .card-info h3 {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #a0dcffd3;
   margin: 0;
 }
 
@@ -396,18 +605,18 @@
 .actual-total {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #9b59b6; /* Tu color morado de horas reales */
+  color: #e21dd2; /* Tu color morado de horas reales */
   text-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
 }
 
 .actual-total small, .estimated-total small {
   font-size: 0.7rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.4);
+  color: #a0dcffd3;
 }
 
 .divider {
-  color: rgba(255, 255, 255, 0.2);
+  color: #ffffffa2;
   font-size: 1.2rem;
 }
 
@@ -428,7 +637,7 @@
 
 .status-badge.warning {
   background: rgba(241, 196, 15, 0.1);
-  color: #f1c40f;
+  color: #fac61c;
   border: 1px solid rgba(241, 196, 15, 0.2);
   text-shadow: 0 0 8px rgba(241, 196, 15, 0.2);
 }
@@ -439,6 +648,8 @@
   border: 1px solid rgba(0, 230, 118, 0.2);
   text-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
 }
+
+
 
 
 /* =========================================================
@@ -473,7 +684,6 @@
   stroke-linecap: round;
   transition: stroke-dashoffset 0.5s ease;
   
-  /* === EFECTO DE BRILLO === */
   /* El primer drop-shadow da el núcleo brillante, el segundo da el aura expandida */
   filter: drop-shadow(0 0 1px #00e676) drop-shadow(0 0 8px rgba(0, 230, 118, 0.6));
 }
@@ -519,8 +729,6 @@
   display: flex;
   height: 18px;
   border-radius: 999px;
-  /* Eliminamos overflow: hidden para que el brillo pueda salir de la barra */
-  /* overflow: hidden; */ 
   background: #1f314d;
   position: relative;
 }
@@ -540,22 +748,42 @@
   position: relative;
   z-index: 1; /* Asegura que el brillo se superponga correctamente */
 
-  /* === EFECTO DE BRILLO SOLO AL VERDE === */
   box-shadow: 
     0 0 8px #00e676,                /* Brillo exterior suave */
-    0 0 15px rgba(0, 230, 118, 0.6), /* Aura exterior más expandida */
-    inset 0 0 4px rgba(255, 255, 255, 0.8); /* Brillo interno blanco para dar efecto de "neón encendido" */
+    0 0 15px #00e67699, /* Aura exterior más expandida */
+    inset 0 0 4px #ffffffcc; /* Brillo interno blanco para dar efecto de "neón encendido" */
 }
 
 .total-fill-doing {
-  background: #1e88e5;
+   background:
+    linear-gradient(
+      270deg,
+      #4df7ff 0%,
+      #2cc7ff 45%,
+      #2584ff 100%
+    );
   position: relative;
 }
 
 .total-fill-todo {
-  background: #d1ff51;
+  background:
+    linear-gradient(
+      270deg,
+      #ffe95a 0%,
+      #facc15 100%
+    );
   position: relative;
 }
+
+.img-sideButton-hours {
+  width: 35px;              
+  height: 35px;
+  object-fit: contain;
+  opacity: 0.6; /* El icono empieza opaco para no competir con el botón activo */
+  filter: brightness(0.9);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
 /* =========================================================
    LEGEND GRID
 ========================================================= */
@@ -580,7 +808,7 @@
 
 .total-label-text {
   font-size: 14px;
-  color: white;
+  color: rgba(255, 255, 255, 0.733);
 }
 
 .total-legend-metrics {
@@ -657,6 +885,98 @@
   white-space: pre-line;
 }
 
+
+/* =========================================================
+   ESTILOS EXCLUSIVOS PARA VISTA MULTI-SPRINT
+========================================================= */
+
+/* Viewport especializado para mantener la base */
+.multi-sprint-viewport {
+  display: flex !important;
+  align-items: flex-end !important;
+  padding-bottom: 70px !important; 
+  padding-left: 20px !important;  /* ¡ESTA LÍNEA CORRIGE EL DETALLE! Empuja a Francisco a la derecha */
+  box-sizing: border-box;
+}
+
+.sprint-group-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: max-content;
+  padding: 0 10px; /* Da 5px a cada lado, logrando los 10px de separación perfectos en medio */
+}
+
+/* Fila horizontal donde se sientan los desarrolladores del sprint */
+.sprint-bars-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px; /* Mantiene la separación horizontal limpia entre barras */
+}
+
+/* Columna individual de cada desarrollador */
+.sprint-user-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Nombre del desarrollador (fijado justo debajo de su barra) */
+.sprint-username {
+  position: absolute;
+  bottom: -22px; /* Subido un poco para que no empuje al texto del Sprint fuera del mapa */
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Etiqueta del Sprint (¡Ya no se corta!) */
+.sprint-group-label {
+  position: absolute;
+  bottom: -50px; /* Subido de -65px a -50px para entrar perfectamente en la zona visible */
+  font-size: 13px;
+  font-weight: bold;
+  color: #3498db;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+/* Clase contenedora del estilo neón */
+.multi-sprint-glow-bar {
+  width: 100%;
+  border-radius: 14px 14px 6px 6px;
+  position: relative;
+  
+  /* Filtro de brillo exterior usando la variable inyectada desde React */
+  filter: drop-shadow(0 0 8px var(--bar-glow-color)) 
+          drop-shadow(0 0 3px var(--bar-glow-color));
+          
+  transition: height 0.4s ease, transform 0.25s ease, filter 0.25s ease;
+}
+
+/* Efecto hover interactivo incrementando el resplandor */
+.multi-sprint-glow-bar:hover {
+  transform: translateY(-4px);
+  filter: drop-shadow(0 0 15px var(--bar-glow-color)) 
+          drop-shadow(0 0 6px var(--bar-glow-color))
+          brightness(1.1);
+}
+
+/* El reflejo/brillo interno superior ovalado que tienen tus barras */
+.multi-sprint-glow-bar::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  height: 20px; /* Tamaño del domo brillante superior */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: 12px 12px 0 0;
+  pointer-events: none;
+}
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -679,5 +999,44 @@
   .total-dashboard-legend-grid {
     flex-direction: column;
     gap: 14px;
+  }
+}
+
+@media (max-width: 1100px) {
+
+  .total-dashboard-layout {
+    flex-direction: column;
+  }
+
+  .total-chart-section {
+    min-width: 100%;
+  }
+
+  .total-dashboard-title {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .total-dashboard-wrapper {
+    padding: 20px;
+  }
+
+  .total-dashboard-title {
+    font-size: 2.3rem;
+  }
+
+  .total-chart-section {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .total-bars-vertical-container {
+    gap: 8px;
+  }
+
+  .total-bar-track-wrapper {
+    width: 28px;
   }
 }
