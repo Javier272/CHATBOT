@@ -25,7 +25,7 @@ function Sidebar({ setVista }) {
         >
         <img src={user} alt="user" className="img-sideButton" />
 
-          Individualssssss
+          Individualssssersss
         </button>
 
         <button 
