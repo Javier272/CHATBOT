@@ -29,13 +29,13 @@ steps:
   - type: Command
     name: "Construir Frontend (React)"
     command: |
-      cd React
+      cd React/demo
       npm install
       npm run build
       
-      mkdir -p ../MtdrSpring/backend/src/main/resources/static/
-      rm -rf ../MtdrSpring/backend/src/main/resources/static/*
-      cp -R build/* ../MtdrSpring/backend/src/main/resources/static/
+      mkdir -p ../../MtdrSpring/backend/src/main/resources/static/
+      rm -rf ../../MtdrSpring/backend/src/main/resources/static/*
+      cp -R build/* ../../MtdrSpring/backend/src/main/resources/static/
 
   - type: Command
     name: "Construir Backend y Empacar en Docker"
