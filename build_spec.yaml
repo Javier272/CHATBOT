@@ -27,10 +27,8 @@ steps:
   - type: Command
     name: "Build"
     command: |
-      export DOCKER_REGISTRY="mx-queretaro-1.ocir.io/axcdvq8akxbl"
+      export DOCKER_REGISTRY="mx-queretaro-1.ocir.io/axcdvq8akxbl/reacttodo/8gr7x"
       cd MtdrSpring
       source env.sh
       cd backend
-        source build.sh
-
-
+      source build.sh
