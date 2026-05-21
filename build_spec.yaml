@@ -15,7 +15,7 @@ steps:
     name: "Instalar Java y Node.js para React"
     command: |
       yum -y install graalvm-22-jdk.x86_64
-      curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+      curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
       yum -y install nodejs
 
   - type: Command
@@ -35,7 +35,7 @@ steps:
       
       mkdir -p ../../MtdrSpring/backend/src/main/resources/static/
       rm -rf ../../MtdrSpring/backend/src/main/resources/static/*
-      cp -R build/* ../../MtdrSpring/backend/src/main/resources/static/
+      cp -R dist/* ../../MtdrSpring/backend/src/main/resources/static/
 
   - type: Command
     name: "Construir Backend y Empacar en Docker"
