@@ -9,8 +9,13 @@ env:
 
   exportedVariables:
     - BuildServiceDemoVersion
+    - CODIGO_UNICO_K8S
 
 steps:
+  - type: Command
+    name: "Generar Codigo Unico para Kubernetes"
+    command: export CODIGO_UNICO_K8S=$(date +%s)
+
   - type: Command
     name: "Instalar Java y Node.js para React"
     command: |
