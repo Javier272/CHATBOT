@@ -12,9 +12,11 @@ env:
 
 steps:
   - type: Command
-    name: "Install GraalVM Enterprise 22.x Native Image for Java22"
-    command:  yum -y install graalvm-22-jdk.x86_64;
-              ls /usr/lib64/graalvm/
+    name: "Instalar Java y Node.js para React"
+    command: |
+      yum -y install graalvm-22-jdk.x86_64
+      curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+      yum -y install nodejs
 
   - type: Command
     name: "Set PATH Variable"
@@ -22,10 +24,21 @@ steps:
 
   - type: Command
     name: "Docker Login"
-    command:  docker login mx-queretaro-1.ocir.io -u "axcdvq8akxbl/a01645642@tec.mx" -p "I>S+ULuK9G{Emc>Ni4be"
+    command: docker login mx-queretaro-1.ocir.io -u "axcdvq8akxbl/a01645642@tec.mx" -p "I>S+ULuK9G{Emc>Ni4be"
 
   - type: Command
-    name: "Build"
+    name: "Construir Frontend (React)"
+    command: |
+      cd React
+      npm install
+      npm run build
+      
+      mkdir -p ../MtdrSpring/backend/src/main/resources/static/
+      rm -rf ../MtdrSpring/backend/src/main/resources/static/*
+      cp -R build/* ../MtdrSpring/backend/src/main/resources/static/
+
+  - type: Command
+    name: "Construir Backend y Empacar en Docker"
     command: |
       export DOCKER_REGISTRY="mx-queretaro-1.ocir.io/axcdvq8akxbl/reacttodo/8gr7x"
       cd MtdrSpring
