@@ -1,230 +1,439 @@
-/* --- Contenedor principal del Dashboard --- */
-.dashboard-container {
+.individual-dashboard-container {
   width: 100%;
   max-width: 1200px;
   margin-inline: auto;
   padding: 20px;
-  color: white;
+  color: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.dashboard-title-main {
+.individual-dashboard-title-main {
   color: #ffffff;
   margin-bottom: 25px;
   border-bottom: 2px solid #3498db;
   padding-bottom: 10px;
   font-size: 1.6rem;
+  text-align: center;
 }
 
-/* --- Bloque de tarjeta principal --- */
-.sprint-card-block {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 25px;
-  border-radius: 20px;
-  margin-bottom: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.individual-dashboard-card {
+  border-radius: 28px;
+  padding: 26px;
+  background:
+    linear-gradient(
+      145deg,
+      #0a193ceb,
+      #091b5870
+    );
+  border: 1px solid #7878ff2e;
+  box-shadow:
+    0 0 0 1px #ffffff05,
+    0 20px 60px #3707758c,
+    inset 0 0 40px #008cff14;
+  position: relative;
+  overflow: hidden;
 }
 
-/* --- Layout: Dona a la izquierda, Barras a la derecha --- */
-.sprint-charts-layout {
-  display: flex;
-  gap: 30px;
-  width: 100%;
-  align-items: stretch;
-  margin-bottom: 25px;
+.individual-dashboard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 82, 82, 0.12),
+      transparent,
+      rgba(110, 21, 124, 0.12)
+    );
+  pointer-events: none;
 }
 
-.bar-chart-section {
-  padding: 24px;
-  background-color: #212e3d;
-  color: white;
-  border-radius: 12px;
-  flex: 1;
+.individual-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  position: relative;
+  z-index: 1;
 }
 
-/* Ajuste específico para la dona */
-.bar-chart-section:first-child {
-  flex: 0 1 350px;
+.individual-chart-section {
+  min-width: 0;
+  min-height: 430px;
+  border-radius: 26px;
+  padding: 28px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 22, 58, 0.92),
+      rgba(4, 12, 34, 0.98)
+    );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 0 25px rgba(0, 174, 255, 0.05),
+    0 10px 35px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.individual-chart-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(0, 255, 255, 0.08),
+      transparent 28%
+    );
+  pointer-events: none;
+}
+
+.individual-wide-chart {
+  grid-column: 1 / -1;
+}
+
+.individual-chart-title {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+  font-weight: 750;
+  color: #62c6ff94;
+  margin: 0 0 15px;
+}
+
+.individual-pie-chart-viewport {
+  min-height: 330px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
 }
 
-.chart-title {
-  text-align: left;
-  margin-bottom: 20px;
-  font-size: 1.2rem;
-  width: 100%;
-}
-
-/* --- GRÁFICA DE DONA --- */
-.pie-chart-viewport {
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-  padding-left: 10px;
-}
-
-.pie-chart {
-  width: 100px;
-  height: 100px;
+.individual-pie-chart {
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: conic-gradient(
-    #00da53 0 var(--completed),
-    #3498db var(--completed) calc(var(--completed) + var(--started)),
-    #d1ff51 calc(var(--completed) + var(--started)) 100%
-  );
+  background:
+    conic-gradient(
+      #22c55e 0 var(--completed),
+      #38bdf8 var(--completed) calc(var(--completed) + var(--started)),
+      #facc15 calc(var(--completed) + var(--started)) 100%
+    );
+  box-shadow:
+    0 0 24px rgba(56, 189, 248, 0.2),
+    inset 0 0 18px rgba(255, 255, 255, 0.08);
 }
 
-.pie-chart-center {
-  width: 65px;
-  height: 65px;
-  background-color: #212e3d;
+.individual-pie-chart-center {
+  width: 72px;
+  height: 72px;
+  background: rgba(4, 12, 34, 0.98);
   border-radius: 50%;
+  box-shadow: inset 0 0 16px rgba(0, 174, 255, 0.12);
 }
 
-/* --- GRÁFICA DE BARRAS (CORREGIDA) --- */
-.chart-with-axis {
+.individual-pie-chart.empty {
+  background: #1f314d;
+}
+
+.individual-status-legend {
   display: flex;
-  height: 250px;
-  margin-top: 10px;
-  position: relative;
-  overflow: hidden;
+  justify-content: center;
+  gap: 22px;
+  flex-wrap: wrap;
 }
 
-.axis-y {
+.individual-chart-with-axis {
+  display: flex;
+  height: 300px;
+  position: relative;
+  padding-left: 60px;
+  box-sizing: border-box;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 100% 50px;
+  background-position: bottom 50px;
+  z-index: 1;
+}
+
+.individual-axis-y {
+  position: absolute;
+  left: 10px;
+  bottom: 50px;
+  height: 250px;
+  width: 45px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 15px;
-  /* Eliminamos el borde sólido por algo más limpio */
-  border-right: none; 
-  color: #7a869a; /* Un color gris más suave */
-  font-size: 0.75rem; /* Un poco más pequeño */
-  font-weight: 500;
-  flex-shrink: 0;
-  height: 100%;
-  margin-bottom: 20px; /* Alineación final */
-}
-
-.axis-tick {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-  /* Quitamos el height:0 fijo para que se distribuyan solos */
-}
-
-/* Líneas de guía mucho más sutiles */
-.grid-line {
-  position: absolute;
-  left: 10px; /* Un poco de margen para no tocar el texto */
-  width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Muy tenue */
   pointer-events: none;
+  z-index: 2;
 }
 
-.bar-chart-viewport {
+.individual-axis-tick {
+  height: 0;
   display: flex;
-  align-items: flex-end; /* Alinea las barras al fondo */
-  gap: 20px;
-  flex: 1;
-  padding: 0 20px;
-  overflow-x: auto;
-  position: relative;
-  height: 100%; /* ¡ESTO ES CLAVE! */
-}
-
-/* Scrollbar estilizado */
-.bar-chart-viewport::-webkit-scrollbar { height: 8px; }
-.bar-chart-viewport::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
-.bar-chart-viewport::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-.bar-chart-viewport::-webkit-scrollbar-thumb:hover { background: #777; }
-
-.bar-chart-group {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  height: 100%;    /* ¡ESTO ES CLAVE! Ocupa toda la altura del contenedor padre */
-  min-width: 60px; /* Evita que se sigan comprimiendo */
-  flex-shrink: 0;  /* Evita que se encojan */
-  justify-content: flex-end; /* Alinea el contenido abajo */
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
-.bars-vertical-container {
+.individual-chart-scroll-wrapper {
+  flex: 1;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 15px;
+  box-sizing: border-box;
+}
+
+.individual-chart-scroll-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.individual-chart-scroll-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.individual-chart-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+
+.individual-bar-chart-viewport {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
+  gap: 24px;
+  width: max-content;
+  min-width: 100%;
   height: 100%;
-  width: 100%;
-  margin-bottom: 10px;
 }
 
-.bar-track-wrapper {
-  flex: 1;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.05);
+.individual-bar-chart-group,
+.individual-single-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 82px;
+  flex-shrink: 0;
+}
+
+.individual-single-bar-group {
+  min-width: 94px;
+}
+
+.individual-bars-vertical-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 250px;
+}
+
+.individual-bar-track-wrapper {
+  width: 22px;
+  height: 250px;
+  display: flex;
+  align-items: flex-end;
+  flex: 0 0 22px;
+}
+
+.individual-bar-fill {
+  width: 100%;
+  border-radius: 14px 14px 6px 6px;
+  transition:
+    height 0.4s ease,
+    transform 0.25s ease;
   position: relative;
 }
 
-.bar-fill {
-  width: 100%;
+.individual-bar-fill:hover {
+  transform: translateY(-4px);
+}
+
+.individual-bar-fill::after {
+  content: "";
   position: absolute;
-  bottom: 0;
-  border-radius: 3px 3px 0 0;
-  transition: height 0.6s ease;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 14px 14px 0 0;
 }
 
-.bar-fill.estimated { background-color: #3498db; }
-.bar-fill.actual { background-color: #9b59b6; }
+.individual-bar-fill.estimated {
+  background:
+    linear-gradient(
+      180deg,
+      #4df7ff 0%,
+      #2cc7ff 45%,
+      #2584ff 100%
+    );
+  box-shadow: 0 0 18px rgba(54, 215, 255, 0.55);
+}
 
-/* --- Leyenda y Textos --- */
-.chart-user-name {
-  font-size: 0.75rem;
-  color: #ccc;
+.individual-bar-fill.actual {
+  background:
+    linear-gradient(
+      180deg,
+      #ff78ff 0%,
+      #d946ef 45%,
+      #8b5cf6 100%
+    );
+  box-shadow: 0 0 18px rgba(217, 70, 239, 0.5);
+}
+
+.individual-bar-fill.completed,
+.individual-bar-fill.priority-low {
+  background:
+    linear-gradient(
+      180deg,
+      #32ff8f 0%,
+      #22c55e 55%,
+      #169c46 100%
+    );
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.5);
+}
+
+.individual-bar-fill.priority-medium {
+  background:
+    linear-gradient(
+      180deg,
+      #ffe95a 0%,
+      #facc15 100%
+    );
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.45);
+}
+
+.individual-bar-fill.priority-high {
+  background:
+    linear-gradient(
+      180deg,
+      #ff8aa3 0%,
+      #f43f5e 48%,
+      #be123c 100%
+    );
+  box-shadow: 0 0 18px rgba(244, 63, 94, 0.5);
+}
+
+.individual-chart-label {
+  width: 96px;
+  min-height: 32px;
+  margin-top: 10px;
+  color: #a0dcffd3;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
   text-align: center;
-  margin-top: 5px;
-  white-space: nowrap; /* Evita que el nombre salte de línea */
-}
-
-.chart-legend-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.85rem;
-  margin-top: 15px;
-}
-
-.legend-item { display: flex; align-items: center; }
-
-.dot-completed { background-color: #00da53; }
-.dot-started { background-color: #3498db; }
-.dot-pending { background-color: #d1ff51; }
-.dot-estimated { background-color: #3498db; }
-.dot-actual { background-color: #9b59b6; }
-
-.dot-completed, .dot-started, .dot-pending, .dot-estimated, .dot-actual {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 8px;
-}
-/* --- Barra de progreso inferior --- */
-.sprint-global-progress { margin-top: 30px; }
-
-.progress-bar-background {
-  background: rgba(255, 255, 255, 0.1);
-  height: 14px;
-  border-radius: 7px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #cc2ec4, #ff00ff);
-  transition: width 0.8s ease;
+.individual-chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 26px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.individual-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2eb2ff9f;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.individual-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.individual-dot-done {
+  background: #22c55e;
+  color: #22c55e;
+}
+
+.individual-dot-doing {
+  background: #3855f8;
+  color: #0571ff;
+}
+
+.individual-dot-todo {
+  background: #facc15;
+  color: #facc15;
+}
+
+.individual-dot-estimated {
+  background: #38dfff;
+  color: #38dfff;
+}
+
+.individual-dot-actual {
+  background: #d946ef;
+  color: #d946ef;
+}
+
+.individual-empty-chart {
+  width: 100%;
+  min-width: 260px;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .individual-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .individual-chart-section {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 640px) {
+  .individual-dashboard-container {
+    padding: 14px;
+  }
+
+  .individual-dashboard-card,
+  .individual-chart-section {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .individual-chart-with-axis {
+    padding-left: 48px;
+  }
+
+  .individual-axis-y {
+    left: 0;
+  }
+
+  .individual-pie-chart {
+    width: 168px;
+    height: 168px;
+  }
 }
