@@ -3,7 +3,6 @@ package com.springboot.MyTodoList.util;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -21,15 +20,20 @@ public class BotActions {
 
     private static final Logger logger = LoggerFactory.getLogger(BotActions.class);
 
-    // --- MEMORIA ESTÁTICA PARA LA CONVERSACIÓN ---
-    private static Map<Long, TaskCreationState> userStates = new HashMap<>();
-    private static Map<Long, Task> tempTasks = new HashMap<>();
+    // --- MEMORIA ESTÁTICA PARA LA MÁQUINA DE ESTADOS ---
+    private static final Map<Long, TaskCreationState> userStates = new HashMap<>();
+    private static final Map<Long, Task> tempTasks = new HashMap<>();
 
     public enum TaskCreationState {
-        WAITING_FOR_TITLE, WAITING_FOR_DESCRIPTION, WAITING_FOR_ESTIMATED_HOURS,
-        WAITING_FOR_DUE_DATE, WAITING_FOR_SPRINT, WAITING_FOR_PRIORITY, WAITING_FOR_ASSIGN_TO
+        WAITING_FOR_TITLE,
+        WAITING_FOR_DESCRIPTION,
+        WAITING_FOR_ESTIMATED_HOURS,
+        WAITING_FOR_DUE_DATE,
+        WAITING_FOR_SPRINT,
+        WAITING_FOR_PRIORITY,
+        WAITING_FOR_ASSIGN_TO
     }
-    // ---------------------------------------------
+    // --------------------------------------------------
 
     String requestText;
     long chatId;
@@ -46,26 +50,45 @@ public class BotActions {
         exit = false;
     }
 
-    public void setRequestText(String cmd){ requestText = cmd; }
-    public void setChatId(long chId){ chatId = chId; }
-    public void setTelegramClient(TelegramClient tc){ telegramClient = tc; }
-    public void setTaskService(TaskService tsvc){ taskService = tsvc; }
-    public TaskService getTaskService(){ return taskService; }
-    public void setAiService(AiService aisvc){ aiService = aisvc; }
-    public AiService getAiService(){ return aiService; }
+    public void setRequestText(String cmd){
+        requestText = cmd;
+    }
 
-    // --- NUEVO: INTERCEPTOR DE ESTADOS ---
+    public void setChatId(long chId){
+        chatId = chId;
+    }
+
+    public void setTelegramClient(TelegramClient tc){
+        telegramClient = tc;
+    }
+
+    public void setTaskService(TaskService tsvc){
+        taskService = tsvc;
+    }
+
+    public TaskService getTaskService(){
+        return taskService;
+    }
+
+    public void setAiService(AiService aisvc){
+        aiService = aisvc;
+    }
+
+    public AiService getAiService(){
+        return aiService;
+    }
+
+    // --- INTERCEPTOR DE ESTADOS INTERACTIVOS ---
     public void fnStateInterceptor() {
         if (exit) return;
-        
-        // Si el usuario está a la mitad de crear una tarea, lo capturamos aquí
+
+        // Si el usuario ya está en medio del flujo de creación de tarea
         if (userStates.containsKey(chatId)) {
             handleTaskCreationFlow(chatId, requestText);
-            exit = true; // Evitamos que se ejecuten los demás comandos
+            exit = true; // Activa el freno para que no ejecute otros comandos normales
         }
     }
 
-    // FLUJO DE CREACIÓN PASO A PASO
     private void handleTaskCreationFlow(long chatId, String messageText) {
         TaskCreationState state = userStates.get(chatId);
         Task task = tempTasks.get(chatId);
@@ -75,70 +98,75 @@ public class BotActions {
                 case WAITING_FOR_TITLE:
                     task.setTitle(messageText);
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_DESCRIPTION);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Título guardado.\n\nAhora, escribe la *Descripción*:", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Título guardado.\n\nAhora, escribe la *Descripción* de la tarea:", telegramClient);
                     break;
 
                 case WAITING_FOR_DESCRIPTION:
                     task.setDescription(messageText);
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_ESTIMATED_HOURS);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Descripción guardada.\n\n¿Cuántas *Horas estimadas* tomará? (Solo un número entero, ej: 5):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Descripción guardada.\n\n¿Cuántas *Horas estimadas* tomará? (Escribe solo el número entero, ej: 6):", telegramClient);
                     break;
 
                 case WAITING_FOR_ESTIMATED_HOURS:
-                    task.setHoursEstimate(Integer.parseInt(messageText)); 
+                    task.setHoursEstimate(Integer.parseInt(messageText)); // Mapeado a tu Integer hoursEstimate
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_DUE_DATE);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Horas guardadas.\n\n¿Cuál es el *Due Date*? (Formato: YYYY-MM-DD):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Horas guardadas.\n\n¿Cuál es la fecha límite (*Due Date*)? (Usa el formato exacto: YYYY-MM-DD):", telegramClient);
                     break;
 
                 case WAITING_FOR_DUE_DATE:
-                    task.setDueDate(LocalDate.parse(messageText)); 
+                    task.setDueDate(LocalDate.parse(messageText)); // Mapeado a tu LocalDate dueDate
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_SPRINT);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Fecha guardada.\n\n¿A qué *Sprint* pertenece? (Solo el número, Ej: 1):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Fecha guardada.\n\n¿A qué *Sprint* pertenece? (Escribe solo el número, ej: 1):", telegramClient);
                     break;
 
                 case WAITING_FOR_SPRINT:
-                    task.setSprint(Integer.parseInt(messageText)); 
+                    task.setSprint(Integer.parseInt(messageText)); // Mapeado a tu Integer sprint
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_PRIORITY);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Sprint guardado.\n\n¿Cuál es la *Prioridad*? (Número entero, Ej: 1 para Alta, 2 para Media):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Sprint guardado.\n\n¿Cuál es la *Prioridad*? (Escribe un número entero, ej: 1 para Alta, 2 para Media, 3 para Baja):", telegramClient);
                     break;
 
                 case WAITING_FOR_PRIORITY:
-                    task.setPriority(Integer.parseInt(messageText)); 
+                    task.setPriority(Integer.parseInt(messageText)); // Mapeado a tu Integer priority
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_ASSIGN_TO);
-                    
-                    // Creamos teclado para asignar usuario
+
+                    // Desplegamos el teclado de selección con las personas asignadas
                     ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
-                        .resizeKeyboard(true).oneTimeKeyboard(true)
+                        .resizeKeyboard(true)
+                        .oneTimeKeyboard(true)
                         .keyboardRow(new KeyboardRow("Diego", "Javier"))
                         .keyboardRow(new KeyboardRow("Admin"))
                         .build();
-                    
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Prioridad guardada.\n\nPor último, ¿a quién se la *asignamos*? (Elige un botón):", telegramClient, keyboardMarkup);
+
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Prioridad guardada.\n\nPor último, ¿a quién se la *asignamos*? (Selecciona un botón del menú):", telegramClient, keyboardMarkup);
                     break;
 
                 case WAITING_FOR_ASSIGN_TO:
-                    Long assignedUserId = 1L; // ID por defecto
+                    // Mapeamos los botones de texto a los IDs (Long) reales de tu tabla de usuarios
+                    Long assignedUserId = 1L; // Por defecto Admin (ID 1)
                     if (messageText.equalsIgnoreCase("Diego")) assignedUserId = 2L;
                     else if (messageText.equalsIgnoreCase("Javier")) assignedUserId = 3L;
-                    
-                    task.setUserId(assignedUserId);
-                    task.setStatus("pending");
-                    
-                    taskService.addTask(task); // Guarda en base de datos
-                    
-                    // Limpiamos memoria
+
+                    task.setUserId(assignedUserId); // Asignamos a la columna user_id
+                    task.setStatus("pending");      // Estado inicial por defecto
+                    task.setIsDeleted(0);           // Registro activo
+
+                    // Guardamos la entidad usando tu TaskService nativo
+                    taskService.addTask(task);
+
+                    // Limpiamos los mapas de memoria para que el chat quede libre
                     userStates.remove(chatId);
                     tempTasks.remove(chatId);
-                    
-                    BotHelper.sendMessageToTelegram(chatId, "🎉 ¡Listo! La tarea ha sido creada exitosamente.", telegramClient);
+
+                    BotHelper.sendMessageToTelegram(chatId, "🎉 ¡Excelente! La tarea *" + task.getTitle() + "* se ha creado de manera interactiva y se almacenó con éxito en la base de datos.", telegramClient);
                     break;
             }
         } catch (NumberFormatException e) {
-            BotHelper.sendMessageToTelegram(chatId, "⚠️ Ops, ingresaste texto en un campo de número. Intenta de nuevo (ej: 5):", telegramClient);
+            BotHelper.sendMessageToTelegram(chatId, "⚠️ Error de formato: Debes escribir un número entero válido (ej: 4). Intenta de nuevo:", telegramClient);
         } catch (DateTimeParseException e) {
-            BotHelper.sendMessageToTelegram(chatId, "⚠️ Formato de fecha inválido. Intenta de nuevo (ej: 2026-05-30):", telegramClient);
+            BotHelper.sendMessageToTelegram(chatId, "⚠️ Error de formato: La fecha debe cumplir el estándar YYYY-MM-DD (ej: 2026-05-30). Intenta de nuevo:", telegramClient);
         } catch (Exception e) {
-            BotHelper.sendMessageToTelegram(chatId, "⚠️ Hubo un error procesando tu respuesta. Intenta de nuevo:", telegramClient);
+            BotHelper.sendMessageToTelegram(chatId, "⚠️ Ocurrió un error inesperado al procesar tu respuesta. Por favor intenta de nuevo:", telegramClient);
+            logger.error("Error en flujo de máquina de estados", e);
         }
     }
 
@@ -212,9 +240,11 @@ public class BotActions {
     }
 
     public void fnHide(){
-        if (requestText.equals(BotCommands.HIDE_COMMAND.getCommand()) || requestText.equals(BotLabels.HIDE_MAIN_SCREEN.getLabel()) && !exit)
+        if (requestText.equals(BotCommands.HIDE_COMMAND.getCommand())
+                || requestText.equals(BotLabels.HIDE_MAIN_SCREEN.getLabel()) && !exit)
             BotHelper.sendMessageToTelegram(chatId, BotMessages.BYE.getMessage(), telegramClient);
-        else return;
+        else
+            return;
         exit = true;
     }
 
@@ -225,7 +255,13 @@ public class BotActions {
             return;
             
         List<Task> allItems = taskService.findAll();
-        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder().resizeKeyboard(true).oneTimeKeyboard(false).selective(true).build();
+        
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
+            .resizeKeyboard(true)
+            .oneTimeKeyboard(false)
+            .selective(true)
+            .build();
+
         List<KeyboardRow> keyboard = new ArrayList<>();
 
         KeyboardRow mainScreenRowTop = new KeyboardRow();
@@ -236,7 +272,14 @@ public class BotActions {
         firstRow.add(BotLabels.ADD_NEW_ITEM.getLabel());
         keyboard.add(firstRow);
 
-        List<Task> activeItems = allItems.stream().filter(item -> !item.getStatus().equals("completed") && item.getIsDeleted() == 0).collect(Collectors.toList());
+        KeyboardRow myTodoListTitleRow = new KeyboardRow();
+        myTodoListTitleRow.add(BotLabels.MY_TODO_LIST.getLabel());
+        keyboard.add(myTodoListTitleRow);
+
+        List<Task> activeItems = allItems.stream()
+                .filter(item -> !item.getStatus().equals("completed") && item.getIsDeleted() == 0)
+                .collect(Collectors.toList());
+
         for (Task item : activeItems) {
             KeyboardRow currentRow = new KeyboardRow();
             currentRow.add(item.getTitle());
@@ -244,7 +287,10 @@ public class BotActions {
             keyboard.add(currentRow);
         }
 
-        List<Task> doneItems = allItems.stream().filter(item -> item.getStatus().equals("completed") && item.getIsDeleted() == 0).collect(Collectors.toList());
+        List<Task> doneItems = allItems.stream()
+                .filter(item -> item.getStatus().equals("completed") && item.getIsDeleted() == 0)
+                .collect(Collectors.toList());
+
         for (Task item : doneItems) {
             KeyboardRow currentRow = new KeyboardRow();
             currentRow.add(item.getTitle());
@@ -253,18 +299,26 @@ public class BotActions {
             keyboard.add(currentRow);
         }
 
+        KeyboardRow mainScreenRowBottom = new KeyboardRow();
+        mainScreenRowBottom.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+        keyboard.add(mainScreenRowBottom);
+
         keyboardMarkup.setKeyboard(keyboard);
+
         BotHelper.sendMessageToTelegram(chatId, BotLabels.MY_TODO_LIST.getLabel(), telegramClient, keyboardMarkup);
         exit = true;
     }
 
-    // --- ACTUALIZADO: AHORA DISPARA EL FLUJO ---
+    // --- ACTUALIZADO: DETONA E INICIA EL CONTROLADOR DE ESTADOS ---
     public void fnAddItem(){
+        if (exit) return;
+
+        // Compara usando tus Enums reales de BotCommands y BotLabels
         if (!(requestText.contains(BotCommands.ADD_ITEM.getCommand())
-                || requestText.contains(BotLabels.ADD_NEW_ITEM.getLabel())) || exit )
+                || requestText.contains(BotLabels.ADD_NEW_ITEM.getLabel())))
             return;
             
-        // Iniciamos el estado y bloqueamos otros comandos
+        // Registramos que el usuario inicia la fase WAITING_FOR_TITLE
         userStates.put(chatId, TaskCreationState.WAITING_FOR_TITLE);
         tempTasks.put(chatId, new Task());
         
@@ -274,17 +328,21 @@ public class BotActions {
 
     public void fnElse(){
         if(exit) return;
-        // Opcional: Podrías cambiar esto para que diga "Comando no reconocido"
-        // ya que el fnElse original agregaba tareas a lo loco si escribías texto libre.
-        BotHelper.sendMessageToTelegram(chatId, "No reconocí ese comando. Usa el menú o /start", telegramClient, null);
+        BotHelper.sendMessageToTelegram(chatId, "Comando no reconocido. Por favor selecciona una opción válida del menú o usa /start.", telegramClient, null);
     }
 
     public void fnLLM(){
-        if (!(requestText.contains(BotCommands.LLM_REQ.getCommand())) || exit) return;
+        if (!(requestText.contains(BotCommands.LLM_REQ.getCommand())) || exit)
+            return;
+        
         String prompt = "Dame los datos del clima en mty";
         String out = "<empty>";
-        try{ out = aiService.analyzeData("efjvn", prompt); }
-        catch(Exception exc){ logger.error(exc.getLocalizedMessage()); }
+        try{
+            out = aiService.analyzeData("efjvn", prompt);
+        }catch(Exception exc){
+            logger.error(exc.getLocalizedMessage());
+        }
+
         BotHelper.sendMessageToTelegram(chatId, "LLM: " + out, telegramClient, null);
     }
 }
