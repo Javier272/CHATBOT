@@ -3,8 +3,13 @@ package com.springboot.MyTodoList.util;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +20,16 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class BotActions {
 
     private static final Logger logger = LoggerFactory.getLogger(BotActions.class);
+
+    // --- MEMORIA ESTÁTICA PARA LA CONVERSACIÓN ---
+    private static Map<Long, TaskCreationState> userStates = new HashMap<>();
+    private static Map<Long, Task> tempTasks = new HashMap<>();
+
+    public enum TaskCreationState {
+        WAITING_FOR_TITLE, WAITING_FOR_DESCRIPTION, WAITING_FOR_ESTIMATED_HOURS,
+        WAITING_FOR_DUE_DATE, WAITING_FOR_SPRINT, WAITING_FOR_PRIORITY, WAITING_FOR_ASSIGN_TO
+    }
+    // ---------------------------------------------
 
     String requestText;
     long chatId;
@@ -31,32 +46,100 @@ public class BotActions {
         exit = false;
     }
 
-    public void setRequestText(String cmd){
-        requestText = cmd;
+    public void setRequestText(String cmd){ requestText = cmd; }
+    public void setChatId(long chId){ chatId = chId; }
+    public void setTelegramClient(TelegramClient tc){ telegramClient = tc; }
+    public void setTaskService(TaskService tsvc){ taskService = tsvc; }
+    public TaskService getTaskService(){ return taskService; }
+    public void setAiService(AiService aisvc){ aiService = aisvc; }
+    public AiService getAiService(){ return aiService; }
+
+    // --- NUEVO: INTERCEPTOR DE ESTADOS ---
+    public void fnStateInterceptor() {
+        if (exit) return;
+        
+        // Si el usuario está a la mitad de crear una tarea, lo capturamos aquí
+        if (userStates.containsKey(chatId)) {
+            handleTaskCreationFlow(chatId, requestText);
+            exit = true; // Evitamos que se ejecuten los demás comandos
+        }
     }
 
-    public void setChatId(long chId){
-        chatId = chId;
-    }
+    // FLUJO DE CREACIÓN PASO A PASO
+    private void handleTaskCreationFlow(long chatId, String messageText) {
+        TaskCreationState state = userStates.get(chatId);
+        Task task = tempTasks.get(chatId);
 
-    public void setTelegramClient(TelegramClient tc){
-        telegramClient = tc;
-    }
+        try {
+            switch (state) {
+                case WAITING_FOR_TITLE:
+                    task.setTitle(messageText);
+                    userStates.put(chatId, TaskCreationState.WAITING_FOR_DESCRIPTION);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Título guardado.\n\nAhora, escribe la *Descripción*:", telegramClient);
+                    break;
 
-    public void setTaskService(TaskService tsvc){
-        taskService = tsvc;
-    }
+                case WAITING_FOR_DESCRIPTION:
+                    task.setDescription(messageText);
+                    userStates.put(chatId, TaskCreationState.WAITING_FOR_ESTIMATED_HOURS);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Descripción guardada.\n\n¿Cuántas *Horas estimadas* tomará? (Solo un número entero, ej: 5):", telegramClient);
+                    break;
 
-    public TaskService getTaskService(){
-        return taskService;
-    }
+                case WAITING_FOR_ESTIMATED_HOURS:
+                    task.setHoursEstimate(Integer.parseInt(messageText)); 
+                    userStates.put(chatId, TaskCreationState.WAITING_FOR_DUE_DATE);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Horas guardadas.\n\n¿Cuál es el *Due Date*? (Formato: YYYY-MM-DD):", telegramClient);
+                    break;
 
-    public void setAiService(AiService aisvc){
-        aiService = aisvc;
-    }
+                case WAITING_FOR_DUE_DATE:
+                    task.setDueDate(LocalDate.parse(messageText)); 
+                    userStates.put(chatId, TaskCreationState.WAITING_FOR_SPRINT);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Fecha guardada.\n\n¿A qué *Sprint* pertenece? (Solo el número, Ej: 1):", telegramClient);
+                    break;
 
-    public AiService getAiService(){
-        return aiService;
+                case WAITING_FOR_SPRINT:
+                    task.setSprint(Integer.parseInt(messageText)); 
+                    userStates.put(chatId, TaskCreationState.WAITING_FOR_PRIORITY);
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Sprint guardado.\n\n¿Cuál es la *Prioridad*? (Número entero, Ej: 1 para Alta, 2 para Media):", telegramClient);
+                    break;
+
+                case WAITING_FOR_PRIORITY:
+                    task.setPriority(Integer.parseInt(messageText)); 
+                    userStates.put(chatId, TaskCreationState.WAITING_FOR_ASSIGN_TO);
+                    
+                    // Creamos teclado para asignar usuario
+                    ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
+                        .resizeKeyboard(true).oneTimeKeyboard(true)
+                        .keyboardRow(new KeyboardRow("Diego", "Javier"))
+                        .keyboardRow(new KeyboardRow("Admin"))
+                        .build();
+                    
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Prioridad guardada.\n\nPor último, ¿a quién se la *asignamos*? (Elige un botón):", telegramClient, keyboardMarkup);
+                    break;
+
+                case WAITING_FOR_ASSIGN_TO:
+                    Long assignedUserId = 1L; // ID por defecto
+                    if (messageText.equalsIgnoreCase("Diego")) assignedUserId = 2L;
+                    else if (messageText.equalsIgnoreCase("Javier")) assignedUserId = 3L;
+                    
+                    task.setUserId(assignedUserId);
+                    task.setStatus("pending");
+                    
+                    taskService.addTask(task); // Guarda en base de datos
+                    
+                    // Limpiamos memoria
+                    userStates.remove(chatId);
+                    tempTasks.remove(chatId);
+                    
+                    BotHelper.sendMessageToTelegram(chatId, "🎉 ¡Listo! La tarea ha sido creada exitosamente.", telegramClient);
+                    break;
+            }
+        } catch (NumberFormatException e) {
+            BotHelper.sendMessageToTelegram(chatId, "⚠️ Ops, ingresaste texto en un campo de número. Intenta de nuevo (ej: 5):", telegramClient);
+        } catch (DateTimeParseException e) {
+            BotHelper.sendMessageToTelegram(chatId, "⚠️ Formato de fecha inválido. Intenta de nuevo (ej: 2026-05-30):", telegramClient);
+        } catch (Exception e) {
+            BotHelper.sendMessageToTelegram(chatId, "⚠️ Hubo un error procesando tu respuesta. Intenta de nuevo:", telegramClient);
+        }
     }
 
     public void fnStart() {
@@ -82,7 +165,7 @@ public class BotActions {
         try {
             Task item = taskService.getTaskById(id);
             if(item != null) {
-                item.setStatus("completed"); // Usamos el nuevo sistema de estados
+                item.setStatus("completed");
                 taskService.updateTask(id, item);
                 BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_DONE.getMessage(), telegramClient);
             }
@@ -102,7 +185,7 @@ public class BotActions {
         try {
             Task item = taskService.getTaskById(id);
             if(item != null) {
-                item.setStatus("pending"); // Lo regresamos a pendiente
+                item.setStatus("pending");
                 taskService.updateTask(id, item);
                 BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_UNDONE.getMessage(), telegramClient);
             }
@@ -120,7 +203,6 @@ public class BotActions {
         Long id = Long.valueOf(delete);
 
         try {
-            // Esto llamará al Soft Delete que configuramos en TaskService
             taskService.deleteTask(id);
             BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_DELETED.getMessage(), telegramClient);
         } catch (Exception e) {
@@ -130,11 +212,9 @@ public class BotActions {
     }
 
     public void fnHide(){
-        if (requestText.equals(BotCommands.HIDE_COMMAND.getCommand())
-                || requestText.equals(BotLabels.HIDE_MAIN_SCREEN.getLabel()) && !exit)
+        if (requestText.equals(BotCommands.HIDE_COMMAND.getCommand()) || requestText.equals(BotLabels.HIDE_MAIN_SCREEN.getLabel()) && !exit)
             BotHelper.sendMessageToTelegram(chatId, BotMessages.BYE.getMessage(), telegramClient);
-        else
-            return;
+        else return;
         exit = true;
     }
 
@@ -144,18 +224,10 @@ public class BotActions {
                 || requestText.equals(BotLabels.MY_TODO_LIST.getLabel())) || exit)
             return;
             
-        logger.info("taskSvc: " + taskService);
         List<Task> allItems = taskService.findAll();
-        
-        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
-            .resizeKeyboard(true)
-            .oneTimeKeyboard(false)
-            .selective(true)
-            .build();
-
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder().resizeKeyboard(true).oneTimeKeyboard(false).selective(true).build();
         List<KeyboardRow> keyboard = new ArrayList<>();
 
-        // command back to main screen
         KeyboardRow mainScreenRowTop = new KeyboardRow();
         mainScreenRowTop.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
         keyboard.add(mainScreenRowTop);
@@ -164,27 +236,15 @@ public class BotActions {
         firstRow.add(BotLabels.ADD_NEW_ITEM.getLabel());
         keyboard.add(firstRow);
 
-        KeyboardRow myTodoListTitleRow = new KeyboardRow();
-        myTodoListTitleRow.add(BotLabels.MY_TODO_LIST.getLabel());
-        keyboard.add(myTodoListTitleRow);
-
-        // Filtramos tareas activas (no completadas y NO borradas lógicamente)
-        List<Task> activeItems = allItems.stream()
-                .filter(item -> !item.getStatus().equals("completed") && item.getIsDeleted() == 0)
-                .collect(Collectors.toList());
-
+        List<Task> activeItems = allItems.stream().filter(item -> !item.getStatus().equals("completed") && item.getIsDeleted() == 0).collect(Collectors.toList());
         for (Task item : activeItems) {
             KeyboardRow currentRow = new KeyboardRow();
-            currentRow.add(item.getTitle()); // Usamos Title como descripción principal en el bot
+            currentRow.add(item.getTitle());
             currentRow.add(item.getId() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
             keyboard.add(currentRow);
         }
 
-        // Filtramos tareas completadas (y NO borradas lógicamente)
-        List<Task> doneItems = allItems.stream()
-                .filter(item -> item.getStatus().equals("completed") && item.getIsDeleted() == 0)
-                .collect(Collectors.toList());
-
+        List<Task> doneItems = allItems.stream().filter(item -> item.getStatus().equals("completed") && item.getIsDeleted() == 0).collect(Collectors.toList());
         for (Task item : doneItems) {
             KeyboardRow currentRow = new KeyboardRow();
             currentRow.add(item.getTitle());
@@ -193,56 +253,38 @@ public class BotActions {
             keyboard.add(currentRow);
         }
 
-        KeyboardRow mainScreenRowBottom = new KeyboardRow();
-        mainScreenRowBottom.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
-        keyboard.add(mainScreenRowBottom);
-
         keyboardMarkup.setKeyboard(keyboard);
-
         BotHelper.sendMessageToTelegram(chatId, BotLabels.MY_TODO_LIST.getLabel(), telegramClient, keyboardMarkup);
         exit = true;
     }
 
+    // --- ACTUALIZADO: AHORA DISPARA EL FLUJO ---
     public void fnAddItem(){
-        logger.info("Adding item");
         if (!(requestText.contains(BotCommands.ADD_ITEM.getCommand())
                 || requestText.contains(BotLabels.ADD_NEW_ITEM.getLabel())) || exit )
             return;
             
-        logger.info("Adding item by BotHelper");
-        BotHelper.sendMessageToTelegram(chatId, BotMessages.TYPE_NEW_TODO_ITEM.getMessage(), telegramClient);
+        // Iniciamos el estado y bloqueamos otros comandos
+        userStates.put(chatId, TaskCreationState.WAITING_FOR_TITLE);
+        tempTasks.put(chatId, new Task());
+        
+        BotHelper.sendMessageToTelegram(chatId, "¡Genial! Vamos a crear una nueva tarea. 📝\n\nPor favor, escribe el *Título* de la tarea:", telegramClient);
         exit = true;
     }
 
     public void fnElse(){
-        if(exit)
-            return;
-            
-        Task newItem = new Task();
-        // Asignamos el texto del mensaje como el Título de la tarea
-        newItem.setTitle(requestText);
-        // Como el título en BD es max 200, podríamos usar el mismo texto para la descripción
-        newItem.setDescription(requestText); 
-        newItem.setStatus("pending");
-        
-        taskService.addTask(newItem);
-
-        BotHelper.sendMessageToTelegram(chatId, BotMessages.NEW_ITEM_ADDED.getMessage(), telegramClient, null);
+        if(exit) return;
+        // Opcional: Podrías cambiar esto para que diga "Comando no reconocido"
+        // ya que el fnElse original agregaba tareas a lo loco si escribías texto libre.
+        BotHelper.sendMessageToTelegram(chatId, "No reconocí ese comando. Usa el menú o /start", telegramClient, null);
     }
 
     public void fnLLM(){
-        logger.info("Calling LLM");
-        if (!(requestText.contains(BotCommands.LLM_REQ.getCommand())) || exit)
-            return;
-        
+        if (!(requestText.contains(BotCommands.LLM_REQ.getCommand())) || exit) return;
         String prompt = "Dame los datos del clima en mty";
         String out = "<empty>";
-        try{
-            out = aiService.analyzeData("efjvn", prompt);
-        }catch(Exception exc){
-            logger.error(exc.getLocalizedMessage());
-        }
-
+        try{ out = aiService.analyzeData("efjvn", prompt); }
+        catch(Exception exc){ logger.error(exc.getLocalizedMessage()); }
         BotHelper.sendMessageToTelegram(chatId, "LLM: " + out, telegramClient, null);
     }
 }

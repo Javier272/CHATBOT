@@ -52,32 +52,34 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
     }
 
 	@Override
-	public void consume(Update update) {
-		if (!update.hasMessage() || !update.getMessage().hasText()) return;
+    public void consume(Update update) {
+        if (!update.hasMessage() || !update.getMessage().hasText()) return;
 
-		String messageTextFromTelegram = update.getMessage().getText();
-		long chatId = update.getMessage().getChatId();
+        String messageTextFromTelegram = update.getMessage().getText();
+        long chatId = update.getMessage().getChatId();
 
-        // AQUÍ ES DONDE SURGIRÁ EL PRÓXIMO ERROR DE COMPILACIÓN
-		BotActions actions = new BotActions(telegramClient, taskService, aiService);
-		actions.setRequestText(messageTextFromTelegram);
-		actions.setChatId(chatId);
+        BotActions actions = new BotActions(telegramClient, taskService, aiService);
+        actions.setRequestText(messageTextFromTelegram);
+        actions.setChatId(chatId);
         
-		if(actions.getTaskService() == null){
-			logger.info("tasksvc error");
-			actions.setTaskService(taskService);
-		}
+        if(actions.getTaskService() == null){
+            logger.info("tasksvc error");
+            actions.setTaskService(taskService);
+        }
 
-		actions.fnStart();
-		actions.fnDone();
-		actions.fnUndo();
-		actions.fnDelete();
-		actions.fnHide();
-		actions.fnListAll();
-		actions.fnAddItem();
-		actions.fnLLM();
-		actions.fnElse();
-	}
+        // --- ¡LA LÍNEA MÁGICA QUE VERIFICA SI ESTAMOS A MITAD DE UNA CREACIÓN! ---
+        actions.fnStateInterceptor(); 
+        
+        actions.fnStart();
+        actions.fnDone();
+        actions.fnUndo();
+        actions.fnDelete();
+        actions.fnHide();
+        actions.fnListAll();
+        actions.fnAddItem();
+        actions.fnLLM();
+        actions.fnElse();
+    }
 
 	@AfterBotRegistration
     public void afterRegistration(BotSession botSession) {
