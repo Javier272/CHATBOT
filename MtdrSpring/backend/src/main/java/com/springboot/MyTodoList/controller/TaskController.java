@@ -36,6 +36,7 @@ public class TaskController {
             Integer hoursEstimate,
             Integer realHours,
             Integer sprint,
+            Long userId,
             String userName
     ) {}
 
@@ -58,6 +59,7 @@ public class TaskController {
                 task.getHoursEstimate(),
                 task.getRealHours(),
                 task.getSprint(),
+                task.getUserId(),
                 userName
         );
     }

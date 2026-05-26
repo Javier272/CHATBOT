@@ -331,6 +331,7 @@ function App() {
                   users={users}
                   setTasks={setTasks}
                   currentUser={user} 
+                  completedView
                 />
               )}
 

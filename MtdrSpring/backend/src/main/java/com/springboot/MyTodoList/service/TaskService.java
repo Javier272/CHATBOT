@@ -62,19 +62,19 @@ public class TaskService {
         if(taskData.isPresent()){
             Task task = taskData.get();
             
-            // Mapeamos los nuevos campos de tu tabla
-            task.setTitle(td.getTitle());
-            task.setDescription(td.getDescription());
-            task.setStatus(td.getStatus());
-            task.setPriority(td.getPriority());
-            task.setCategory(td.getCategory());
-            task.setDueDate(td.getDueDate());
-            task.setTeamId(td.getTeamId());
-            task.setUserId(td.getUserId());
-            task.setIsDeleted(td.getIsDeleted());
-            task.setRealHours(td.getRealHours());
-            task.setHoursEstimate(td.getHoursEstimate());
-            task.setSprint(td.getSprint());
+            // Preserve existing values when an older frontend DTO omits fields.
+            if (td.getTitle() != null) task.setTitle(td.getTitle());
+            if (td.getDescription() != null) task.setDescription(td.getDescription());
+            if (td.getStatus() != null) task.setStatus(td.getStatus());
+            if (td.getPriority() != null) task.setPriority(td.getPriority());
+            if (td.getCategory() != null) task.setCategory(td.getCategory());
+            if (td.getDueDate() != null) task.setDueDate(td.getDueDate());
+            if (td.getTeamId() != null) task.setTeamId(td.getTeamId());
+            if (td.getUserId() != null) task.setUserId(td.getUserId());
+            if (td.getIsDeleted() != null) task.setIsDeleted(td.getIsDeleted());
+            if (td.getRealHours() != null) task.setRealHours(td.getRealHours());
+            if (td.getHoursEstimate() != null) task.setHoursEstimate(td.getHoursEstimate());
+            if (td.getSprint() != null) task.setSprint(td.getSprint());
             
             // No actualizamos createdAt manualmente, la base de datos lo maneja
             // El campo updatedAt se actualiza solo gracias a tu trigger trg_tasks_updated_at

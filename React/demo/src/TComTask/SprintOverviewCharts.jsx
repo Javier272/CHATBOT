@@ -1,5 +1,27 @@
 import { useMemo } from "react";
 
+const colors = [
+  { bottom: "#192d64", mid: "#3b82f6", top: "#93c5fd", glow: "rgba(59, 130, 246, 0.5)" },
+  { bottom: "#064e3b", mid: "#10b981", top: "#6ee7b7", glow: "rgba(16, 185, 129, 0.5)" },
+  { bottom: "#7c2d12", mid: "#f97316", top: "#fdba74", glow: "rgba(249, 115, 22, 0.5)" },
+  { bottom: "#7f1d1d", mid: "#ef4444", top: "#fca5a5", glow: "rgba(239, 68, 68, 0.5)" },
+  { bottom: "#4c1d95", mid: "#a855f7", top: "#d8b4fe", glow: "rgba(168, 85, 247, 0.5)" },
+  { bottom: "#134e4a", mid: "#14b8a6", top: "#99f6e4", glow: "rgba(20, 184, 166, 0.5)" },
+  { bottom: "#713f12", mid: "#eab308", top: "#fef08a", glow: "rgba(234, 179, 8, 0.5)" }
+];
+
+const hoursColors = [
+  { bottom: "#164e63", mid: "#06b6d4", top: "#67e8f9", glow: "rgba(6, 182, 212, 0.5)" },
+  { bottom: "#9d174d", mid: "#ec4899", top: "#fbcfe8", glow: "rgba(236, 72, 153, 0.5)" },
+  { bottom: "#3f6212", mid: "#84cc16", top: "#bef264", glow: "rgba(132, 204, 22, 0.5)" },
+  { bottom: "#78350f", mid: "#f59e0b", top: "#fde68a", glow: "rgba(245, 158, 11, 0.5)" },
+  { bottom: "#312e81", mid: "#6366f1", top: "#c7d2fe", glow: "rgba(99, 102, 241, 0.5)" },
+  { bottom: "#065f46", mid: "#10b981", top: "#a7f3d0", glow: "rgba(16, 185, 129, 0.5)" },
+  { bottom: "#9f1239", mid: "#f43f5e", top: "#fecdd3", glow: "rgba(244, 63, 94, 0.5)" }
+];
+
+const getCleanName = (value) => String(value || "").replace(/['"]+/g, "").trim();
+
 function SprintUsersOverview({ tasks = [], users = [] }) {
 
   // =========================================
@@ -15,11 +37,11 @@ function SprintUsersOverview({ tasks = [], users = [] }) {
         grouped[sprint] = {};
       }
 
-      const username = String(
+      const username = getCleanName(
         task.userName ||
         task.USERNAME ||
         "Unassigned"
-      ).trim();
+      );
 
       if (!grouped[sprint][username]) {
         grouped[sprint][username] = {
@@ -47,6 +69,33 @@ function SprintUsersOverview({ tasks = [], users = [] }) {
     return grouped;
   }, [tasks]);
 
+  const teamMemberOrder = useMemo(() => {
+    const orderedNames = [];
+    const seenNames = new Set();
+
+    const addName = (name) => {
+      const cleanName = getCleanName(name);
+      const nameKey = cleanName.toLowerCase();
+
+      if (!cleanName || nameKey === "prueba" || seenNames.has(nameKey)) {
+        return;
+      }
+
+      seenNames.add(nameKey);
+      orderedNames.push(cleanName);
+    };
+
+    (Array.isArray(users) ? users : []).forEach(user => {
+      addName(user.NAME || user.name || user.USERNAME || user.userName);
+    });
+
+    Object.values(sprintData).forEach(sprintUsers => {
+      Object.keys(sprintUsers).forEach(addName);
+    });
+
+    return orderedNames;
+  }, [sprintData, users]);
+
   // =========================================
   // MAXIMOS
   // =========================================
@@ -70,38 +119,34 @@ function SprintUsersOverview({ tasks = [], users = [] }) {
       (_, i) => Math.round(max - (i * (max / 4)))
     );
 
-// Reemplaza tus arrays de colores anteriores por estos:
+  const getStatsForUser = (sprintUsers, username) =>
+    sprintUsers[username] ||
+    Object.entries(sprintUsers).find(
+      ([sprintUsername]) => sprintUsername.toLowerCase() === username.toLowerCase()
+    )?.[1] ||
+    { completed: 0, realHours: 0 };
 
-const colors = [
-  { bottom: "#192d64", mid: "#3b82f6", top: "#93c5fd", glow: "rgba(59, 130, 246, 0.5)" }, // Azul neón
-  { bottom: "#064e3b", mid: "#10b981", top: "#6ee7b7", glow: "rgba(16, 185, 129, 0.5)" }, // Verde neón
-  { bottom: "#7c2d12", mid: "#f97316", top: "#fdba74", glow: "rgba(249, 115, 22, 0.5)" },  // Naranja neón
-  { bottom: "#7f1d1d", mid: "#ef4444", top: "#fca5a5", glow: "rgba(239, 68, 68, 0.5)" },  // Rojo neón
-  { bottom: "#4c1d95", mid: "#a855f7", top: "#d8b4fe", glow: "rgba(168, 85, 247, 0.5)" }, // Morado neón
-  { bottom: "#134e4a", mid: "#14b8a6", top: "#99f6e4", glow: "rgba(20, 184, 166, 0.5)" }, // Turquesa neón
-  { bottom: "#713f12", mid: "#eab308", top: "#fef08a", glow: "rgba(234, 179, 8, 0.5)" }   // Amarillo neón
-];
+  const renderMemberLegend = (palette) => (
+    <div className="sprint-member-legend">
+      {teamMemberOrder.map((username, idx) => {
+        const memberColor = palette[idx % palette.length];
 
-const hoursColors = [
-  { bottom: "#164e63", mid: "#06b6d4", top: "#67e8f9", glow: "rgba(6, 182, 212, 0.5)" },  // Cyan neón
-  { bottom: "#9d174d", mid: "#ec4899", top: "#fbcfe8", glow: "rgba(236, 72, 153, 0.5)" },  // Rosa neón
-  { bottom: "#3f6212", mid: "#84cc16", top: "#bef264", glow: "rgba(132, 204, 22, 0.5)" },  // Lima neón
-  { bottom: "#78350f", mid: "#f59e0b", top: "#fde68a", glow: "rgba(245, 158, 11, 0.5)" },  // Ámbar neón
-  { bottom: "#312e81", mid: "#6366f1", top: "#c7d2fe", glow: "rgba(99, 102, 241, 0.5)" },  // Índigo neón
-  { bottom: "#065f46", mid: "#10b981", top: "#a7f3d0", glow: "rgba(16, 185, 129, 0.5)" },  // Esmeralda neón
-  { bottom: "#9f1239", mid: "#f43f5e", top: "#fecdd3", glow: "rgba(244, 63, 94, 0.5)" }   // Rosado fuerte neón
-];
-const currentColor = colors[idx % colors.length];
-const currentHourColor = hoursColors[idx % hoursColors.length];
+        return (
+          <div key={username} className="sprint-member-legend-item">
+            <span
+              className="sprint-member-legend-swatch"
+              style={{
+                background: `linear-gradient(to top, ${memberColor.bottom} 0%, ${memberColor.mid} 50%, ${memberColor.top} 100%)`,
+                '--bar-glow-color': memberColor.glow
+              }}
+            />
+            <span className="sprint-member-legend-name">{username}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 
-<div
-  className="total-bar-fill multi-sprint-glow-bar"
-  style={{
-    height: `${(stats.realHours / maxHours) * 100}%`,
-    background: `linear-gradient(to top, ${currentHourColor.bottom} 0%, ${currentHourColor.mid} 50%, ${currentHourColor.top} 100%)`,
-    '--bar-glow-color': currentHourColor.glow
-  }}
-/>
   return (
     <section className="total-sprint-group">
       <h2 className="pending-title-main">
@@ -120,6 +165,7 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
 
   <div className="total-chart-with-axis">
     {/* Y AXIS */}
+    <span className="total-axis-title">Number of Tasks Completed</span>
     <div className="total-axis-y">
       {getTicks(maxCompleted).map((t, i) => (
         <div key={i} className="total-axis-tick">
@@ -137,12 +183,13 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
             
             {/* BARRAS INTERNAS DEL SPRINT */}
             <div className="sprint-bars-container">
-              {Object.entries(sprintUsers).map(([username, stats], idx) => {
+              {teamMemberOrder.map((username, idx) => {
+                const stats = getStatsForUser(sprintUsers, username);
                 // Selecciona el color de 3 niveles correspondiente al índice actual
                 const currentColor = colors[idx % colors.length];
                 
                 return (
-                  <div key={idx} className="sprint-user-column">
+                  <div key={username} className="sprint-user-column">
                     {/* BARRA */}
                     <div className="total-bar-track-wrapper">
                       <div
@@ -154,10 +201,6 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
                         }}
                       />
                     </div>
-                    {/* NOMBRE DEVELOPER */}
-                    <span className="sprint-username">
-                      {username}
-                    </span>
                   </div>
                 );
               })}
@@ -173,6 +216,7 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
       </div>
     </div>
   </div>
+  {renderMemberLegend(colors)}
 </div>
 
 {/* ================================================= */}
@@ -185,6 +229,7 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
 
   <div className="total-chart-with-axis">
     {/* Y AXIS */}
+    <span className="total-axis-title">Total Hours Worked</span>
     <div className="total-axis-y">
       {getTicks(maxHours).map((t, i) => (
         <div key={i} className="total-axis-tick">
@@ -202,12 +247,13 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
             
             {/* BARRAS INTERNAS DEL SPRINT */}
             <div className="sprint-bars-container">
-              {Object.entries(sprintUsers).map(([username, stats], idx) => {
+              {teamMemberOrder.map((username, idx) => {
+                const stats = getStatsForUser(sprintUsers, username);
                 // Selecciona el color de 3 niveles correspondiente al índice actual
                 const currentHourColor = hoursColors[idx % hoursColors.length];
                 
                 return (
-                  <div key={idx} className="sprint-user-column">
+                  <div key={username} className="sprint-user-column">
                     {/* BARRA */}
                     <div className="total-bar-track-wrapper">
                       <div
@@ -219,10 +265,6 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
                         }}
                       />
                     </div>
-                    {/* NOMBRE DEVELOPER */}
-                    <span className="sprint-username">
-                      {username}
-                    </span>
                   </div>
                 );
               })}
@@ -238,6 +280,7 @@ const currentHourColor = hoursColors[idx % hoursColors.length];
       </div>
     </div>
   </div>
+  {renderMemberLegend(hoursColors)}
 </div>
 
       </div>

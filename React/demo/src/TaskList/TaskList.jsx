@@ -2,7 +2,13 @@ import { useState } from "react";
 // 1. IMPORTAMOS LAS FUNCIONES DEL SERVICIO
 import { updateTask, deleteTask as deleteTaskAPI, getAiPriorities } from "../taskService";
 
-function TaskList({ tasks, setTasks, currentUser }) { 
+const getUserId = (value) =>
+  value?.id ?? value?.userId ?? value?.user_id ?? value?.USER_ID ?? value?.ID ?? "";
+
+const getUserName = (value) =>
+  value?.name ?? value?.userName ?? value?.username ?? value?.USERNAME ?? value?.NAME ?? "";
+
+function TaskList({ tasks, setTasks, currentUser, completedView = false }) { 
   // Estados para la interfaz
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -85,10 +91,16 @@ function TaskList({ tasks, setTasks, currentUser }) {
 
 const toggleComplete = async (task) => {
   const isCompleting = task.status !== "completed";
+  const assignedUserId = task.userId ?? task.user_id ?? task.USER_ID ?? getUserId(currentUser);
+  const assignedUserName = task.userName ?? task.USERNAME ?? getUserName(currentUser);
   
   // 1. Clonamos la tarea original para mantener todos sus campos (userId, userName, sprint, etc.)
   // Esto evita que la tarea "desaparezca" si el backend devuelve datos incompletos.
-  let updatedTask = { ...task }; 
+  let updatedTask = {
+    ...task,
+    userId: assignedUserId ? Number(assignedUserId) : task.userId,
+    userName: assignedUserName || task.userName
+  }; 
 
   if (isCompleting) {
     const input = prompt("¿Cuántas horas reales tomó esta tarea?", task.realHours || 0);
@@ -122,6 +134,27 @@ const toggleComplete = async (task) => {
     if (window.confirm("¿Eliminar esta tarea?")) {
       setTasks((prev) => prev.filter((task) => task.id !== id));
       try { await deleteTaskAPI(id); } catch (err) { console.error(err); }
+    }
+  };
+
+  const markAsUndone = async (task) => {
+    const assignedUserId = task.userId ?? task.user_id ?? task.USER_ID ?? getUserId(currentUser);
+    const assignedUserName = task.userName ?? task.USERNAME ?? getUserName(currentUser);
+    const updatedTask = {
+      ...task,
+      userId: assignedUserId ? Number(assignedUserId) : task.userId,
+      userName: assignedUserName || task.userName,
+      status: "pending"
+    };
+
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
+
+    try {
+      await updateTask(updatedTask);
+    } catch (err) {
+      console.error("Error al regresar la tarea a pendiente:", err);
+      alert("Error de conexión. El cambio no se guardó en el servidor.");
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
     }
   };
 
@@ -180,6 +213,12 @@ const toggleComplete = async (task) => {
                 </span>
 
                 <div className="actions-cell">
+                  {completedView ? (
+                    <button className="btn-complete" onClick={() => markAsUndone(task)}>
+                      Mark as Undone
+                    </button>
+                  ) : (
+                    <>
                     <button 
                         className={`btn-started ${task.status === "in_progress" ? "active" : ""}`} 
                         onClick={() => toggleStarted(task)}
@@ -189,6 +228,8 @@ const toggleComplete = async (task) => {
                     <button className="btn-complete" onClick={() => toggleComplete(task)}>
                         {task.status === "completed" ? "✔" : "Done"}
                     </button>
+                    </>
+                  )}
                 </div>
 
                 <button className="btn-details" onClick={() => handleOpenDetails(task)}>Details</button>
