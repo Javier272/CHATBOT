@@ -186,11 +186,20 @@ public class BotActions {
                     // Guardamos la entidad final
                     taskService.addTask(task);
 
-                    // Liberamos la memoria del chat
+                    // Liberamos la memoria del chat   
                     userStates.remove(chatId);
                     tempTasks.remove(chatId);
 
-                    BotHelper.sendMessageToTelegram(chatId, "La tarea " + task.getTitle() + " se ha creado correctamente.", telegramClient);
+                    // Vuelve a mostrar el menú principal
+                    ReplyKeyboardMarkup mainScreenKeyboard = ReplyKeyboardMarkup.builder()
+                        .resizeKeyboard(true)
+                        .oneTimeKeyboard(false)
+                        .keyboardRow(new KeyboardRow(BotLabels.LIST_ALL_ITEMS.getLabel(), BotLabels.ADD_NEW_ITEM.getLabel()))
+                        .keyboardRow(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel(), BotLabels.HIDE_MAIN_SCREEN.getLabel()))
+                        .build();
+
+
+                    BotHelper.sendMessageToTelegram(chatId, "La tarea " + task.getTitle() + " se ha creado correctamente.", telegramClient, mainScreenKeyboard);
                     break;
             }
         } catch (NumberFormatException e) {
@@ -355,7 +364,7 @@ public class BotActions {
         userStates.put(chatId, TaskCreationState.WAITING_FOR_TITLE);
         tempTasks.put(chatId, new Task());
         
-        BotHelper.sendMessageToTelegram(chatId, "¡Genial! Vamos a crear una nueva tarea. 📝\n\nPor favor, escribe el *Título* de la tarea:", telegramClient);
+        BotHelper.sendMessageToTelegram(chatId, "Creando nueva tarea, Escribe el Título de la tarea:", telegramClient);
         exit = true;
     }
 
