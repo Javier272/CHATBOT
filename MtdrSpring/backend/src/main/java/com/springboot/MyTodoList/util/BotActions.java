@@ -103,13 +103,13 @@ public class BotActions {
                 case WAITING_FOR_TITLE:
                     task.setTitle(messageText);
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_DESCRIPTION);
-                    BotHelper.sendMessageToTelegram(chatId, "Título guardado.\n\nAhora, escribe la *Descripción* de la tarea:", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Título guardado.\n\nAhora, escribe la Descripción de la tarea:", telegramClient);
                     break;
 
                 case WAITING_FOR_DESCRIPTION:
                     task.setDescription(messageText);
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_ESTIMATED_HOURS);
-                    BotHelper.sendMessageToTelegram(chatId, "Descripción guardada.\n\n¿Cuántas *Horas estimadas* tomará? Escribe solo numeros enteros:", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Descripción guardada.\n\n¿Cuántas Horas estimadas tomará? Escribe solo numeros enteros:", telegramClient);
                     break;
 
                 case WAITING_FOR_ESTIMATED_HOURS:
@@ -121,13 +121,13 @@ public class BotActions {
                 case WAITING_FOR_DUE_DATE:
                     task.setDueDate(LocalDate.parse(messageText));
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_SPRINT);
-                    BotHelper.sendMessageToTelegram(chatId, "Fecha guardada.\n\n¿A qué *Sprint* pertenece? Escribe solo numeros enteros:", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Fecha guardada.\n\n¿A qué Sprint pertenece? Escribe solo numeros enteros:", telegramClient);
                     break;
 
                 case WAITING_FOR_SPRINT:
                     task.setSprint(Integer.parseInt(messageText));
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_PRIORITY);
-                    BotHelper.sendMessageToTelegram(chatId, "Sprint guardado.\n\n¿Cuál es la *Prioridad*? Escribe un número entero, ej: 5 para Alta, 1 para Baja", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Sprint guardado.\n\n¿Cuál es la Prioridad? Escribe un número entero, ej: 5 para Alta, 1 para Baja", telegramClient);
                     break;
 
                 case WAITING_FOR_PRIORITY:
@@ -153,7 +153,7 @@ public class BotActions {
                         keyboardBuilder.keyboardRow(new KeyboardRow("Admin"));
                     }
 
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Prioridad guardada.\n\nPor último, ¿a quién se la *asignamos*? (Selecciona un integrante de la base de datos):", telegramClient, keyboardBuilder.build());
+                    BotHelper.sendMessageToTelegram(chatId, "Prioridad guardada.\n\nPor último, ¿A quién se asigna la tarea? Selecciona un integrante del equipo", telegramClient, keyboardBuilder.build());
                     break;
 
                 case WAITING_FOR_ASSIGN_TO:
@@ -190,7 +190,7 @@ public class BotActions {
                     userStates.remove(chatId);
                     tempTasks.remove(chatId);
 
-                    BotHelper.sendMessageToTelegram(chatId, "🎉 ¡Excelente! La tarea *" + task.getTitle() + "* se ha creado interactivamente y fue asignada correctamente en la Base de Datos.", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "La tarea " + task.getTitle() + " se ha creado correctamente.", telegramClient);
                     break;
             }
         } catch (NumberFormatException e) {
