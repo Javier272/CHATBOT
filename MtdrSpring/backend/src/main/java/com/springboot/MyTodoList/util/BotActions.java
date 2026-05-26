@@ -3,6 +3,8 @@ package com.springboot.MyTodoList.util;
 import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
+import com.springboot.MyTodoList.service.UserService;
+import com.springboot.MyTodoList.model.User;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -40,13 +42,16 @@ public class BotActions {
     TelegramClient telegramClient;
     boolean exit;
 
+    UserService userService;
+
     TaskService taskService;
     AiService aiService;
 
-    public BotActions(TelegramClient tc, TaskService ts, AiService aisvc) {
+    public BotActions(TelegramClient tc, TaskService ts, AiService aisvc, UserService usvc) {
         telegramClient = tc;
         taskService = ts;
         aiService = aisvc;
+        this.userService = usvc;
         exit = false;
     }
 
@@ -98,74 +103,102 @@ public class BotActions {
                 case WAITING_FOR_TITLE:
                     task.setTitle(messageText);
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_DESCRIPTION);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Título guardado.\n\nAhora, escribe la *Descripción* de la tarea:", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Título guardado.\n\nAhora, escribe la *Descripción* de la tarea:", telegramClient);
                     break;
 
                 case WAITING_FOR_DESCRIPTION:
                     task.setDescription(messageText);
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_ESTIMATED_HOURS);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Descripción guardada.\n\n¿Cuántas *Horas estimadas* tomará? (Escribe solo el número entero, ej: 6):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Descripción guardada.\n\n¿Cuántas *Horas estimadas* tomará? Escribe solo numeros enteros:", telegramClient);
                     break;
 
                 case WAITING_FOR_ESTIMATED_HOURS:
-                    task.setHoursEstimate(Integer.parseInt(messageText)); // Mapeado a tu Integer hoursEstimate
+                    task.setHoursEstimate(Integer.parseInt(messageText));
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_DUE_DATE);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Horas guardadas.\n\n¿Cuál es la fecha límite (*Due Date*)? (Usa el formato exacto: YYYY-MM-DD):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Horas guardadas.\n\n¿Cuál es la fecha límite? Usa el formato exacto: YYYY-MM-DD:", telegramClient);
                     break;
 
                 case WAITING_FOR_DUE_DATE:
-                    task.setDueDate(LocalDate.parse(messageText)); // Mapeado a tu LocalDate dueDate
+                    task.setDueDate(LocalDate.parse(messageText));
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_SPRINT);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Fecha guardada.\n\n¿A qué *Sprint* pertenece? (Escribe solo el número, ej: 1):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Fecha guardada.\n\n¿A qué *Sprint* pertenece? Escribe solo numeros enteros:", telegramClient);
                     break;
 
                 case WAITING_FOR_SPRINT:
-                    task.setSprint(Integer.parseInt(messageText)); // Mapeado a tu Integer sprint
+                    task.setSprint(Integer.parseInt(messageText));
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_PRIORITY);
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Sprint guardado.\n\n¿Cuál es la *Prioridad*? (Escribe un número entero, ej: 1 para Alta, 2 para Media, 3 para Baja):", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "Sprint guardado.\n\n¿Cuál es la *Prioridad*? Escribe un número entero, ej: 5 para Alta, 1 para Baja", telegramClient);
                     break;
 
                 case WAITING_FOR_PRIORITY:
-                    task.setPriority(Integer.parseInt(messageText)); // Mapeado a tu Integer priority
+                    task.setPriority(Integer.parseInt(messageText)); 
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_ASSIGN_TO);
 
-                    // Desplegamos el teclado de selección con las personas asignadas
-                    ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder()
+                    // 1. OBTENEMOS LOS INTEGRANTES REALES DESDE LA BASE DE DATOS
+                    List<User> dbUsers = userService.findAll(); // Ajusta si tu método se llama de otra forma en UserService
+                    
+                    // 2. CONSTRUIMOS EL TECLADO DINÁMICO
+                    ReplyKeyboardMarkup.ReplyKeyboardMarkupBuilder keyboardBuilder = ReplyKeyboardMarkup.builder()
                         .resizeKeyboard(true)
-                        .oneTimeKeyboard(true)
-                        .keyboardRow(new KeyboardRow("Diego", "Javier"))
-                        .keyboardRow(new KeyboardRow("Admin"))
-                        .build();
+                        .oneTimeKeyboard(true);
 
-                    BotHelper.sendMessageToTelegram(chatId, "✅ Prioridad guardada.\n\nPor último, ¿a quién se la *asignamos*? (Selecciona un botón del menú):", telegramClient, keyboardMarkup);
+                    // Acomodaremos los usuarios en filas (una fila por cada usuario para que no se amontonen)
+                    if (dbUsers != null && !dbUsers.isEmpty()) {
+                        for (User u : dbUsers) {
+                            // Creamos un botón que muestre "ID: [numero] - [Nombre]"
+                            keyboardBuilder.keyboardRow(new KeyboardRow("ID: " + u.getId() + " - " + u.getName()));
+                        }
+                    } else {
+                        // Resguardo en caso de que la tabla users esté completamente vacía
+                        keyboardBuilder.keyboardRow(new KeyboardRow("Admin"));
+                    }
+
+                    BotHelper.sendMessageToTelegram(chatId, "✅ Prioridad guardada.\n\nPor último, ¿a quién se la *asignamos*? (Selecciona un integrante de la base de datos):", telegramClient, keyboardBuilder.build());
                     break;
 
                 case WAITING_FOR_ASSIGN_TO:
-                    // Mapeamos los botones de texto a los IDs (Long) reales de tu tabla de usuarios
-                    Long assignedUserId = 1L; // Por defecto Admin (ID 1)
-                    if (messageText.equalsIgnoreCase("Diego")) assignedUserId = 2L;
-                    else if (messageText.equalsIgnoreCase("Javier")) assignedUserId = 3L;
+                    // El mensaje recibido tendrá el formato "ID: 2 - Diego"
+                    Long assignedUserId = 1L; // Admin o ID por defecto si algo falla
 
-                    task.setUserId(assignedUserId); // Asignamos a la columna user_id
-                    task.setStatus("pending");      // Estado inicial por defecto
-                    task.setIsDeleted(0);           // Registro activo
+                    try {
+                        if (messageText.contains("ID:") && messageText.contains("-")) {
+                            // Cortamos el texto para extraer el ID numérico puro entre "ID:" y el guion "-"
+                            String idSection = messageText.split("-")[0].replace("ID:", "").trim();
+                            assignedUserId = Long.parseLong(idSection);
+                        } else {
+                            // Si el usuario prefirió teclear directamente un nombre sin usar los botones
+                            List<User> users = userService.findAll();
+                            for (User u : users) {
+                                if (u.getName().equalsIgnoreCase(messageText.trim())) {
+                                    assignedUserId = u.getId();
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error al procesar el ID del usuario seleccionado, se asignará ID 1", e);
+                    }
 
-                    // Guardamos la entidad usando tu TaskService nativo
+                    task.setUserId(assignedUserId); // Asignamos el ID numérico de la BD a user_id
+                    task.setStatus("pending");      
+                    task.setIsDeleted(0);           
+
+                    // Guardamos la entidad final
                     taskService.addTask(task);
 
-                    // Limpiamos los mapas de memoria para que el chat quede libre
+                    // Liberamos la memoria del chat
                     userStates.remove(chatId);
                     tempTasks.remove(chatId);
 
-                    BotHelper.sendMessageToTelegram(chatId, "🎉 ¡Excelente! La tarea *" + task.getTitle() + "* se ha creado de manera interactiva y se almacenó con éxito en la base de datos.", telegramClient);
+                    BotHelper.sendMessageToTelegram(chatId, "🎉 ¡Excelente! La tarea *" + task.getTitle() + "* se ha creado interactivamente y fue asignada correctamente en la Base de Datos.", telegramClient);
                     break;
             }
         } catch (NumberFormatException e) {
-            BotHelper.sendMessageToTelegram(chatId, "⚠️ Error de formato: Debes escribir un número entero válido (ej: 4). Intenta de nuevo:", telegramClient);
+            BotHelper.sendMessageToTelegram(chatId, "Error, debes escribir un número entero válido ej: 4. Intenta de nuevo:", telegramClient);
         } catch (DateTimeParseException e) {
-            BotHelper.sendMessageToTelegram(chatId, "⚠️ Error de formato: La fecha debe cumplir el estándar YYYY-MM-DD (ej: 2026-05-30). Intenta de nuevo:", telegramClient);
+            BotHelper.sendMessageToTelegram(chatId, "Error, la fecha debe tener ek siguiente formato YYYY-MM-DD ej: 2026-05-30. Intenta de nuevo:", telegramClient);
         } catch (Exception e) {
-            BotHelper.sendMessageToTelegram(chatId, "⚠️ Ocurrió un error inesperado al procesar tu respuesta. Por favor intenta de nuevo:", telegramClient);
+            BotHelper.sendMessageToTelegram(chatId, "Error, ocurrió un error inesperado al procesar tu respuesta. Por favor intenta de nuevo:", telegramClient);
             logger.error("Error en flujo de máquina de estados", e);
         }
     }

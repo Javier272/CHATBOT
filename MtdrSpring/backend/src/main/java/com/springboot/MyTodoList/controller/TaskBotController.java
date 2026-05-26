@@ -4,6 +4,7 @@ import com.springboot.MyTodoList.config.BotProps;
 import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
 import com.springboot.MyTodoList.util.BotActions;
+import com.springboot.MyTodoList.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
 	private TaskService taskService;
 	private AiService aiService;
 	private final TelegramClient telegramClient;
+	private UserService userService;
 	
 	private final BotProps botProps;
 
@@ -39,11 +41,12 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
 		}
     }
 
-	public TaskBotController(BotProps bp, TaskService tsvc, AiService aisvc) {
+	public TaskBotController(BotProps bp, TaskService tsvc, AiService aisvc, UserService usvc) {
 		this.botProps = bp;
 		telegramClient = new OkHttpTelegramClient(getBotToken());
 		this.taskService = tsvc;
 		this.aiService = aisvc;
+		this.userService = usvc;
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
         String messageTextFromTelegram = update.getMessage().getText();
         long chatId = update.getMessage().getChatId();
 
-        BotActions actions = new BotActions(telegramClient, taskService, aiService);
+        BotActions actions = new BotActions(telegramClient, taskService, aiService, userService);
         actions.setRequestText(messageTextFromTelegram);
         actions.setChatId(chatId);
         
