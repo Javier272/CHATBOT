@@ -1,4 +1,4 @@
-export const BASE_URL = "http://163.192.130.179";
+export const BASE_URL = "";
 
 const getAuthHeaders = () => {
 
