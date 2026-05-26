@@ -319,7 +319,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
     {/* ===================================================== */}
     {/* MAIN DASHBOARD LAYOUT */}
     {/* ===================================================== */}
-    <div className="total-dashboard-layout">
+    <div className="total-dashboard-layout sprint-dashboard-layout">
 
       {/* ===================================================== */}
       {/* HOURS CHART */}
@@ -663,21 +663,21 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
           {/* HORAS ANALISIS */}
           {/* ================================================= */}
       
-      <div class="hours-analysis-container">
+      <div className="hours-analysis-container">
           {/* BALANCE GLOBAL */}
-            <div class="analysis-card">
+            <div className="analysis-card">
               <img src={presicion} alt="presicion" className="img-sideButton-hours " />
 
-              <div class="card-info">
+              <div className="card-info">
                 <label>Global Balance</label>
-                <div class="hours-compare">
-                  <span class="actual-total">
+                <div className="hours-compare">
+                  <span className="actual-total">
                      {totalRealHours}h <small>Real</small>
                   </span>
 
-                  <span class="divider">/</span>
+                  <span className="divider">/</span>
 
-                  <span class="estimated-total">
+                  <span className="estimated-total">
                     {totalEstimatedHours}h <small>Estimated</small>
                   </span>
                 </div>
@@ -690,9 +690,9 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
             </div>
 
           {/* PRECISIÓN */}
-            <div class="analysis-card">
+            <div className="analysis-card">
               <img src={balance} alt="balance" className="img-sideButton-hours " />
-              <div class="card-info">
+              <div className="card-info">
                 <label>Estimation Accuracy</label>
                 <h3>{estimationAccuracy}%</h3>
               </div>

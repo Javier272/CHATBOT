@@ -242,7 +242,7 @@
   height: 250px;
   display: flex;
   align-items: flex-end;
-  flex: 0 0 22px;
+  flex: 0 0 auto;
 }
 
 .individual-bar-fill {
