@@ -16,24 +16,20 @@ public class AiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
+    @SuppressWarnings("unchecked")
     public String analyzeData(String systemPrompt, String userContent) {
         RestTemplate restTemplate = new RestTemplate();
         
-        //Configuracion de los headers, incluyendo la clave de API 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-goog-api-key", apiKey);
 
-
-        // el cuerpo de la petición siguiendo el formato que Gemini espera
         Map<String, Object> requestBody = new HashMap<>();
-        
         List<Map<String, Object>> contents = new ArrayList<>();
         Map<String, Object> contentItem = new HashMap<>();
         List<Map<String, Object>> parts = new ArrayList<>();
         Map<String, Object> textPart = new HashMap<>();
         
-        // Se une el prompt para enviar el mensaje y los datos a analizar
         String finalPrompt = "INSTRUCCIÓN:\n" + systemPrompt + "\n\nDATOS A ANALIZAR:\n" + userContent;
         
         textPart.put("text", finalPrompt);
@@ -46,20 +42,34 @@ public class AiService {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
         try {
-            // Se envia la petición 
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, request, Map.class);
             Map<String, Object> responseBody = response.getBody();
             
-            // 4. Navegamos por la respuesta de Gemini para extraer solo el texto útil
-            // Ruta del JSON: candidates[0].content.parts[0].text
+            if (responseBody == null || !responseBody.containsKey("candidates")) {
+                return "El motor de IA no devolvió candidatos válidos para el análisis de este Sprint.";
+            }
+
             List<Map<String, Object>> candidates = (List<Map<String, Object>>) responseBody.get("candidates");
+            if (candidates == null || candidates.isEmpty()) {
+                return "La consulta de métricas no arrojó resultados analizables por la IA.";
+            }
+
             Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+            if (content == null || !content.containsKey("parts")) {
+                return "Estructura de respuesta de IA incompleta para este bloque de tareas.";
+            }
+
             List<Map<String, Object>> responseParts = (List<Map<String, Object>>) content.get("parts");
+            if (responseParts == null || responseParts.isEmpty()) {
+                return "No se pudo extraer texto útil del análisis ágil del Sprint.";
+            }
             
             return (String) responseParts.get(0).get("text");
             
         } catch (Exception e) {
-            return "Lo siento, hubo un error de conexión con Gemini: " + e.getMessage();
+            // Logueamos el error real en la consola de tu contenedor para que sepas qué pasó
+            System.err.println("Error crítico de conexión en AiService: " + e.getMessage());
+            return "Alineando prioridades de Scrum... Ocurrió un retraso en la API: " + e.getMessage();
         }
     }
 }
