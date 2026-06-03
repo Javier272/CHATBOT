@@ -8,7 +8,7 @@ const getUserId = (value) =>
 const getUserName = (value) =>
   value?.name ?? value?.userName ?? value?.username ?? value?.USERNAME ?? value?.NAME ?? "";
 
-function TaskList({ tasks, setTasks, currentUser, completedView = false }) { 
+function Mypending({ tasks, setTasks, currentUser, completedView = false }) { 
   // Estados para la interfaz
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -158,30 +158,87 @@ const toggleComplete = async (task) => {
     }
   };
 
-  // 3. FUNCIÓN PARA LLAMAR A LA IA
-  const handleAskAI = async () => {
-    if (!currentUser || !currentUser.id) {
-      alert("Por favor inicia sesión para usar la IA.");
-      return;
-    }
-    setIsAiLoading(true);
-    setAiSuggestion(""); 
-    try {
-      const response = await getAiPriorities(currentUser.id);
-      setAiSuggestion(response);
-    } catch (error) {
-      console.error("Error con la IA:", error);
-      setAiSuggestion("Ocurrió un error al consultar a la IA.");
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
+// FUNCIÓN PARA PEDIR FEEDBACK A IA
+const handleAskAI = async () => {
+  const userToUse =
+    currentUser ||
+    JSON.parse(localStorage.getItem("user"));
+
+  // Si no hay usuario logueado
+  if (!userToUse || !userToUse.id) {
+    alert(
+      "Por favor inicia sesión para que la IA analice tus datos."
+    );
+    return;
+  }
+
+  // Activamos loading
+  setIsAiLoading(true);
+
+  // Limpiamos respuesta anterior
+  setAiSuggestion("");
+
+  try {
+  const response = await getAiPriorities(userToUse.id);
+
+  if (
+    typeof response === "string" && 
+    (response.includes("503") || response.includes("Service Unavailable") || response.includes("error"))
+  ) {
+    setAiSuggestion("🤖 Lo siento, el servidor de Gemini está saturado en este momento. ¡Inténtalo de nuevo en unos segundos!");
+  } else {
+    // Si todo está bien, guarda la respuesta real
+    setAiSuggestion(response);
+  }
+
+} catch (error) {
+    // Error de la IA
+    console.error("Error con la IA:", error);
+
+    setAiSuggestion(
+      "Uy, Gemini está descansando. Intenta de nuevo más tarde."
+    );
+  } finally {
+    // Quitamos loading siempre
+    setIsAiLoading(false);
+  }
+};
 
   const getPriorityClass = (p) => (p >= 4 ? "high" : p >= 2 ? "medium" : "low");
 
   return (
     <section className="task-list">
-      <h2 className="generalTask-title">Completed Task Board {currentUser?.name || "Guest"}</h2>
+      
+      <h2 className="generalTask-title">General Task Board (User: {currentUser?.name || "Guest"})</h2>
+      
+      {/* 4. SECCIÓN DE INTELIGENCIA ARTIFICIAL */}
+      <div className="ai-section">
+        <button 
+          className="btn-ai-magic" 
+          onClick={handleAskAI} 
+          disabled={isAiLoading}
+        >
+          {isAiLoading ? (
+            <>
+              <span className="ai-spinner"></span> {/* Si tienes el spinner animado verde, aquí heredará el giro */}
+              🧠 Gemini is analyzing...
+            </>
+          ) : (
+            "✨ Ask AI for My Priorities"
+          )}
+        </button>
+
+        {aiSuggestion && (
+          <div className="ai-response-card">
+            <h3 className="ai-card-title-purple">
+              <span className="ai-icon-pulse">🤖</span> AI Project Manager:
+            </h3>
+            <p className="ai-text-purple">
+              {aiSuggestion}
+            </p>
+          </div>
+        )}
+      </div>
 
       {displayTasks.length === 0 && <p>No hay tareas en el sistema.</p>}
 
@@ -190,6 +247,7 @@ const toggleComplete = async (task) => {
           <h3 className="sprint-title">
             {sprintName === "Sin Sprint" ? sprintName : `Sprint ${sprintName}`}
           </h3>
+          
           
           <div className="task-header">
             <span>Title</span> 
@@ -282,9 +340,8 @@ const toggleComplete = async (task) => {
       ))}
 
 
-
     </section>
   );
 }
 
-export default TaskList;
+export default Mypending;

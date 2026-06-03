@@ -900,7 +900,7 @@
 .total-ai-response-card {
   margin: 25px auto 0;
   max-width: 700px;
-  background: rgba(13,27,45,0.7);
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(168,85,247,0.2);
   border-top: 3px solid #a855f7;
   border-radius: 12px;
@@ -912,12 +912,152 @@
   font-size: 1rem;
 }
 
-.total-ai-text {
-  line-height: 1.7;
-  color: #e2e8f0;
-  white-space: pre-line;
+/* BOTÓN MÁGICO GENERAL (HERMOSO, VERDE Y CON BRILLO) */
+.btn-ai-magicGeneral {
+  position: relative;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #ffffff; /* Texto oscuro para que contraste brutal con el verde brillante */
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(56, 239, 125, 0.4), 
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
+/* El destello de luz que cruza el botón */
+.btn-ai-magicGeneral::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: none;
+}
+
+/* Efectos Hover del botón */
+.btn-ai-magicGeneral:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(56, 239, 125, 0.7), 
+              0 8px 20px rgba(17, 153, 142, 0.4);
+  color: #000;
+}
+
+/* Al pasar el mouse, el destello cruza el botón de izquierda a derecha */
+.btn-ai-magicGeneral:hover:not(:disabled)::before {
+  left: 150%;
+  transition: all 0.8s ease-in-out;
+}
+
+/* Estado Deshabilitado / Loading */
+.btn-ai-magicGeneral:disabled {
+  background: linear-gradient(135deg, #1e3a2f 0%, #152e22 100%);
+  color: #557a66;
+  box-shadow: none;
+  cursor: not-allowed;
+  border: 1px solid rgba(56, 239, 125, 0.1);
+}
+
+/* BOTÓN MÁGICO GENERAL (HERMOSO, VERDE Y CON BRILLO) */
+.btn-ai-magicGeneral {
+  position: relative;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #ffffff; /* Texto oscuro para que contraste brutal con el verde brillante */
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(56, 239, 125, 0.4), 
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* SPINNER DE CARGA (Gira elegantemente en color verde) */
+.ai-spinnerGeneral {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(56, 239, 125, 0.3);
+  border-top-color: #38ef7d;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* TARJETA DE RESPUESTA DE LA IA */
+.ai-response-cardGeneral {
+  margin-top: 24px;
+  padding: 24px;
+  background: linear-gradient(145deg, #14231a 0%, #0f1813 100%);
+  border-left: 4px solid #38ef7d;
+  border-radius: 4px 16px 16px 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+              inset 0 0 15px rgba(56, 239, 125, 0.05);
+  text-align: left;
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ai-card-titleGeneral {
+  color: #38ef7d;
+  font-size: 1.1rem;
+  margin-top: 0;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Animación de pulso para el emoji del robot */
+.ai-icon-pulseGeneral {
+  animation: robotPulse 2s infinite alternate;
+}
+
+@keyframes robotPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(56, 239, 125, 0.4)); }
+  100% { transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(56, 239, 125, 0.8)); }
+}
+
+.ai-textGeneral {
+  color: #d1ebd9; /* Un tono grisáceo verdoso muy sutil para que no canse la vista */
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Animación de entrada de la tarjeta */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* =========================================================
    ESTILOS EXCLUSIVOS PARA VISTA MULTI-SPRINT

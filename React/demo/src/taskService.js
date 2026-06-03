@@ -99,11 +99,6 @@ export const createUser = async (user) => {
 
   return handleResponse(res);
 };
-
-//
-// 🚫 SPRINTS ELIMINADO (ya no existe)
-//
-
 //
 // 🔐 LOGIN
 //
@@ -134,7 +129,9 @@ export const loginUser = async ({ email, password }) => {
   }
 };
 
-// 🤖 Obtener prioridades sugeridas por IA
+
+// 1. 🧠 BOTÓN: SPREGUNTAR PRIORIDADES INDIVIDUALES
+// Apunta a: /ai/prioritize/user/{userId}
 export const getAiPriorities = async (userId) => {
   const res = await fetch(`${BASE_URL}/ai/prioritize/user/${userId}`, {
     method: "GET",
@@ -143,13 +140,23 @@ export const getAiPriorities = async (userId) => {
   return handleResponse(res);
 };
 
-// 📊 Obtener estadísticas y feedback del Agile Coach (IA)
-export const getAiStats = async (userId) => {
-  const res = await fetch(`${BASE_URL}/ai/stats/user/${userId}`, {
+// 2. 📊 BOTÓN: ANÁLISIS GENERAL DE TODO EL PROYECTO
+// Apunta a: /ai/stats/sprints/summary (¡No lleva ID!)
+export const getAiStatsGeneral = async () => {
+  const res = await fetch(`${BASE_URL}/ai/stats/sprints/summary`, {
     method: "GET",
-    headers: getAuthHeaders() // ¡Súper importante para que el cadenero te deje pasar!
+    headers: getAuthHeaders()
   });
-  
+  return handleResponse(res);
+};
+
+// 3. 👥 BOTÓN: ANÁLISIS Y FEEDBACK POR SPRINT ESPECÍFICO
+// Apunta a: /ai/stats/sprint/{sprintNumber}
+export const getAiStatsBySprint = async (sprintNumber) => {
+  const res = await fetch(`${BASE_URL}/ai/stats/sprint/${sprintNumber}`, {
+    method: "GET",
+    headers: getAuthHeaders()
+  });
   return handleResponse(res);
 };
 

@@ -1,7 +1,7 @@
 // useState para manejar estados dinámicos
 // useMemo para memorizar cálculos y evitar recalcular innecesariamente
 import { useMemo, useState } from "react";
-import { getAiStats } from "../taskService"; // FUNCIÓN QUE HACE LA PETICIÓN A LA IA
+import { getAiStatsBySprint } from "../taskService"; // FUNCIÓN QUE HACE LA PETICIÓN A LA IA
 import "./TotalCompletedTasks.css";
 
 import balance from "../assets/balance.png"
@@ -15,9 +15,9 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
 // ESTADOS PARA LA IA
   // ==============================
   // Aquí guardamos la respuesta generada por la IA
-  const [aiSuggestion, setAiSuggestion] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState({});
   // Estado para saber si la IA sigue cargando
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState({});
 
 
 // AGRUPAR TAREAS POR SPRINT
@@ -40,7 +40,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
     if (!Array.isArray(tasks)) return {};
     // reduce() agrupa tareas
     return tasks.reduce((acc, task) => {
-      const sprint = task?.sprint || "Sin Sprint";   // Si no tiene sprint -> "Sin Sprint"
+      const sprint = task?.sprint || "Sin Sprint";   // Si no tiene sprint 
 
       // Si el sprint aún no existe en el objeto
       if (!acc[sprint]) acc[sprint] = []; 
@@ -90,56 +90,52 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
   }
 
 
-  // FUNCIÓN PARA PEDIR FEEDBACK A IA
-  const handleAskAI = async () => {
-    /*
-      Intentamos usar:
-      1. currentUser
-      2. o el usuario guardado en localStorage
-    */
-    const userToUse =
-      currentUser ||
-      JSON.parse(localStorage.getItem("user"));
+// 👥 FUNCIÓN PARA PEDIR ANÁLISIS DE UN SPRINT ESPECÍFICO A LA IA
+const handleAskAI = async (sprintNumber) => {
+  const userToUse =
+    currentUser ||
+    JSON.parse(localStorage.getItem("user"));
 
-    // Si no hay usuario logueado
-    if (!userToUse || !userToUse.id) {
+  if (!userToUse || !userToUse.id) {
+    alert("Por favor inicia sesión para que la IA analice los datos del proyecto.");
+    return;
+  }
 
-      alert(
-        "Por favor inicia sesión para que la IA analice tus datos."
-      );
+  // Activamos loading SOLO para este sprint específico
+  setIsAiLoading(prev => ({ ...prev, [sprintNumber]: true }));
 
-      return;
+  // Limpiamos respuesta anterior SOLO para este sprint
+  setAiSuggestion(prev => ({ ...prev, [sprintNumber]: "" }));
+
+  try {
+    // 💡 LLAMADA AL ENDPOINT CORRECTO: Le pasamos el número de Sprint al Backend
+    const response = await getAiStatsBySprint(sprintNumber);
+
+    // INTERCEPCIÓN DE ERROR DE SATURACIÓN (503)
+    if (
+      typeof response === "string" && 
+      (response.includes("503") || response.includes("Service Unavailable") || response.includes("error"))
+    ) {
+      setAiSuggestion(prev => ({ 
+        ...prev, 
+        [sprintNumber]: "🤖 Lo siento, el servidor de Gemini está saturado calculando las métricas de este Sprint. ¡Inténtalo de nuevo en unos segundos!" 
+      }));
+    } else {
+      // Guardamos la respuesta en el casillero del sprint correspondiente
+      setAiSuggestion(prev => ({ ...prev, [sprintNumber]: response }));
     }
 
-    // Activamos loading
-    setIsAiLoading(true);
-
-    // Limpiamos respuesta anterior
-    setAiSuggestion("");
-
-    try {
-
-      // Llamamos a la IA
-      const response = await getAiStats(userToUse.id);
-
-      // Guardamos respuesta
-      setAiSuggestion(response);
-
-    } catch (error) {
-
-      // Error de la IA
-      console.error("Error con la IA:", error);
-
-      setAiSuggestion(
-        "Uy, Gemini está descansando. Intenta de nuevo más tarde."
-      );
-
-    } finally {
-
-      // Quitamos loading siempre
-      setIsAiLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error("Error con la IA:", error);
+    setAiSuggestion(prev => ({ 
+      ...prev, 
+      [sprintNumber]: "Uy, Gemini está descansando. Intenta de nuevo más tarde." 
+    }));
+  } finally {
+    // Apagamos loading de este sprint pase lo que pase
+    setIsAiLoading(prev => ({ ...prev, [sprintNumber]: false }));
+  }
+};
 
   // ==============================
   // RENDER PRINCIPAL
@@ -151,6 +147,8 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
       <h2 className="pending-title-main">
         Tasks Dashboard Divided by Sprint
       </h2>
+
+
 
       {/* RECORRE TODOS LOS SPRINTS */}
       {sprintEntries.map(([sprintName, sprintTasks]) => {
@@ -299,6 +297,8 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
               ? "success"
               : "warning";
 
+              
+
 
 
   // ==============================
@@ -309,12 +309,45 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
     key={sprintName}
     className="total-sprint-group"
   >
+    
     {/* ===================================================== */}
     {/* SPRINT TITLE */}
     {/* ===================================================== */}
     <h3 className="total-sprint-title">
       Sprint {sprintName}
     </h3>
+          {/* ========================================================= */}
+      {/* Sección IA - Análisis General del Proyecto */}
+      {/* ========================================================= */}
+      <div className="ai-section">
+        {/* BOTÓN PARA PEDIR ANÁLISIS DEL SPRINT ACTUAL */}
+        <button
+          className={`btn-ai-magicGeneral ${isAiLoading[sprintName] ? "loading" : ""}`}
+          onClick={() => handleAskAI(sprintName)} 
+          disabled={isAiLoading[sprintName]}
+        >
+          {isAiLoading[sprintName] ? (
+            <>
+              <span className="ai-spinnerGeneral"></span>
+              🧠 Analyzing Sprint {sprintName}...
+            </>
+          ) : (
+            `✨ Analyze Sprint ${sprintName}`
+          )}
+        </button>
+
+        {/* RESPUESTA DE IA EXCLUSIVA DE ESTE SPRINT */}
+        {aiSuggestion[sprintName] && (
+          <div className="ai-response-cardGeneral">
+            <h3 className="ai-card-titleGeneral">
+              <span className="ai-icon-pulseGeneral">🤖</span> AI Agile Coach (Sprint {sprintName}):
+            </h3>
+            <p className="ai-textGeneral" style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
+              {aiSuggestion[sprintName]}
+            </p>
+          </div>
+        )}
+      </div>
 
     {/* ===================================================== */}
     {/* MAIN DASHBOARD LAYOUT */}
@@ -703,39 +736,7 @@ function TotalCompletedTasks({ tasks = [], users = [], currentUser = null }) {
           </div>
       </div>
       
-      {/* ========================================================= */}
-      {/* Seccionn IA*/}
-      {/* ========================================================= */}
-      <div className="ai-section">
-      {/* TÍTULO PRINCIPAL */}
-      <h3 className="ai-section-title">Team Insights</h3>
 
-      {/* BOTÓN PARA PEDIR FEEDBACK */}
-      <button
-        className={`btn-ai-magic ${isAiLoading ? "loading" : ""}`}
-        onClick={handleAskAI}
-        disabled={isAiLoading}
-      >
-        {isAiLoading ? (
-          <>
-            <span className="ai-spinner"></span>
-            📊 Analizing productivity...
-          </>
-        ) : (
-          "✨ Ask for feedback to Agile Coach (AI)"
-        )}
-      </button>
-
-      {/* RESPUESTA DE IA */}
-      {aiSuggestion && (
-        <div className="ai-response-card">
-          <h3 className="ai-card-title">
-            <span className="ai-icon-pulse">🤖</span> Agile Coach AI:
-          </h3>
-          <p className="ai-text">{aiSuggestion}</p>
-        </div>
-      )}
-    </div>
   </section>
 );
       })}
