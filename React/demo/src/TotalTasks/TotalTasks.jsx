@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { updateTask, deleteTask } from "../taskService";
+import { updateTask, deleteTask, getAiStatsGeneral } from "../taskService";
+
 import "./TotalTasks.css";
 
 function TotalTasks({ tasks = [], setTasks, users = [] }) {
@@ -108,9 +109,87 @@ function TotalTasks({ tasks = [], setTasks, users = [] }) {
     );
   };
 
+  // ESTADOS PARA LA IA
+  // ==============================
+  // Aquí guardamos la respuesta generada por la IA
+  const [aiSuggestion, setAiSuggestion] = useState("");
+  // Estado para saber si la IA sigue cargando
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+
+
+    // FUNCIÓN PARA PEDIR ANÁLISIS GENERAL DEL PROYECTO A IA
+      const handleAskAI = async () => {
+        
+  
+        // Activamos loading
+        setIsAiLoading(true);
+  
+        // Limpiamos respuesta anterior
+        setAiSuggestion("");
+  
+        try {
+          // Llamamos a la IA pasándole el ID para las estadísticas generales
+          const response = await getAiStatsGeneral();
+  
+          // 💡 INTERCEPCIÓN DE ERROR DE SATURACIÓN (503):
+          if (
+            typeof response === "string" && 
+            (response.includes("503") || response.includes("Service Unavailable") || response.includes("error"))
+          ) {
+            setAiSuggestion("🤖 Lo siento, el servidor de Gemini está saturado calculando las métricas globales. ¡Inténtalo de nuevo en unos segundos!");
+          } else {
+            // Guardamos la respuesta si todo salió bien
+            setAiSuggestion(response);
+          }
+  
+        } catch (error) {
+          console.error("Error con la IA:", error);
+          setAiSuggestion(
+            "Uy, Gemini está descansando. Intenta de nuevo más tarde."
+          );
+        } finally {
+          // Quitamos loading siempre
+          setIsAiLoading(false);
+        }
+      };
+
   return (
     <div className="pending-wrapper">
       <h2 className="pending-title-main">All Tasks</h2>
+      {/* ========================================================= */}
+      {/* Sección IA - Análisis General del Proyecto */}
+      {/* ========================================================= */}
+      <div className="ai-section">
+
+        {/* BOTÓN PARA PEDIR ANÁLISIS GENERAL */}
+        <button
+          className={`btn-ai-magicGeneral ${isAiLoading ? "loading" : ""}`}
+          onClick={handleAskAI}
+          disabled={isAiLoading}
+        >
+          {isAiLoading ? (
+            <>
+              <span className="ai-spinnerGeneral"></span>
+              🧠 Generating global project summary...
+            </>
+          ) : (
+            "✨ Generate General Project Analysis (AI)"
+          )}
+        </button>
+
+        {/* RESPUESTA DE IA */}
+        {aiSuggestion && (
+          <div className="ai-response-cardGeneral">
+            <h3 className="ai-card-titleGeneral">
+              <span className="ai-icon-pulseGeneral">🤖</span> AI Project Manager:
+            </h3>
+            <p className="ai-textGeneral" >
+              {aiSuggestion}
+            </p>
+          </div>
+        )}
+      </div>
 
       {!hasTasks ? (
         <div className="empty-table">

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import MyComTasks from "./MyCompleted/MyCompletedTasks";
 import TaskList from "./TaskList/TaskList";
 import Login from "./Login/Login";
 import ChangePassword from "./Login/ChangePassword"; 
@@ -11,13 +10,14 @@ import CompletedTasks from "./CompletedTasks/CompletedTasks";
 import { getTasks, getUsers, BASE_URL } from "./taskService";
 import TotalTasks from "./TotalTasks/TotalTasks";
 import SprintOverviewCharts from "./TComTask/SprintOverviewCharts";
+import Mypending from "./MyPending/MyPendingTasks";
+import MyComTasks from "./MyCompleted/MyCompletedTasks";
 
 import logo from "./assets/logo.png";
 import login from "./assets/login.png";
 
 import "./App.css";
 import "./TaskList/TaskList.css";
-import "./MyCompleted/MyCompletedTasks.css";
 
 const normalizeValue = (value) =>
   String(value ?? "")
@@ -317,7 +317,7 @@ function App() {
 
               {/* Tareas pendientes del usuario */}
               {(vista === "Mypending") && (
-                <TaskList
+                <Mypending
                   tasks={tareasFiltradas.filter(t => !isCompletedStatus(t.status || t.STATUS))} // Filtro explícito para pendientes
                   users={users}
                   setTasks={setTasks}

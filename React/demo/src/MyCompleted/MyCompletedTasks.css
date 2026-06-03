@@ -3,7 +3,12 @@
   max-width: 1200px;
   margin-inline: auto;
   padding: 20px;
-  color: #ffffff;
+    color: linear-gradient(
+    90deg,
+    #36dfff,
+    #7c5cff,
+    #d946ef
+  );
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 

@@ -2,7 +2,13 @@ import { useState } from "react";
 // 1. IMPORTAMOS LAS FUNCIONES DEL SERVICIO
 import { updateTask, deleteTask as deleteTaskAPI, getAiPriorities } from "../taskService";
 
-function TaskList({ tasks, setTasks, currentUser }) { 
+const getUserId = (value) =>
+  value?.id ?? value?.userId ?? value?.user_id ?? value?.USER_ID ?? value?.ID ?? "";
+
+const getUserName = (value) =>
+  value?.name ?? value?.userName ?? value?.username ?? value?.USERNAME ?? value?.NAME ?? "";
+
+function Mypending({ tasks, setTasks, currentUser, completedView = false }) { 
   // Estados para la interfaz
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -83,21 +89,46 @@ function TaskList({ tasks, setTasks, currentUser }) {
     try { await updateTask(updatedTask); } catch (err) { console.error(err); }
   };
 
-  const toggleComplete = async (task) => {
-    const isCompleting = task.status !== "completed";
-    if (isCompleting) {
-      const input = prompt("¿Cuántas horas reales tomó esta tarea?", task.realHours || 0);
-      if (input === null) return; 
-      const realHours = Number(input) || 0;
-      const updatedTask = { ...task, status: "completed", realHours };
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-      try { await updateTask(updatedTask); } catch (err) { console.error(err); }
-    } else {
-      const updatedTask = { ...task, status: "pending" };
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
-      try { await updateTask(updatedTask); } catch (err) { console.error(err); }
-    }
-  };
+const toggleComplete = async (task) => {
+  const isCompleting = task.status !== "completed";
+  const assignedUserId = task.userId ?? task.user_id ?? task.USER_ID ?? getUserId(currentUser);
+  const assignedUserName = task.userName ?? task.USERNAME ?? getUserName(currentUser);
+  
+  // 1. Clonamos la tarea original para mantener todos sus campos (userId, userName, sprint, etc.)
+  // Esto evita que la tarea "desaparezca" si el backend devuelve datos incompletos.
+  let updatedTask = {
+    ...task,
+    userId: assignedUserId ? Number(assignedUserId) : task.userId,
+    userName: assignedUserName || task.userName
+  }; 
+
+  if (isCompleting) {
+    const input = prompt("¿Cuántas horas reales tomó esta tarea?", task.realHours || 0);
+    if (input === null) return; // Si el usuario cancela el prompt, no hacemos nada
+    
+    updatedTask.status = "completed";
+    updatedTask.realHours = Number(input) || 0;
+  } else {
+    updatedTask.status = "pending";
+    updatedTask.realHours = 0; // Opcional: resetear horas si vuelve a pendiente
+  }
+  console.log("ANTES:", task);
+  console.log("DESPUÉS:", updatedTask);
+  // 2. Actualización Optimista: Actualizamos la UI inmediatamente para una mejor experiencia
+  setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
+
+  // 3. Sincronización con el Servidor
+  try {
+    const response = await updateTask(updatedTask);
+    console.log("Servidor actualizado correctamente:", response);
+  } catch (err) {
+    console.error("Error al sincronizar con el backend:", err);
+    
+    // 4. Rollback (Reversión): Si la API falla, devolvemos la tarea a su estado original
+    alert("Error de conexión. El cambio no se guardó en el servidor.");
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
+  }
+};
 
   const deleteTask = async (id) => {
     if (window.confirm("¿Eliminar esta tarea?")) {
@@ -106,30 +137,108 @@ function TaskList({ tasks, setTasks, currentUser }) {
     }
   };
 
-  // 3. FUNCIÓN PARA LLAMAR A LA IA
-  const handleAskAI = async () => {
-    if (!currentUser || !currentUser.id) {
-      alert("Por favor inicia sesión para usar la IA.");
-      return;
-    }
-    setIsAiLoading(true);
-    setAiSuggestion(""); 
+  const markAsUndone = async (task) => {
+    const assignedUserId = task.userId ?? task.user_id ?? task.USER_ID ?? getUserId(currentUser);
+    const assignedUserName = task.userName ?? task.USERNAME ?? getUserName(currentUser);
+    const updatedTask = {
+      ...task,
+      userId: assignedUserId ? Number(assignedUserId) : task.userId,
+      userName: assignedUserName || task.userName,
+      status: "pending"
+    };
+
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? updatedTask : t)));
+
     try {
-      const response = await getAiPriorities(currentUser.id);
-      setAiSuggestion(response);
-    } catch (error) {
-      console.error("Error con la IA:", error);
-      setAiSuggestion("Ocurrió un error al consultar a la IA.");
-    } finally {
-      setIsAiLoading(false);
+      await updateTask(updatedTask);
+    } catch (err) {
+      console.error("Error al regresar la tarea a pendiente:", err);
+      alert("Error de conexión. El cambio no se guardó en el servidor.");
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
     }
   };
+
+// FUNCIÓN PARA PEDIR FEEDBACK A IA
+const handleAskAI = async () => {
+  const userToUse =
+    currentUser ||
+    JSON.parse(localStorage.getItem("user"));
+
+  // Si no hay usuario logueado
+  if (!userToUse || !userToUse.id) {
+    alert(
+      "Por favor inicia sesión para que la IA analice tus datos."
+    );
+    return;
+  }
+
+  // Activamos loading
+  setIsAiLoading(true);
+
+  // Limpiamos respuesta anterior
+  setAiSuggestion("");
+
+  try {
+  const response = await getAiPriorities(userToUse.id);
+
+  if (
+    typeof response === "string" && 
+    (response.includes("503") || response.includes("Service Unavailable") || response.includes("error"))
+  ) {
+    setAiSuggestion("🤖 Lo siento, el servidor de Gemini está saturado en este momento. ¡Inténtalo de nuevo en unos segundos!");
+  } else {
+    // Si todo está bien, guarda la respuesta real
+    setAiSuggestion(response);
+  }
+
+} catch (error) {
+    // Error de la IA
+    console.error("Error con la IA:", error);
+
+    setAiSuggestion(
+      "Uy, Gemini está descansando. Intenta de nuevo más tarde."
+    );
+  } finally {
+    // Quitamos loading siempre
+    setIsAiLoading(false);
+  }
+};
 
   const getPriorityClass = (p) => (p >= 4 ? "high" : p >= 2 ? "medium" : "low");
 
   return (
     <section className="task-list">
-      <h2>General Task Board (User: {currentUser?.name || "Guest"})</h2>
+      
+      <h2 className="generalTask-title">General Task Board (User: {currentUser?.name || "Guest"})</h2>
+      
+      {/* 4. SECCIÓN DE INTELIGENCIA ARTIFICIAL */}
+      <div className="ai-section">
+        <button 
+          className="btn-ai-magic" 
+          onClick={handleAskAI} 
+          disabled={isAiLoading}
+        >
+          {isAiLoading ? (
+            <>
+              <span className="ai-spinner"></span> {/* Si tienes el spinner animado verde, aquí heredará el giro */}
+              🧠 Gemini is analyzing...
+            </>
+          ) : (
+            "✨ Ask AI for My Priorities"
+          )}
+        </button>
+
+        {aiSuggestion && (
+          <div className="ai-response-card">
+            <h3 className="ai-card-title-purple">
+              <span className="ai-icon-pulse">🤖</span> AI Project Manager:
+            </h3>
+            <p className="ai-text-purple">
+              {aiSuggestion}
+            </p>
+          </div>
+        )}
+      </div>
 
       {displayTasks.length === 0 && <p>No hay tareas en el sistema.</p>}
 
@@ -139,9 +248,9 @@ function TaskList({ tasks, setTasks, currentUser }) {
             {sprintName === "Sin Sprint" ? sprintName : `Sprint ${sprintName}`}
           </h3>
           
+          
           <div className="task-header">
             <span>Title</span> 
-            <span>Owner</span>
             <span>Est. Hours</span>
             <span>Due date</span> 
             <span>Priority</span> 
@@ -153,7 +262,6 @@ function TaskList({ tasks, setTasks, currentUser }) {
             <div key={task.id}>
               <div className={`task-row ${task.userName === currentUser?.name ? "my-own-task" : ""}`}>
                 <span>{task.title}</span>
-                <span className="owner-tag">{task.userName || "Unassigned"}</span>
                 <span>{task.hoursEstimate}h</span>
                 <span>{task.dueDate}</span>
                 <span className={`priority ${getPriorityClass(task.priority)}`}>
@@ -161,6 +269,12 @@ function TaskList({ tasks, setTasks, currentUser }) {
                 </span>
 
                 <div className="actions-cell">
+                  {completedView ? (
+                    <button className="btn-complete" onClick={() => markAsUndone(task)}>
+                      Mark as Undone
+                    </button>
+                  ) : (
+                    <>
                     <button 
                         className={`btn-started ${task.status === "in_progress" ? "active" : ""}`} 
                         onClick={() => toggleStarted(task)}
@@ -170,6 +284,8 @@ function TaskList({ tasks, setTasks, currentUser }) {
                     <button className="btn-complete" onClick={() => toggleComplete(task)}>
                         {task.status === "completed" ? "✔" : "Done"}
                     </button>
+                    </>
+                  )}
                 </div>
 
                 <button className="btn-details" onClick={() => handleOpenDetails(task)}>Details</button>
@@ -223,29 +339,9 @@ function TaskList({ tasks, setTasks, currentUser }) {
         </div>
       ))}
 
-      {/* 4. SECCIÓN DE INTELIGENCIA ARTIFICIAL */}
-      <div className="ai-section" style={{ marginTop: "40px", padding: "20px", borderTop: "2px solid #555" }}>
-        <button 
-          className="btn-ai-magic" 
-          onClick={handleAskAI} 
-          disabled={isAiLoading}
-          style={{ padding: '12px 24px', cursor: 'pointer', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '8px' }}
-        >
-          {isAiLoading ? "🧠 Gemini is analyzing..." : "✨ Ask AI for My Priorities"}
-        </button>
-
-        {aiSuggestion && (
-          <div className="ai-response-card" style={{ marginTop: "20px", padding: "20px", backgroundColor: "#1e1e2e", borderLeft: "5px solid #9333ea", borderRadius: "8px", color: "#e2e2e2" }}>
-            <h3 style={{ color: "#a855f7", marginTop: 0 }}>🤖 AI Project Manager:</h3>
-            <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
-              {aiSuggestion}
-            </p>
-          </div>
-        )}
-      </div>
 
     </section>
   );
 }
 
-export default TaskList;
+export default Mypending;

@@ -181,7 +181,7 @@ const toggleComplete = async (task) => {
 
   return (
     <section className="task-list">
-      <h2>General Task Board (User: {currentUser?.name || "Guest"})</h2>
+      <h2 className="generalTask-title">Completed Task Board {currentUser?.name || "Guest"}</h2>
 
       {displayTasks.length === 0 && <p>No hay tareas en el sistema.</p>}
 
@@ -193,7 +193,6 @@ const toggleComplete = async (task) => {
           
           <div className="task-header">
             <span>Title</span> 
-            <span>Owner</span>
             <span>Est. Hours</span>
             <span>Due date</span> 
             <span>Priority</span> 
@@ -205,7 +204,6 @@ const toggleComplete = async (task) => {
             <div key={task.id}>
               <div className={`task-row ${task.userName === currentUser?.name ? "my-own-task" : ""}`}>
                 <span>{task.title}</span>
-                <span className="owner-tag">{task.userName || "Unassigned"}</span>
                 <span>{task.hoursEstimate}h</span>
                 <span>{task.dueDate}</span>
                 <span className={`priority ${getPriorityClass(task.priority)}`}>
@@ -283,26 +281,7 @@ const toggleComplete = async (task) => {
         </div>
       ))}
 
-      {/* 4. SECCIÓN DE INTELIGENCIA ARTIFICIAL */}
-      <div className="ai-section" style={{ marginTop: "40px", padding: "20px", borderTop: "2px solid #555" }}>
-        <button 
-          className="btn-ai-magic" 
-          onClick={handleAskAI} 
-          disabled={isAiLoading}
-          style={{ padding: '12px 24px', cursor: 'pointer', backgroundColor: '#9333ea', color: 'white', border: 'none', borderRadius: '8px' }}
-        >
-          {isAiLoading ? "🧠 Gemini is analyzing..." : "✨ Ask AI for My Priorities"}
-        </button>
 
-        {aiSuggestion && (
-          <div className="ai-response-card" style={{ marginTop: "20px", padding: "20px", backgroundColor: "#1e1e2e", borderLeft: "5px solid #9333ea", borderRadius: "8px", color: "#e2e2e2" }}>
-            <h3 style={{ color: "#a855f7", marginTop: 0 }}>🤖 AI Project Manager:</h3>
-            <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
-              {aiSuggestion}
-            </p>
-          </div>
-        )}
-      </div>
 
     </section>
   );

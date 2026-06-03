@@ -55,10 +55,12 @@
 
 .pending-title-main {
   font-size: 3rem;
-  font-weight: 800;
-
-  margin-bottom: 40px;
+  font-weight: 200;
+  margin-bottom: 20px;
   text-align: center;
+  letter-spacing: -1px;
+  border: none;
+  padding: 0;
 
   background: linear-gradient(
     90deg,
@@ -66,13 +68,9 @@
     #7c5cff,
     #d946ef
   );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  letter-spacing: -1px;
-  border: none;
-  padding: 0;
+  -webkit-background-clip: text; /* Corta el fondo con la silueta del texto */
+  -webkit-text-fill-color: transparent; /* Hace el texto transparente para que se vea el fondo */
+  background-clip: text; /* Compatibilidad estándar */
 }
 
 /* =========================================================
