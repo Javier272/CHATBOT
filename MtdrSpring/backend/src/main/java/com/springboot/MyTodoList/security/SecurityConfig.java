@@ -44,6 +44,10 @@ public class SecurityConfig {
                 
                 // Tus rutas de la API de usuarios que ya tenías
                 .requestMatchers("/users/login", "/users/register", "/users/reset-password").permitAll()
+
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+
                 
                 .anyRequest().authenticated() 
             )
