@@ -82,6 +82,10 @@ public class TaskBotController implements SpringLongPollingBot, LongPollingSingl
         actions.fnAddItem();
         actions.fnLLM();
         actions.fnElse();
+        
+        actions.fnListPending();
+        actions.fnListBySprint();
+         
     }
 
 	@AfterBotRegistration

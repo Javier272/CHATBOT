@@ -4,6 +4,7 @@ import com.springboot.MyTodoList.model.Task;
 import com.springboot.MyTodoList.service.AiService;
 import com.springboot.MyTodoList.service.TaskService;
 import com.springboot.MyTodoList.service.UserService;
+import java.util.Comparator;
 import com.springboot.MyTodoList.model.User;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -33,9 +34,22 @@ public class BotActions {
         WAITING_FOR_DUE_DATE,
         WAITING_FOR_SPRINT,
         WAITING_FOR_PRIORITY,
-        WAITING_FOR_ASSIGN_TO
+        WAITING_FOR_ASSIGN_TO,
+        WAITING_FOR_SPRINT_FILTER
     }
-    // --------------------------------------------------
+
+    private ReplyKeyboardMarkup getMainKeyboard() {
+        return ReplyKeyboardMarkup.builder()
+            .resizeKeyboard(true).oneTimeKeyboard(false)
+            // Fila 1: Todo y Nueva
+            .keyboardRow(new KeyboardRow(BotLabels.LIST_ALL_ITEMS.getLabel(), BotLabels.ADD_NEW_ITEM.getLabel()))
+            // Fila 2: NUEVOS BOTONES DE FILTRO
+            .keyboardRow(new KeyboardRow("⏳ Pendientes", "🏃 Por Sprint"))
+            // Fila 3: Navegación
+            .keyboardRow(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel(), BotLabels.HIDE_MAIN_SCREEN.getLabel()))
+            .build();
+    }
+
 
     String requestText;
     long chatId;
@@ -128,6 +142,45 @@ public class BotActions {
                     task.setSprint(Integer.parseInt(messageText));
                     userStates.put(chatId, TaskCreationState.WAITING_FOR_PRIORITY);
                     BotHelper.sendMessageToTelegram(chatId, "Sprint guardado.\n\n¿Cuál es la Prioridad? Escribe un número entero, ej: 5 para Alta, 1 para Baja", telegramClient);
+                    break;
+
+
+                case WAITING_FOR_SPRINT_FILTER:
+                    try {
+                        int sprintNum = Integer.parseInt(messageText.trim());
+                        
+                        // Buscamos y ordenamos descendente
+                        List<Task> sprintItems = taskService.findAll().stream()
+                                .filter(item -> item.getSprint() != null && item.getSprint() == sprintNum && item.getIsDeleted() == 0)
+                                .sorted(java.util.Comparator.comparing(Task::getId).reversed())
+                                .collect(java.util.stream.Collectors.toList());
+
+                        userStates.remove(chatId); // Limpiamos estado para que vuelva a la normalidad
+
+                        if (sprintItems.isEmpty()) {
+                            BotHelper.sendMessageToTelegram(chatId, "No hay tareas registradas para el Sprint " + sprintNum, telegramClient, getMainKeyboard());
+                            break;
+                        }
+
+                        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder().resizeKeyboard(true).build();
+                        List<KeyboardRow> keyboard = new java.util.ArrayList<>();
+                        keyboard.add(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel()));
+
+                        for (Task item : sprintItems) {
+                            KeyboardRow currentRow = new KeyboardRow();
+                            currentRow.add(item.getTitle() + " (" + item.getStatus() + ")");
+                            if("pending".equalsIgnoreCase(item.getStatus())){
+                                currentRow.add(item.getId() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
+                            }
+                            keyboard.add(currentRow);
+                        }
+                        
+                        keyboardMarkup.setKeyboard(keyboard);
+                        BotHelper.sendMessageToTelegram(chatId, "🎯 Tareas del Sprint " + sprintNum + ":", telegramClient, keyboardMarkup);
+
+                    } catch (NumberFormatException e) {
+                        BotHelper.sendMessageToTelegram(chatId, "⚠️ Por favor, ingresa un número entero válido para el Sprint:", telegramClient);
+                    }
                     break;
 
                 case WAITING_FOR_PRIORITY:
@@ -318,8 +371,10 @@ public class BotActions {
         myTodoListTitleRow.add(BotLabels.MY_TODO_LIST.getLabel());
         keyboard.add(myTodoListTitleRow);
 
+        // --- ORDENAMIENTO DESCENDENTE TAREAS ACTIVAS ---
         List<Task> activeItems = allItems.stream()
                 .filter(item -> !item.getStatus().equals("completed") && item.getIsDeleted() == 0)
+                .sorted(Comparator.comparing(Task::getId).reversed()) // <-- NUEVA LÍNEA PARA ORDENAR
                 .collect(Collectors.toList());
 
         for (Task item : activeItems) {
@@ -329,8 +384,10 @@ public class BotActions {
             keyboard.add(currentRow);
         }
 
+        // --- ORDENAMIENTO DESCENDENTE TAREAS COMPLETADAS ---
         List<Task> doneItems = allItems.stream()
                 .filter(item -> item.getStatus().equals("completed") && item.getIsDeleted() == 0)
+                .sorted(Comparator.comparing(Task::getId).reversed()) // <-- NUEVA LÍNEA PARA ORDENAR
                 .collect(Collectors.toList());
 
         for (Task item : doneItems) {
@@ -348,6 +405,48 @@ public class BotActions {
         keyboardMarkup.setKeyboard(keyboard);
 
         BotHelper.sendMessageToTelegram(chatId, BotLabels.MY_TODO_LIST.getLabel(), telegramClient, keyboardMarkup);
+        exit = true;
+    }
+    public void fnListPending() {
+        if (!(requestText.equalsIgnoreCase("⏳ Pendientes")) || exit) return;
+
+        List<Task> pendingItems = taskService.findAll().stream()
+                .filter(item -> "pending".equalsIgnoreCase(item.getStatus()) && item.getIsDeleted() == 0)
+                .sorted(java.util.Comparator.comparing(Task::getId).reversed())
+                .collect(java.util.stream.Collectors.toList());
+
+        if (pendingItems.isEmpty()) {
+            BotHelper.sendMessageToTelegram(chatId, "¡Excelente! No tienes tareas pendientes. 🎉", telegramClient, getMainKeyboard());
+            exit = true;
+            return;
+        }
+
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardMarkup.builder().resizeKeyboard(true).build();
+        List<KeyboardRow> keyboard = new java.util.ArrayList<>();
+        
+        keyboard.add(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel()));
+
+        for (Task item : pendingItems) {
+            KeyboardRow currentRow = new KeyboardRow();
+            currentRow.add(item.getTitle());
+            // Agregamos el botón de completado rápido
+            currentRow.add(item.getId() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
+            keyboard.add(currentRow);
+        }
+
+        keyboardMarkup.setKeyboard(keyboard);
+        BotHelper.sendMessageToTelegram(chatId, "⏳ Aquí están tus tareas pendientes:", telegramClient, keyboardMarkup);
+        exit = true;
+    }
+
+
+    public void fnListBySprint() {
+        if (!(requestText.equalsIgnoreCase("Por Sprint")) || exit) return;
+
+        // Activamos el estado de la máquina para que intercepte el siguiente mensaje numérico
+        userStates.put(chatId, TaskCreationState.WAITING_FOR_SPRINT_FILTER);
+        
+        BotHelper.sendMessageToTelegram(chatId, "🔍 ¿De qué Sprint quieres ver las tareas?\n\nEscribe el número (ejemplo: 1):", telegramClient);
         exit = true;
     }
 
