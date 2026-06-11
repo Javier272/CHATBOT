@@ -26,9 +26,13 @@ export default defineConfig({
     // URL base de la app levantada con Vite.
     baseURL: 'http://localhost:5173',
 
-    // Configuración útil para evidencia de pruebas.
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Evidencia automática para la entrega.
+    // screenshot: 'on' guarda captura por cada prueba.
+    // video: 'on' guarda video por cada prueba.
+    screenshot: 'on',
+    video: 'on',
+
+    // Trace se guarda solo cuando hay retry, para no generar demasiados archivos.
     trace: 'on-first-retry',
 
     // Viewport de escritorio para simular uso normal del sistema.
