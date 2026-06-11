@@ -38,14 +38,12 @@ public class BotActions {
         WAITING_FOR_SPRINT_FILTER
     }
 
+    // Este es el teclado principal que usaremos en todos lados
     private ReplyKeyboardMarkup getMainKeyboard() {
         return ReplyKeyboardMarkup.builder()
             .resizeKeyboard(true).oneTimeKeyboard(false)
-            // Fila 1: Todo y Nueva
             .keyboardRow(new KeyboardRow(BotLabels.LIST_ALL_ITEMS.getLabel(), BotLabels.ADD_NEW_ITEM.getLabel()))
-            // Fila 2: NUEVOS BOTONES DE FILTRO
             .keyboardRow(new KeyboardRow("⏳ Pendientes", "🏃 Por Sprint"))
-            // Fila 3: Navegación
             .keyboardRow(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel(), BotLabels.HIDE_MAIN_SCREEN.getLabel()))
             .build();
     }
@@ -243,16 +241,7 @@ public class BotActions {
                     userStates.remove(chatId);
                     tempTasks.remove(chatId);
 
-                    // Vuelve a mostrar el menú principal
-                    ReplyKeyboardMarkup mainScreenKeyboard = ReplyKeyboardMarkup.builder()
-                        .resizeKeyboard(true)
-                        .oneTimeKeyboard(false)
-                        .keyboardRow(new KeyboardRow(BotLabels.LIST_ALL_ITEMS.getLabel(), BotLabels.ADD_NEW_ITEM.getLabel()))
-                        .keyboardRow(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel(), BotLabels.HIDE_MAIN_SCREEN.getLabel()))
-                        .build();
-
-
-                    BotHelper.sendMessageToTelegram(chatId, "La tarea " + task.getTitle() + " se ha creado correctamente.", telegramClient, mainScreenKeyboard);
+                    BotHelper.sendMessageToTelegram(chatId, "La tarea " + task.getTitle() + " se ha creado correctamente.", telegramClient, getMainKeyboard());
                     break;
             }
         } catch (NumberFormatException e) {
@@ -269,12 +258,9 @@ public class BotActions {
         if (!(requestText.equals(BotCommands.START_COMMAND.getCommand()) || requestText.equals(BotLabels.SHOW_MAIN_SCREEN.getLabel())) || exit) 
             return;
 
-        BotHelper.sendMessageToTelegram(chatId, BotMessages.HELLO_MYTODO_BOT.getMessage(), telegramClient,  ReplyKeyboardMarkup
-            .builder()
-            .keyboardRow(new KeyboardRow(BotLabels.LIST_ALL_ITEMS.getLabel(), BotLabels.ADD_NEW_ITEM.getLabel()))
-            .keyboardRow(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel(), BotLabels.HIDE_MAIN_SCREEN.getLabel()))
-            .build()
-        );
+        //llama al teclado centralizado
+        BotHelper.sendMessageToTelegram(chatId, BotMessages.HELLO_MYTODO_BOT.getMessage(), telegramClient, getMainKeyboard());
+        
         exit = true;
     }
 
