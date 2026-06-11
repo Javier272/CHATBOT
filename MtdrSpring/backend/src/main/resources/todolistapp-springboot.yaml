@@ -72,6 +72,16 @@ spec:
                   name: frontendadmin
                   key: password
                   optional: true
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: bot-secrets
+                  key: TELEGRAM_BOT_TOKEN
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bot-secrets
+                  key: GEMINI_API_KEY
           volumeMounts:
             - name: creds
               mountPath: /mtdrworkshop/creds
