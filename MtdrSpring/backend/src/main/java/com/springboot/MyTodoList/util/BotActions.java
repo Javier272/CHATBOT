@@ -35,7 +35,8 @@ public class BotActions {
         WAITING_FOR_SPRINT,
         WAITING_FOR_PRIORITY,
         WAITING_FOR_ASSIGN_TO,
-        WAITING_FOR_SPRINT_FILTER
+        WAITING_FOR_SPRINT_FILTER,
+        WAITING_FOR_REAL_HOURS
     }
 
     // Este es el teclado principal que usaremos en todos lados
@@ -243,6 +244,27 @@ public class BotActions {
 
                     BotHelper.sendMessageToTelegram(chatId, "La tarea " + task.getTitle() + " se ha creado correctamente.", telegramClient, getMainKeyboard());
                     break;
+                case WAITING_FOR_REAL_HOURS:
+                    try {
+                        int realHours = Integer.parseInt(messageText.trim());
+                        
+
+                        task.setRealHours(realHours);
+                        task.setStatus("completed");
+                        
+                        // Actualizamos en la base de datos
+                        taskService.updateTask(task.getId(), task);
+                        
+                        // Limpiamos memoria
+                        userStates.remove(chatId);
+                        tempTasks.remove(chatId);
+                        
+                        BotHelper.sendMessageToTelegram(chatId, "La tarea '" + task.getTitle() + "' se marco como completada con " + realHours + " horas reales", telegramClient, getMainKeyboard());
+                        
+                    } catch (NumberFormatException e) {
+                        BotHelper.sendMessageToTelegram(chatId, "Ingresa un número entero válido para las horas reales ejemplo: 2:", telegramClient);
+                    }
+                    break;
             }
         } catch (NumberFormatException e) {
             BotHelper.sendMessageToTelegram(chatId, "Error, debes escribir un número entero válido ej: 4. Intenta de nuevo:", telegramClient);
@@ -265,7 +287,7 @@ public class BotActions {
     }
 
     public void fnDone() {
-        if (!(requestText.indexOf(BotLabels.DONE.getLabel()) != -1) || exit) 
+        if (!(requestText.contains(BotLabels.DONE.getLabel())) || exit) 
             return;
             
         String done = requestText.substring(0, requestText.indexOf(BotLabels.DASH.getLabel()));
@@ -274,9 +296,12 @@ public class BotActions {
         try {
             Task item = taskService.getTaskById(id);
             if(item != null) {
-                item.setStatus("completed");
-                taskService.updateTask(id, item);
-                BotHelper.sendMessageToTelegram(chatId, BotMessages.ITEM_DONE.getMessage(), telegramClient);
+                // 1. Guardamos la tarea en memoria
+                tempTasks.put(chatId, item);
+                // 2. Activamos el estado para pedir las horas
+                userStates.put(chatId, TaskCreationState.WAITING_FOR_REAL_HOURS);
+                
+                BotHelper.sendMessageToTelegram(chatId, "¿Cuántas horas REALES te tomó completar la tarea '" + item.getTitle() + "'?\n\nEscribe solo el número entero:", telegramClient);
             }
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
@@ -394,7 +419,8 @@ public class BotActions {
         exit = true;
     }
     public void fnListPending() {
-        if (!(requestText.equalsIgnoreCase("⏳ Pendientes")) || exit) return;
+        // Usamos contains para ignorar problemas con el emoji
+        if (!requestText.contains("Pendientes") || exit) return;
 
         List<Task> pendingItems = taskService.findAll().stream()
                 .filter(item -> "pending".equalsIgnoreCase(item.getStatus()) && item.getIsDeleted() == 0)
@@ -402,7 +428,7 @@ public class BotActions {
                 .collect(java.util.stream.Collectors.toList());
 
         if (pendingItems.isEmpty()) {
-            BotHelper.sendMessageToTelegram(chatId, "¡Excelente! No tienes tareas pendientes. 🎉", telegramClient, getMainKeyboard());
+            BotHelper.sendMessageToTelegram(chatId, "No tienes tareas pendientes.", telegramClient, getMainKeyboard());
             exit = true;
             return;
         }
@@ -415,24 +441,22 @@ public class BotActions {
         for (Task item : pendingItems) {
             KeyboardRow currentRow = new KeyboardRow();
             currentRow.add(item.getTitle());
-            // Agregamos el botón de completado rápido
             currentRow.add(item.getId() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
             keyboard.add(currentRow);
         }
 
         keyboardMarkup.setKeyboard(keyboard);
-        BotHelper.sendMessageToTelegram(chatId, "⏳ Aquí están tus tareas pendientes:", telegramClient, keyboardMarkup);
+        BotHelper.sendMessageToTelegram(chatId, "Aquí están tus tareas pendientes:", telegramClient, keyboardMarkup);
         exit = true;
     }
 
-
     public void fnListBySprint() {
-        if (!(requestText.equalsIgnoreCase("Por Sprint")) || exit) return;
+        // Usamos contains para ignorar problemas con el emoji
+        if (!requestText.contains("Por Sprint") || exit) return;
 
-        // Activamos el estado de la máquina para que intercepte el siguiente mensaje numérico
         userStates.put(chatId, TaskCreationState.WAITING_FOR_SPRINT_FILTER);
         
-        BotHelper.sendMessageToTelegram(chatId, "🔍 ¿De qué Sprint quieres ver las tareas?\n\nEscribe el número (ejemplo: 1):", telegramClient);
+        BotHelper.sendMessageToTelegram(chatId, "¿De qué Sprint quieres ver las tareas?\n\nEscribe el número:", telegramClient);
         exit = true;
     }
 
