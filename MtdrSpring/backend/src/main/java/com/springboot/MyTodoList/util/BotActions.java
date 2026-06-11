@@ -44,7 +44,7 @@ public class BotActions {
         return ReplyKeyboardMarkup.builder()
             .resizeKeyboard(true).oneTimeKeyboard(false)
             .keyboardRow(new KeyboardRow(BotLabels.LIST_ALL_ITEMS.getLabel(), BotLabels.ADD_NEW_ITEM.getLabel()))
-            .keyboardRow(new KeyboardRow("⏳ Pendientes", "🏃 Por Sprint"))
+            .keyboardRow(new KeyboardRow("Pendientes", "Por Sprint"))
             .keyboardRow(new KeyboardRow(BotLabels.SHOW_MAIN_SCREEN.getLabel(), BotLabels.HIDE_MAIN_SCREEN.getLabel()))
             .build();
     }
