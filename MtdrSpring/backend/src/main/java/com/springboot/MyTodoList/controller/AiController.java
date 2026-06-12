@@ -127,7 +127,7 @@ public class AiController {
                     t.getTitle(), t.getPriority(), t.getDescription(), t.getHoursEstimate() != null ? t.getHoursEstimate() : 0));
         }
 
-        String systemPrompt = "Eres un Project Manager estratégico. En base a la lista de tareas pendientes que te envie toma en cuenta la prioridad, la descripción y el tiempo estimado, dime exactamente qué tarea debería hacer primero, cuál después, y por qué. Dame un plan de acción en viñetas rápido de leer.";
+        String systemPrompt = "Eres un Project Manager estratégico. En base a la lista de tareas pendientes que te envie toma en cuenta la prioridad 1 menor prioridad 5 mayor, la descripción y el tiempo estimado, dime exactamente qué tarea debería hacer primero, cuál después, y por qué. Dame un plan de acción en viñetas rápido de leer.";
 
         return ResponseEntity.ok(aiService.analyzeData(systemPrompt, tasksText.toString()));
     }
