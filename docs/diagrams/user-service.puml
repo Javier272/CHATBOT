@@ -1,0 +1,35 @@
+@startuml
+
+class User <<Entity>>  <<Table>>  {
+ {TableName=users}
+--
+	{field} +@Column("created_at") createdAt : LocalDateTime
+	{field} +@Column("") email : String
+	{field} +@Id id : Long
+	{field} +@Column("is_deleted") isDeleted : Integer
+	{field} +@Column("") name : String
+	{field} +@Column("") password : String
+}
+
+
+interface UserRepository {
+	{method}  {abstract} +findByEmailAndIsDeleted ( email : String , isDeleted : Integer ) : Optional
+}
+
+
+class UserService {
+	{method} +addUser ( newUser : User ) : User
+	{method} +deleteUser ( id : int ) : boolean
+	{method} +findAll () : List
+	{method} +getUserById ( id : int ) : ResponseEntity
+	{method} +test () : User
+	{method} +updateUser ( id : int , user2update : User ) : User
+}
+
+
+
+
+UserService -->  UserRepository : userRepository
+
+
+@enduml

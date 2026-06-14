@@ -17,6 +17,7 @@
 		<java.version>17</java.version>
 		<version.lib.ojdbc>21.1.0.0</version.lib.ojdbc>
 		<frontend-src-dir>${project.basedir}/../../React/demo</frontend-src-dir>
+		<architecture-diagram-output-dir>${project.basedir}/../../docs/diagrams</architecture-diagram-output-dir>
 		<node.version>v23.9.0</node.version>
 		<npm.version>8.1.2</npm.version>
 	</properties>
@@ -98,10 +99,6 @@
             <artifactId>java-jwt</artifactId>
             <version>4.4.0</version>
         </dependency>
-		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
  </dependencies>
 	<build>
 		<plugins>
@@ -160,6 +157,158 @@
 									<filtering>false</filtering>
 								</resource>
 							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>de.elnarion.maven</groupId>
+				<artifactId>plantuml-generator-maven-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>generate-web-controllers-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>web-controllers.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.controller\.(TaskController|UserController|AiController)(\$.*)?|com\.springboot\.MyTodoList\.service\.(TaskService|UserService|AiService)(\$.*)?|com\.springboot\.MyTodoList\.repository\.(TaskRepository|UserRepository)(\$.*)?|com\.springboot\.MyTodoList\.model\.(Task|User)(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<addJPAAnnotations>true</addJPAAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-telegram-bot-controller-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>telegram-bot-controller.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.controller\.TaskBotController(\$.*)?|com\.springboot\.MyTodoList\.util\.(BotActions|BotHelper|BotClient|BotCommands|BotLabels|BotMessages)(\$.*)?|com\.springboot\.MyTodoList\.config\.BotProps(\$.*)?|com\.springboot\.MyTodoList\.service\.(TaskService|UserService|AiService)(\$.*)?|com\.springboot\.MyTodoList\.model\.(Task|User)(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-task-service-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>task-service.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.service\.TaskService(\$.*)?|com\.springboot\.MyTodoList\.repository\.TaskRepository(\$.*)?|com\.springboot\.MyTodoList\.model\.Task(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<addJPAAnnotations>true</addJPAAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-user-service-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>user-service.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.service\.UserService(\$.*)?|com\.springboot\.MyTodoList\.repository\.UserRepository(\$.*)?|com\.springboot\.MyTodoList\.model\.User(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<addJPAAnnotations>true</addJPAAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-ai-service-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>ai-service.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.service\.AiService(\$.*)?|com\.springboot\.MyTodoList\.controller\.AiController(\$.*)?|com\.springboot\.MyTodoList\.repository\.TaskRepository(\$.*)?|com\.springboot\.MyTodoList\.model\.Task(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<addJPAAnnotations>true</addJPAAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-security-component-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>security-component.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.security\.(JwtAuthFilter|SecurityConfig)(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-repository-layer-diagram</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${architecture-diagram-output-dir}</outputDirectory>
+							<outputFilename>repository-layer.puml</outputFilename>
+							<scanPackages>
+								<scanPackage>com.springboot.MyTodoList</scanPackage>
+							</scanPackages>
+							<whitelistRegexp>com\.springboot\.MyTodoList\.repository\.(TaskRepository|UserRepository)(\$.*)?|com\.springboot\.MyTodoList\.model\.(Task|User)(\$.*)?</whitelistRegexp>
+							<additionalPlantUMLConfigs>
+								<additionalPlantUMLConfig>left to right direction</additionalPlantUMLConfig>
+							</additionalPlantUMLConfigs>
+							<addJPAAnnotations>true</addJPAAnnotations>
+							<useShortClassNames>true</useShortClassNames>
+							<useShortClassNamesInFieldsAndMethods>true</useShortClassNamesInFieldsAndMethods>
 						</configuration>
 					</execution>
 				</executions>

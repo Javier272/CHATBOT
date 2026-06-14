@@ -1,0 +1,46 @@
+@startuml
+
+class Task <<Entity>>  <<Table>>  {
+ {TableName=tasks}
+--
+	{field} +@Column("") category : String
+	{field} +@Column("created_at") createdAt : LocalDateTime
+	{field} +@Column("") description : String
+	{field} +@Column("due_date") dueDate : LocalDate
+	{field} +@Column("hour_estimate") hoursEstimate : Integer
+	{field} +@Id id : Long
+	{field} +@Column("is_deleted") isDeleted : Integer
+	{field} +priority : Integer
+	{field} +@Column("real_hours") realHours : Integer
+	{field} +@Column("sprint") sprint : Integer
+	{field} +@Column("") status : String
+	{field} +@Column("team_id") teamId : Long
+	{field} +@Column("") title : String
+	{field} +@Column("updated_at") updatedAt : LocalDateTime
+	{field} +@Column("user_id") userId : Long
+}
+
+
+interface TaskRepository {
+	{method}  {abstract} +findByIdAndIsDeleted ( id : Long , isDeleted : Integer ) : Optional
+	{method}  {abstract} +findByIsDeletedOrderByCreatedAtDesc ( isDeleted : Integer ) : List
+	{method}  {abstract} +findByStatusAndIsDeletedOrderByCreatedAtDesc ( status : String , isDeleted : Integer ) : List
+}
+
+
+class TaskService {
+	{method} +addTask ( task : Task ) : Task
+	{method} +deleteTask ( id : Long ) : boolean
+	{method} +findAll () : List
+	{method} +getItemById ( id : Long ) : ResponseEntity
+	{method} +getTaskById ( id : Long ) : Task
+	{method} +updateTask ( id : Long , td : Task ) : Task
+}
+
+
+
+
+TaskService -->  TaskRepository : taskRepository
+
+
+@enduml

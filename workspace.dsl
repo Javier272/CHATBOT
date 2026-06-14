@@ -5,7 +5,7 @@ workspace "Oracle Java Bot Architecture" "C4 architecture model for the Oracle J
         teamMember = person "Team Member" "Developer or project member who uses the system to track tasks and productivity."
 
         telegram = softwareSystem "Telegram" "External messaging platform used by users to interact with the bot."
-        deepseek = softwareSystem "DeepSeek API" "External AI service used to generate or support chatbot responses."
+        gemini = softwareSystem "Gemini API" "External AI service used to generate or support chatbot responses."
         oci = softwareSystem "Oracle Cloud Infrastructure" "Cloud platform used to deploy infrastructure and application services."
 
         oracleJavaBot = softwareSystem "Oracle Java Bot" "Task management and productivity visibility system using a Telegram bot, React dashboard, Spring Boot backend, and Oracle Cloud services." {
@@ -13,12 +13,33 @@ workspace "Oracle Java Bot Architecture" "C4 architecture model for the Oracle J
             reactApp = container "React Web Dashboard" "Web interface for viewing tasks, completed tasks, total tasks, and productivity indicators." "React / Vite"
 
             springBootApp = container "Spring Boot Backend" "Backend service that exposes APIs, handles business logic, authentication, bot interactions, and persistence." "Java / Spring Boot" {
-                webControllers = component "Web Controllers" "Expose HTTP endpoints used by the React dashboard." "Spring MVC REST Controllers"
-                botController = component "Telegram Bot Controller" "Receives and processes Telegram bot interactions." "Spring Boot Controller"
-                taskService = component "Task Service" "Contains business logic for creating, updating, completing, and retrieving tasks." "Spring Service"
-                aiService = component "DeepSeek Service" "Connects to the external DeepSeek API to support AI-based responses." "Spring Service"
-                securityComponent = component "Security Component" "Manages authentication, authorization, and access control concerns." "Spring Security"
-                repositoryComponent = component "Repository Layer" "Provides data access for task, user, and domain entities." "Spring Data JPA Repository"
+                webControllers = component "Web Controllers" "Expose HTTP endpoints used by the React dashboard." "Spring MVC REST Controllers" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/web-controllers.puml"
+                }
+
+                botController = component "Telegram Bot Controller" "Receives and processes Telegram bot interactions." "Spring Boot Controller" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/telegram-bot-controller.puml"
+                }
+
+                taskService = component "Task Service" "Contains business logic for creating, updating, completing, and retrieving tasks." "Spring Service" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/task-service.puml"
+                }
+
+                userService = component "User Service" "Contains business logic for loading, creating, updating, and deleting users." "Spring Service" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/user-service.puml"
+                }
+
+                aiService = component "AI Service" "Connects to the external Gemini API to support AI-based responses." "Spring Service" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/ai-service.puml"
+                }
+
+                securityComponent = component "Security Component" "Manages authentication, authorization, and access control concerns." "Spring Security" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/security-component.puml"
+                }
+
+                repositoryComponent = component "Repository Layer" "Provides data access for task, user, and domain entities." "Spring Data JPA Repository" {
+                    url "https://github.com/Javier272/CHATBOT/blob/main/docs/diagrams/repository-layer.puml"
+                }
             }
 
             database = container "Oracle Database" "Stores users, tasks, completed tasks, and application data." "Oracle Database"
@@ -33,18 +54,22 @@ workspace "Oracle Java Bot Architecture" "C4 architecture model for the Oracle J
         telegram -> springBootApp "Sends bot updates and commands"
         reactApp -> springBootApp "Calls backend APIs using HTTP/JSON"
         springBootApp -> database "Reads and writes application data using JPA/JDBC"
-        springBootApp -> deepseek "Requests AI-generated responses"
+        springBootApp -> gemini "Requests AI-generated responses"
         terraform -> oci "Defines and provisions cloud infrastructure"
         oci -> springBootApp "Runs backend service"
         oci -> database "Hosts or manages database resources"
 
         webControllers -> taskService "Delegates task operations"
+        webControllers -> repositoryComponent "Reads task and user data for HTTP responses"
+        webControllers -> aiService "Requests AI analysis for dashboard endpoints"
         botController -> taskService "Executes task operations requested from Telegram"
+        botController -> userService "Loads users for Telegram task assignment"
+        botController -> aiService "Delegates AI-assisted bot responses"
         taskService -> repositoryComponent "Uses repositories to access data"
-        taskService -> aiService "Requests AI support when needed"
+        userService -> repositoryComponent "Uses repositories to access user data"
         webControllers -> securityComponent "Validates authenticated access"
         repositoryComponent -> database "Persists and retrieves data"
-        aiService -> deepseek "Calls external AI API"
+        aiService -> gemini "Calls external AI API"
 
         deploymentEnvironment "Production" {
             deploymentNode "Oracle Cloud Infrastructure" "Cloud environment" "OCI" {
@@ -63,7 +88,7 @@ workspace "Oracle Java Bot Architecture" "C4 architecture model for the Oracle J
 
             deploymentNode "External Services" "Third-party platforms used by the system" {
                 telegramInstance = softwareSystemInstance telegram
-                deepseekInstance = softwareSystemInstance deepseek
+                geminiInstance = softwareSystemInstance gemini
             }
         }
     }

@@ -1,0 +1,181 @@
+@startuml
+
+class AiController {
+	{method} +getAllSprintsSummaryAnalysis () : ResponseEntity
+	{method} +getSprintStatsAnalysis ( sprintNumber : Integer ) : ResponseEntity
+	{method} +getTaskPrioritization ( userId : Long ) : ResponseEntity
+}
+
+
+class AiService {
+	{field} -apiKey : String
+	{field} -apiUrl : String
+	{method} +analyzeData ( systemPrompt : String , userContent : String ) : String
+}
+
+
+class LoginRequest {
+	{field} -email : String
+	{field} -password : String
+	{method} +email () : String
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +password () : String
+	{method} +toString () : String
+}
+
+
+class ResetPasswordRequest {
+	{field} -email : String
+	{field} -newPassword : String
+	{method} +email () : String
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +newPassword () : String
+	{method} +toString () : String
+}
+
+
+class Task <<Entity>>  <<Table>>  {
+ {TableName=tasks}
+--
+	{field} +@Column("") category : String
+	{field} +@Column("created_at") createdAt : LocalDateTime
+	{field} +@Column("") description : String
+	{field} +@Column("due_date") dueDate : LocalDate
+	{field} +@Column("hour_estimate") hoursEstimate : Integer
+	{field} +@Id id : Long
+	{field} +@Column("is_deleted") isDeleted : Integer
+	{field} +priority : Integer
+	{field} +@Column("real_hours") realHours : Integer
+	{field} +@Column("sprint") sprint : Integer
+	{field} +@Column("") status : String
+	{field} +@Column("team_id") teamId : Long
+	{field} +@Column("") title : String
+	{field} +@Column("updated_at") updatedAt : LocalDateTime
+	{field} +@Column("user_id") userId : Long
+}
+
+
+class TaskController {
+	{method} +addTask ( task : Task ) : ResponseEntity
+	{method} -convertToDTO ( task : Task ) : TaskResponse
+	{method} +deleteTask ( id : Long ) : ResponseEntity
+	{method} +getAllActiveTasks () : List
+	{method} +getCompletedTasks () : List
+	{method} +getPendingTasks () : List
+	{method} +getTaskById ( id : Long ) : ResponseEntity
+	{method} +updateTask ( task : Task , id : Long ) : ResponseEntity
+}
+
+
+interface TaskRepository {
+	{method}  {abstract} +findByIdAndIsDeleted ( id : Long , isDeleted : Integer ) : Optional
+	{method}  {abstract} +findByIsDeletedOrderByCreatedAtDesc ( isDeleted : Integer ) : List
+	{method}  {abstract} +findByStatusAndIsDeletedOrderByCreatedAtDesc ( status : String , isDeleted : Integer ) : List
+}
+
+
+class TaskResponse {
+	{field} -description : String
+	{field} -dueDate : LocalDate
+	{field} -hoursEstimate : Integer
+	{field} -id : Long
+	{field} -priority : Integer
+	{field} -realHours : Integer
+	{field} -sprint : Integer
+	{field} -status : String
+	{field} -title : String
+	{field} -userName : String
+	{method} +description () : String
+	{method} +dueDate () : LocalDate
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +hoursEstimate () : Integer
+	{method} +id () : Long
+	{method} +priority () : Integer
+	{method} +realHours () : Integer
+	{method} +sprint () : Integer
+	{method} +status () : String
+	{method} +title () : String
+	{method} +toString () : String
+	{method} +userName () : String
+}
+
+
+class TaskService {
+	{method} +addTask ( task : Task ) : Task
+	{method} +deleteTask ( id : Long ) : boolean
+	{method} +findAll () : List
+	{method} +getItemById ( id : Long ) : ResponseEntity
+	{method} +getTaskById ( id : Long ) : Task
+	{method} +updateTask ( id : Long , td : Task ) : Task
+}
+
+
+class TokenResponse {
+	{field} -email : String
+	{field} -id : Long
+	{field} -name : String
+	{field} -token : String
+	{method} +email () : String
+	{method} +equals ( paramObject1 : Object ) : boolean
+	{method} +hashCode () : int
+	{method} +id () : Long
+	{method} +name () : String
+	{method} +toString () : String
+	{method} +token () : String
+}
+
+
+class User <<Entity>>  <<Table>>  {
+ {TableName=users}
+--
+	{field} +@Column("created_at") createdAt : LocalDateTime
+	{field} +@Column("") email : String
+	{field} +@Id id : Long
+	{field} +@Column("is_deleted") isDeleted : Integer
+	{field} +@Column("") name : String
+	{field} +@Column("") password : String
+}
+
+
+class UserController {
+	{field} -passwordEncoder : PasswordEncoder
+	{method} +getAllUsers () : ResponseEntity
+	{method} +getCurrentUser ( authentication : Authentication ) : ResponseEntity
+	{method} +getMethodName ( param : String ) : String
+	{method} +loginUser ( loginRequest : LoginRequest ) : ResponseEntity
+	{method} +registerUser ( user : User ) : ResponseEntity
+	{method} +resetPassword ( request : ResetPasswordRequest ) : ResponseEntity
+}
+
+
+interface UserRepository {
+	{method}  {abstract} +findByEmailAndIsDeleted ( email : String , isDeleted : Integer ) : Optional
+}
+
+
+class UserService {
+	{method} +addUser ( newUser : User ) : User
+	{method} +deleteUser ( id : int ) : boolean
+	{method} +findAll () : List
+	{method} +getUserById ( id : int ) : ResponseEntity
+	{method} +test () : User
+	{method} +updateUser ( id : int , user2update : User ) : User
+}
+
+
+
+
+AiController -->  AiService : aiService
+AiController -->  TaskRepository : taskRepository
+TaskController -->  TaskRepository : taskRepository
+TaskController -->  TaskService : taskService
+TaskController -->  UserRepository : userRepository
+TaskService -->  TaskRepository : taskRepository
+UserController -->  UserRepository : userRepository
+UserService -->  UserRepository : userRepository
+
+
+@enduml

@@ -1,0 +1,36 @@
+name: Generate Architecture Diagrams
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+          cache-dependency-path: MtdrSpring/backend/pom.xml
+
+      - name: Generate PlantUML code diagrams
+        working-directory: MtdrSpring/backend
+        run: sh ./mvnw -DskipTests process-classes
+
+      - name: Commit generated architecture diagrams
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "docs: regenerate architecture diagrams"
+          file_pattern: "docs/diagrams/*.puml workspace.dsl"

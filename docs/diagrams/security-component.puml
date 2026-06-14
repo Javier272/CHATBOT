@@ -1,0 +1,21 @@
+@startuml
+
+class JwtAuthFilter {
+	{field} {static} -SECRET_KEY : String
+	{method} #doFilterInternal ( request : HttpServletRequest , response : HttpServletResponse , filterChain : FilterChain ) : void
+}
+
+
+class SecurityConfig {
+	{method} +corsConfigurationSource () : CorsConfigurationSource
+	{method} +filterChain ( http : HttpSecurity ) : SecurityFilterChain
+	{method} +passwordEncoder () : PasswordEncoder
+}
+
+
+
+
+SecurityConfig -->  JwtAuthFilter : jwtAuthFilter
+
+
+@enduml

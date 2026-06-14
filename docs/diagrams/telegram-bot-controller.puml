@@ -1,0 +1,173 @@
+@startuml
+
+class AiService {
+	{field} -apiKey : String
+	{field} -apiUrl : String
+	{method} +analyzeData ( systemPrompt : String , userContent : String ) : String
+}
+
+
+class BotActions {
+	{field} ~chatId : long
+	{field} ~exit : boolean
+	{field} {static} -logger : Logger
+	{field} ~requestText : String
+	{field} ~telegramClient : TelegramClient
+	{method} +fnAddItem () : void
+	{method} +fnDelete () : void
+	{method} +fnDone () : void
+	{method} +fnElse () : void
+	{method} +fnHide () : void
+	{method} +fnLLM () : void
+	{method} +fnListAll () : void
+	{method} +fnListBySprint () : void
+	{method} +fnListPending () : void
+	{method} +fnStart () : void
+	{method} +fnStateInterceptor () : void
+	{method} +fnUndo () : void
+	{method} -getMainKeyboard () : ReplyKeyboardMarkup
+	{method} -handleTaskCreationFlow ( chatId : long , messageText : String ) : void
+}
+
+
+class BotClient {
+	{method} +telegramClient ( botProps : BotProps ) : TelegramClient
+}
+
+
+enum BotCommands {
+	{field} +ADD_ITEM
+	{field} +HIDE_COMMAND
+	{field} +LLM_REQ
+	{field} +START_COMMAND
+	{field} +TODO_LIST
+}
+
+
+class BotHelper {
+	{field} {static} -logger : Logger
+	{method}  {static} +sendMessageToTelegram ( chatId : Long , text : String , bot : TelegramClient ) : void
+	{method}  {static} +sendMessageToTelegram ( chatId : Long , text : String , bot : TelegramClient , rk : ReplyKeyboardMarkup ) : void
+}
+
+
+enum BotLabels {
+	{field} +ADD_NEW_ITEM
+	{field} +DASH
+	{field} +DELETE
+	{field} +DONE
+	{field} +HIDE_MAIN_SCREEN
+	{field} +LIST_ALL_ITEMS
+	{field} +MY_TODO_LIST
+	{field} +SHOW_MAIN_SCREEN
+	{field} +UNDO
+}
+
+
+enum BotMessages {
+	{field} +BOT_REGISTERED_STARTED
+	{field} +BYE
+	{field} +HELLO_MYTODO_BOT
+	{field} +ITEM_DELETED
+	{field} +ITEM_DONE
+	{field} +ITEM_UNDONE
+	{field} +NEW_ITEM_ADDED
+	{field} +TYPE_NEW_TODO_ITEM
+}
+
+
+class BotProps {
+	{field} +name : String
+	{field} +token : String
+}
+
+
+class Task {
+	{field} +category : String
+	{field} +createdAt : LocalDateTime
+	{field} +description : String
+	{field} +dueDate : LocalDate
+	{field} +hoursEstimate : Integer
+	{field} +id : Long
+	{field} +isDeleted : Integer
+	{field} +priority : Integer
+	{field} +realHours : Integer
+	{field} +sprint : Integer
+	{field} +status : String
+	{field} +teamId : Long
+	{field} +title : String
+	{field} +updatedAt : LocalDateTime
+	{field} +userId : Long
+}
+
+
+class TaskBotController {
+	{field} {static} -logger : Logger
+	{field} -telegramBotToken : String
+	{field} -telegramClient : TelegramClient
+	{method} +afterRegistration ( botSession : BotSession ) : void
+	{method} +consume ( update : Update ) : void
+	{method} +getBotToken () : String
+	{method} +getUpdatesConsumer () : LongPollingUpdateConsumer
+}
+
+
+enum TaskCreationState {
+	{field} +WAITING_FOR_ASSIGN_TO
+	{field} +WAITING_FOR_DESCRIPTION
+	{field} +WAITING_FOR_DUE_DATE
+	{field} +WAITING_FOR_ESTIMATED_HOURS
+	{field} +WAITING_FOR_PRIORITY
+	{field} +WAITING_FOR_REAL_HOURS
+	{field} +WAITING_FOR_SPRINT
+	{field} +WAITING_FOR_SPRINT_FILTER
+	{field} +WAITING_FOR_TITLE
+}
+
+
+class TaskService {
+	{field} -taskRepository : TaskRepository
+	{method} +addTask ( task : Task ) : Task
+	{method} +deleteTask ( id : Long ) : boolean
+	{method} +findAll () : List
+	{method} +getItemById ( id : Long ) : ResponseEntity
+	{method} +getTaskById ( id : Long ) : Task
+	{method} +updateTask ( id : Long , td : Task ) : Task
+}
+
+
+class User {
+	{field} +createdAt : LocalDateTime
+	{field} +email : String
+	{field} +id : Long
+	{field} +isDeleted : Integer
+	{field} +name : String
+	{field} +password : String
+}
+
+
+class UserService {
+	{field} -userRepository : UserRepository
+	{method} +addUser ( newUser : User ) : User
+	{method} +deleteUser ( id : int ) : boolean
+	{method} +findAll () : List
+	{method} +getUserById ( id : int ) : ResponseEntity
+	{method} +test () : User
+	{method} +updateUser ( id : int , user2update : User ) : User
+}
+
+
+
+
+BotActions "1" o-- "0..*"  Task : tempTasks
+BotActions "1" o-- "0..*"  TaskCreationState : userStates
+BotActions -->  AiService : aiService
+BotActions -->  TaskService : taskService
+BotActions -->  UserService : userService
+TaskBotController *--  BotProps : botProps
+TaskBotController -->  AiService : aiService
+TaskBotController -->  TaskService : taskService
+TaskBotController -->  UserService : userService
+
+
+@enduml
